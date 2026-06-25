@@ -1,14 +1,281 @@
-<div id="sec-spotify" class="seccion">
-    <h3>Mi Música en Spotify</h3>
-    <iframe 
-        src="https://open.spotify.com/embed/playlist/TU_ID_DE_PLAYLIST_AQUI" 
-        width="100%" 
-        height="380" 
-        frameborder="0" 
-        allowtransparency="true" 
-        allow="encrypted-media">
-    </iframe>
-    <p style="font-size: 12px; color: #888;">
-        Nota: Si solo escuchas 30 segundos, debes subir este archivo a GitHub Pages para que Spotify detecte un dominio real y te deje iniciar sesión.
-    </p>
-</div>
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de YouTube Pro</title>
+    <!-- Tailwind CSS para diseño profesional de alta calidad -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #f1f1f1;
+        }
+        /* Efecto de brillo de fondo premium */
+        .glow-bg {
+            position: absolute;
+            top: -10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.15) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-4 md:p-8 relative overflow-x-hidden">
+
+    <!-- Brillo decorativo de fondo -->
+    <div class="glow-bg"></div>
+
+    <div class="w-full max-w-4xl flex flex-col items-center">
+        <!-- Encabezado / Logo -->
+        <header class="flex items-center gap-3 mb-8 mt-4">
+            <div class="bg-red-600 p-2.5 rounded-2xl shadow-lg shadow-red-600/20">
+                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.387.508 9.387.508s7.517 0 9.387-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
+                YouTube <span class="text-red-500 font-medium">Studio Player</span>
+            </h1>
+        </header>
+
+        <!-- Formulario de búsqueda -->
+        <div class="w-full max-w-2xl mb-6">
+            <div class="flex items-center bg-[#1f1f1f] border border-[#2f2f2f] rounded-2xl p-1.5 focus-within:border-red-600 focus-within:ring-2 focus-within:ring-red-600/20 transition-all duration-300 shadow-xl">
+                <!-- Icono buscador izquierda -->
+                <div class="pl-4 text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <!-- Input de búsqueda -->
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Busca música, carros, canales o lo que quieras..." 
+                    class="w-full bg-transparent border-none text-white placeholder-gray-500 px-3 py-3 outline-none text-base md:text-lg"
+                    onkeydown="checkEnter(event)"
+                >
+                <!-- Botón de buscar -->
+                <button 
+                    id="searchBtn"
+                    onclick="searchVideo()" 
+                    class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg shadow-red-600/10"
+                >
+                    <span id="btnText">Buscar</span>
+                    <!-- Spinner de carga -->
+                    <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Búsquedas rápidas sugeridas -->
+        <div class="flex flex-wrap justify-center gap-2 mb-8 max-w-2xl">
+            <span class="text-xs text-gray-500 self-center mr-1 uppercase font-bold tracking-wider">Sugeridos:</span>
+            <button onclick="quickSearch('Lofi beats para estudiar')" class="text-xs bg-[#1f1f1f] hover:bg-[#2d2d2d] text-gray-300 px-3 py-1.5 rounded-full border border-[#2f2f2f] transition-all">Lofi Beats</button>
+            <button onclick="quickSearch('Formula 1 increíbles momentos')" class="text-xs bg-[#1f1f1f] hover:bg-[#2d2d2d] text-gray-300 px-3 py-1.5 rounded-full border border-[#2f2f2f] transition-all">Fórmula 1</button>
+            <button onclick="quickSearch('Increíbles autos deportivos modernos')" class="text-xs bg-[#1f1f1f] hover:bg-[#2d2d2d] text-gray-300 px-3 py-1.5 rounded-full border border-[#2f2f2f] transition-all">Carros Deportivos</button>
+            <button onclick="quickSearch('Documental del universo 4k')" class="text-xs bg-[#1f1f1f] hover:bg-[#2d2d2d] text-gray-300 px-3 py-1.5 rounded-full border border-[#2f2f2f] transition-all">Universo</button>
+        </div>
+
+        <!-- Alertas personalizadas en pantalla -->
+        <div id="alertBox" class="hidden w-full max-w-2xl p-4 mb-6 rounded-xl border flex items-center gap-3 transition-all duration-300">
+            <div id="alertIcon"></div>
+            <div class="flex-1">
+                <p id="alertText" class="text-sm font-semibold"></p>
+            </div>
+            <button onclick="closeAlert()" class="text-gray-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <!-- Contenedor del reproductor -->
+        <div class="w-full max-w-3xl bg-[#121212] border border-[#232323] rounded-3xl overflow-hidden shadow-2xl relative transition-all duration-500">
+            <div class="aspect-video w-full flex items-center justify-center relative bg-black">
+                <!-- Iframe del reproductor con referrerpolicy para evitar bloqueos locales -->
+                <div id="videoContainer" class="absolute inset-0 w-full h-full hidden">
+                    <iframe 
+                        id="mainPlayer"
+                        class="w-full h-full"
+                        src="" 
+                        title="YouTube video player" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen
+                        referrerpolicy="no-referrer"
+                    ></iframe>
+                </div>
+
+                <!-- Estado Inicial / Placeholder elegante -->
+                <div id="placeholderState" class="flex flex-col items-center justify-center text-center p-6 z-10">
+                    <div class="w-20 h-20 rounded-full bg-red-600/10 flex items-center justify-center text-red-500 mb-4 animate-pulse">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-1">Tu Cine Personal</h3>
+                    <p class="text-gray-400 text-sm max-w-md">Escribe lo que quieras arriba o haz clic en un tema sugerido para buscar y reproducir de inmediato.</p>
+                </div>
+            </div>
+            
+            <!-- Barra inferior de detalles del video y acción directa -->
+            <div id="videoMeta" class="p-4 md:p-6 bg-[#161616] border-t border-[#232323] hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex-1 min-w-0">
+                    <span class="text-xs font-bold text-red-500 uppercase tracking-wider">Reproduciendo ahora</span>
+                    <h2 id="videoTitle" class="text-lg md:text-xl font-bold mt-1 text-white truncate">Título del video</h2>
+                    <p id="videoChannel" class="text-sm text-gray-400 mt-1">Nombre del Canal</p>
+                </div>
+                <!-- Botón de escape directo a la app nativa de YouTube -->
+                <a id="externalLink" href="#" target="_blank" class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold text-sm px-5 py-3 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 whitespace-nowrap">
+                    <span>Ver en YouTube App</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-8 text-center text-xs text-gray-500">
+        <p>Buscador de YouTube Pro — Diseñado para reproducir desde cualquier ubicación segura.</p>
+    </footer>
+
+    <script>
+        // Clave API de YouTube integrada
+        const API_KEY = "AIzaSyDr0rhqgkS3A27swSH-m75fVbviECxTiUI";
+
+        // Referencias de elementos DOM
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        
+        const videoContainer = document.getElementById('videoContainer');
+        const placeholderState = document.getElementById('placeholderState');
+        const mainPlayer = document.getElementById('mainPlayer');
+        
+        const videoMeta = document.getElementById('videoMeta');
+        const videoTitle = document.getElementById('videoTitle');
+        const videoChannel = document.getElementById('videoChannel');
+        const externalLink = document.getElementById('externalLink');
+
+        const alertBox = document.getElementById('alertBox');
+        const alertText = document.getElementById('alertText');
+        const alertIcon = document.getElementById('alertIcon');
+
+        // Escucha la tecla Enter
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                searchVideo();
+            }
+        }
+
+        // Búsquedas directas desde sugerencias
+        function quickSearch(term) {
+            searchInput.value = term;
+            searchVideo();
+        }
+
+        // Función principal de búsqueda
+        async function searchVideo() {
+            const query = searchInput.value.trim();
+
+            if (!query) {
+                showAlert("Por favor, ingresa un término para buscar.", "warning");
+                return;
+            }
+
+            // Activar estados de carga visuales
+            searchBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnSpinner.classList.remove('hidden');
+            closeAlert();
+
+            // Petición de búsqueda a la API de YouTube
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (data.error && data.error.message) {
+                        throw new Error(data.error.message);
+                    }
+                    throw new Error("No se pudo obtener respuesta de los servidores de YouTube.");
+                }
+
+                if (data.items && data.items.length > 0) {
+                    const videoId = data.items[0].id.videoId;
+                    const title = data.items[0].snippet.title;
+                    const channel = data.items[0].snippet.channelTitle;
+
+                    // TÉCNICA CLAVE:
+                    // 1. Usamos youtube-nocookie.com para mayor compatibilidad.
+                    // 2. Agregamos mute=1 (silenciado) para cumplir con las políticas de reproducción automática en dispositivos móviles.
+                    // 3. El iframe cuenta con referrerpolicy="no-referrer" para ocultar la ruta local "content://" que causaba el bloqueo.
+                    mainPlayer.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1`;
+                    
+                    // Mostrar contenedor del reproductor
+                    placeholderState.classList.add('hidden');
+                    videoContainer.classList.remove('hidden');
+
+                    // Actualizar textos e información
+                    videoTitle.innerHTML = title;
+                    videoChannel.innerHTML = `Canal: ${channel}`;
+                    
+                    // Configurar el enlace de fallback a la App oficial de YouTube
+                    externalLink.href = `https://www.youtube.com/watch?v=${videoId}`;
+                    
+                    videoMeta.classList.remove('hidden');
+
+                } else {
+                    showAlert("No se encontraron videos relacionados. Intenta escribir otra cosa.", "info");
+                }
+
+            } catch (error) {
+                console.error("Error de búsqueda:", error);
+                showAlert(`Error técnico: ${error.message}. Asegúrate de que tu clave de API esté completamente habilitada en Google Console.`, "error");
+            } finally {
+                // Restablecer el botón de búsqueda
+                searchBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnSpinner.classList.add('hidden');
+            }
+        }
+
+        // Sistema moderno de notificaciones
+        function showAlert(message, type) {
+            alertText.textContent = message;
+            alertBox.className = "w-full max-w-2xl p-4 mb-6 rounded-xl border flex items-center gap-3 transition-all duration-300";
+            
+            if (type === 'error') {
+                alertBox.classList.add('bg-red-950/40', 'border-red-800', 'text-red-200');
+                alertIcon.innerHTML = `<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            } else if (type === 'warning') {
+                alertBox.classList.add('bg-amber-950/40', 'border-amber-800', 'text-amber-200');
+                alertIcon.innerHTML = `<svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            } else {
+                alertBox.classList.add('bg-blue-950/40', 'border-blue-800', 'text-blue-200');
+                alertIcon.innerHTML = `<svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            }
+            alertBox.classList.remove('hidden');
+        }
+
+        function closeAlert() {
+            alertBox.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
+
+```
