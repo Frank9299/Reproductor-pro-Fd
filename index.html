@@ -3,361 +3,438 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscador de YouTube Pro</title>
+    <title>YouTube Premium Studio OS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background-color: #0f0f0f;
-            color: #f1f1f1;
-        }
-        /* Efecto de brillo de fondo premium */
-        .glow-bg {
-            position: absolute;
-            top: -10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(255, 0, 0, 0.15) 0%, rgba(0,0,0,0) 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-        /* Barra de scroll personalizada */
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: #121212;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #2f2f2f;
-            border-radius: 10px;
+        body { background-color: #0f0f0f; color: #f1f1f1; font-family: Roboto, Arial, sans-serif; }
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0f0f0f; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #2f2f2f; border-radius: 10px; }
+        .fade-overlay { transition: opacity 0.4s ease-in-out; }
+        
+        /* Animación premium de escucha global */
+        .pulse-mic-global { animation: mic-global-glow 1.2s infinite ease-in-out; }
+        @keyframes mic-global-glow {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); background-color: rgba(220, 38, 38, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); background-color: rgba(220, 38, 38, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); background-color: rgba(220, 38, 38, 0.4); }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start p-4 md:p-8 relative overflow-x-hidden">
+<body class="min-h-screen flex flex-col relative selection:bg-red-600">
 
-    <div class="glow-bg"></div>
-
-    <div class="w-full max-w-4xl flex flex-col items-center relative">
-        
-        <div class="absolute top-2 right-2 z-50">
-            <button onclick="toggleConfigModal()" class="bg-[#1f1f1f] border border-[#2f2f2f] hover:bg-[#2d2d2d] text-gray-300 p-2.5 rounded-xl transition-all shadow-md flex items-center gap-2">
-                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.767a1.123 1.123 0 00-.417.897v.005c0 .323.153.625.417.898l1.003.767a1.125 1.125 0 01.26 1.43l-1.297 2.247a1.125 1.125 0 01-1.37.491l-1.216-.456c-.356-.133-.752-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281a1.125 1.125 0 00-.645-.87c-.074-.04-.147-.083-.22-.127a1.124 1.124 0 00-1.075-.124l-1.217.456a1.125 1.125 0 01-1.37-.49l-1.296-2.247a1.125 1.125 0 01.26-1.43l1.003-.767c.264-.203.417-.505.417-.829v-.005c0-.323-.153-.625-.417-.898l-1.003-.767a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.752.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                <span class="text-xs font-bold hidden sm:inline">Ruta SD</span>
+    <nav id="topNav" class="w-full bg-[#0f0f0f] sticky top-0 z-40 flex items-center justify-between px-4 py-3 border-b border-[#212121]">
+        <div class="flex items-center gap-4">
+            <button onclick="goHome()" class="p-2 hover:bg-[#212121] rounded-full text-white" title="Inicio">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             </button>
-        </div>
-
-        <header class="flex items-center gap-3 mb-8 mt-4">
-            <div class="bg-red-600 p-2.5 rounded-2xl shadow-lg shadow-red-600/20">
-                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center gap-1 cursor-pointer" onclick="goHome()">
+                <svg class="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.387.508 9.387.508s7.517 0 9.387-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                 </svg>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">
-                YouTube <span class="text-red-500 font-medium">Studio Player</span>
-            </h1>
-        </header>
-
-        <div class="w-full max-w-2xl mb-6">
-            <div class="flex items-center bg-[#1f1f1f] border border-[#2f2f2f] rounded-2xl p-1.5 focus-within:border-red-600 focus-within:ring-2 focus-within:ring-red-600/20 transition-all duration-300 shadow-xl">
-                <div class="pl-4 text-gray-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </div>
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    placeholder="Busca música, chicha, cumbias, artistas..." 
-                    class="w-full bg-transparent border-none text-white placeholder-gray-500 px-3 py-3 outline-none text-base md:text-lg"
-                    onkeydown="checkEnter(event)"
-                >
-                <button 
-                    id="searchBtn"
-                    onclick="searchVideo()" 
-                    class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg shadow-red-600/10"
-                >
-                    <span id="btnText">Buscar</span>
-                    <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </button>
+                <span class="text-lg font-black tracking-tighter flex items-center">Premium<span id="aiBadge" class="text-[9px] bg-zinc-800 text-zinc-400 font-bold px-1 py-0.5 rounded ml-1 uppercase transition-all">OS</span></span>
             </div>
         </div>
 
-        <div id="configModal" class="hidden w-full max-w-2xl bg-[#161616] border border-amber-500/30 p-5 mb-6 rounded-2xl shadow-xl transition-all duration-300">
-            <div class="flex items-center justify-between border-b border-[#232323] pb-3 mb-4">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-amber-500 flex items-center gap-2">
-                    ⚙️ Almacenamiento Portátil para Descargas
-                </h3>
-                <button onclick="toggleConfigModal()" class="text-gray-400 hover:text-white text-xs bg-[#242424] px-2 py-1 rounded-md">Cerrar</button>
-            </div>
-            <p class="text-xs text-gray-400 mb-4 leading-relaxed">
-                Ingresa el código único de tu tarjeta MicroSD actual (Ej: <span class="text-gray-200 font-mono">FFBB-1A2B</span>). Si lo dejas en blanco, el sistema guardará de forma invisible en la Memoria Interna.
-            </p>
-            <div class="flex flex-col sm:flex-row gap-3">
-                <div class="flex-1">
-                    <label class="text-[11px] uppercase font-bold text-gray-400 block mb-1">Código de Tarjeta SD:</label>
-                    <input 
-                        type="text" 
-                        id="sdCardInput" 
-                        placeholder="Ejemplo: FFBB-1122 (Vacío para interna)" 
-                        class="w-full bg-[#222222] border border-[#333333] text-white rounded-xl px-4 py-2.5 outline-none font-mono text-sm focus:border-amber-500"
-                    >
+        <div class="flex-1 max-w-xl mx-4 hidden md:block">
+            <div onclick="openSearchMode()" class="flex items-center bg-[#121212] border border-[#303030] rounded-full px-4 py-2 cursor-pointer text-gray-400 justify-between">
+                <span id="searchBarPlaceholder">Control de voz inactivo. Toca para buscar...</span>
+                <div class="flex items-center gap-2">
+                    <div id="navMicIndicator" class="w-2.5 h-2.5 rounded-full bg-zinc-600"></div>
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <button onclick="saveSDCode()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm self-end w-full sm:w-auto transition-all">
-                    Guardar
-                </button>
             </div>
         </div>
 
-        <div id="alertBox" class="hidden w-full max-w-2xl p-4 mb-6 rounded-xl border flex items-center gap-3 transition-all duration-300">
-            <div id="alertIcon"></div>
-            <div class="flex-1">
-                <p id="alertText" class="text-sm font-semibold"></p>
-            </div>
-            <button onclick="closeAlert()" class="text-gray-400 hover:text-white">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <div class="flex items-center gap-2">
+            <button onclick="openSearchMode()" class="md:hidden p-2 hover:bg-[#212121] rounded-full text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
+            <button onclick="toggleConfigModal()" class="p-2 hover:bg-[#212121] rounded-full text-amber-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></button>
+        </div>
+    </nav>
+
+    <div id="searchOverlay" class="hidden fixed inset-0 bg-[#0f0f0f] z-50 flex flex-col">
+        <div class="w-full flex items-center px-4 py-3 border-b border-[#212121] gap-3">
+            <button onclick="closeSearchMode()" class="p-2 hover:bg-[#212121] rounded-full text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
             </button>
-        </div>
-
-        <div id="mainPlayerSection" class="w-full max-w-3xl bg-[#121212] border border-[#232323] rounded-3xl overflow-hidden shadow-2xl relative transition-all duration-500 mb-8">
-            <div id="fullscreenContainer" class="aspect-video w-full flex items-center justify-center relative bg-black">
-                
-                <div id="videoContainer" class="absolute inset-0 w-full h-full hidden">
-                    <iframe 
-                        id="mainPlayer"
-                        class="w-full h-full"
-                        src="" 
-                        title="YouTube video player" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                        allowfullscreen
-                    ></iframe>
-                </div>
-
-                <div id="placeholderState" class="flex flex-col items-center justify-center text-center p-6 z-10">
-                    <div class="w-20 h-20 rounded-full bg-red-600/10 flex items-center justify-center text-red-500 mb-4 animate-pulse">
-                        <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold mb-1">Tu Centro Multimedia</h3>
-                    <p class="text-gray-400 text-sm max-w-md">Busca lo que quieras. Te daremos una lista completa para elegir y reproducir al instante.</p>
-                </div>
-            </div>
             
-            <div id="videoMeta" class="p-4 md:p-6 bg-[#161616] border-t border-[#232323] hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="flex-1 min-w-0">
-                    <span class="text-xs font-bold text-red-500 uppercase tracking-wider">Reproduciendo ahora</span>
-                    <h2 id="videoTitle" class="text-base md:text-lg font-bold mt-1 text-white truncate">Título del video</h2>
-                    <p id="videoChannel" class="text-xs text-gray-400 mt-0.5">Nombre del Canal</p>
-                </div>
-
-                <div class="flex items-center justify-center gap-2 flex-wrap sm:flex-nowrap">
-                    <button onclick="playPrevious()" class="bg-[#242424] hover:bg-[#333333] p-3 rounded-xl text-white border border-[#333333]" title="Anterior">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-                    </button>
-                    <button onclick="playNext()" class="bg-[#242424] hover:bg-[#333333] p-3 rounded-xl text-white border border-[#333333]" title="Siguiente">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg>
-                    </button>
-                    <button onclick="goFullscreenHorizontal()" class="bg-[#242424] hover:bg-[#333333] p-3 rounded-xl text-white border border-[#333333]" title="Pantalla Completa Horizontal">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9m5.25 11.25v-4.5m0 4.5h-4.5m4.5 0l-6-6"></path></svg>
-                    </button>
-                    
-                    <button onclick="downloadMedia('mp3')" class="bg-green-600 hover:bg-green-700 text-white font-bold p-3 rounded-xl flex items-center gap-1.5 shadow-lg shadow-green-600/20" title="Descargar Audio MP3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
-                        <span class="text-xs font-bold">MP3</span>
-                    </button>
-
-                    <button onclick="downloadMedia('mp4')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-xl flex items-center gap-1.5 shadow-lg shadow-blue-600/20" title="Descargar Video MP4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
-                        <span class="text-xs font-bold">MP4</span>
-                    </button>
-                </div>
+            <div class="flex-1 flex items-center bg-[#212121] rounded-full px-4 py-1.5 gap-2">
+                <input type="text" id="searchInput" placeholder="Escribe o presiona el micrófono para dar una orden..." class="w-full bg-transparent border-none text-white outline-none text-base py-1 placeholder-gray-500" onkeydown="checkEnter(event)">
+                
+                <button id="globalMicBtn" onclick="activateVoiceAssistant()" class="text-zinc-400 p-2 rounded-full hover:bg-[#333333] transition-all" title="Dar una orden de voz">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.42 2.72 6.2 6 6.72V21h2v-3.28c3.28-.52 6-3.3 6-6.72h-1.7z"/></svg>
+                </button>
             </div>
+            <button onclick="triggerSearch()" class="bg-red-600 text-white font-bold px-4 py-2 rounded-full text-sm">Buscar</button>
         </div>
 
-        <div id="resultsSection" class="w-full max-w-3xl hidden">
-            <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-gray-300 px-1">
-                <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0-2-.9-2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg>
-                Resultados encontrados para elegir:
-            </h3>
-            <div id="resultsContainer" class="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1 custom-scroll"></div>
+        <div id="aiBanner" class="bg-red-950/30 text-red-400 text-xs py-2 px-4 font-mono hidden items-center gap-2 border-b border-red-900/40">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            <span id="aiBannerText">Esperando comando...</span>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-4 custom-scroll">
+            <div class="text-sm text-gray-400 mb-3 px-2 font-bold uppercase tracking-wider text-xs">Bitácora de Operaciones de Voz IA</div>
+            <div id="historyContainer" class="flex flex-col gap-1.5"></div>
         </div>
     </div>
 
+    <main class="w-full max-w-7xl mx-auto p-0 sm:p-4 flex flex-col lg:flex-row gap-6 flex-1">
+        <div class="flex-1 flex flex-col gap-4">
+            <div id="playerWrapper" class="w-full aspect-video bg-black relative overflow-hidden group shadow-2xl rounded-none sm:rounded-2xl" onclick="handlePlayerClick(event)">
+                <iframe id="mainVideoPlayer" class="w-full h-full pointer-events-none" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                
+                <div id="playerPlaceholder" class="absolute inset-0 bg-[#121212] flex flex-col items-center justify-center text-center p-4">
+                    <p class="text-sm text-gray-400">Activa la asistencia IA en Configuración para gestionar el reproductor con manos libres.</p>
+                </div>
+
+                <div id="playerControlsOverlay" class="fade-overlay opacity-0 absolute inset-0 bg-black/60 flex flex-col justify-between p-3 pointer-events-none z-30">
+                    <div class="w-full flex items-center justify-between pointer-events-auto">
+                        <h4 id="overlayMiniTitle" class="text-xs font-medium text-white truncate max-w-[65%]">Sin reproducción</h4>
+                        <button id="lockBtn" onclick="toggleInterfaceLock(event)" class="p-1.5 bg-white/10 rounded-full text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg></button>
+                    </div>
+                    <div class="w-full flex items-center justify-center gap-8 pointer-events-auto">
+                        <button onclick="playPrevious()" class="p-3 bg-black/40 text-white"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+                        <button onclick="togglePlayback()" id="playCenterBtn" class="p-4 bg-black/50 text-white border border-white/20"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 12 12 12 12-4.48 12-12S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></button>
+                        <button onclick="playNext()" class="p-3 bg-black/40 text-white"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
+                    </div>
+                    <div class="w-full flex items-center justify-between pointer-events-auto">
+                        <span class="text-xs font-mono text-gray-400">Manos Libres Habilitado</span>
+                        <button onclick="goFullscreenHorizontal()" class="p-1 text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9m5.25 11.25v-4.5m0 4.5h-4.5m4.5 0l-6-6"/></svg></button>
+                    </div>
+                </div>
+                <div id="strictLockOverlay" class="hidden absolute inset-0 bg-black/40 z-40 flex items-center justify-center"><button onclick="unlockInterface(event)" class="bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Desbloquear</button></div>
+            </div>
+
+            <div class="p-4 bg-[#121212] border border-[#212121] rounded-2xl">
+                <h1 id="videoTitle" class="text-base font-bold text-white">Consola de Control del Sistema</h1>
+                <p id="videoChannel" class="text-xs text-gray-400 mt-1">Órdenes soportadas: Brillo, Volumen, Navegación, Pantalla completa y Pausa.</p>
+            </div>
+
+            <div id="historyModule" class="bg-[#121212] border border-[#212121] rounded-2xl p-4">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">🕒 Historial de Canales e Ítems</h3>
+                <div id="videoHistoryContainer" class="flex gap-3 overflow-x-auto pb-2 custom-scroll"></div>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-[420px] flex flex-col bg-[#121212] border border-[#212121] rounded-2xl p-4">
+            <h3 class="text-sm font-bold text-white mb-3">✨ Feed Multimedia Activo</h3>
+            <div id="resultsContainer" class="flex flex-col gap-3 max-h-[75vh] overflow-y-auto pr-1 custom-scroll"></div>
+        </div>
+    </main>
+
+    <div id="configModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+        <div class="bg-[#161616] border border-amber-600/30 w-full max-w-sm rounded-2xl p-5 shadow-2xl">
+            <h3 class="text-sm font-bold text-amber-500 uppercase tracking-wider mb-4 border-b border-zinc-800 pb-2">⚙️ Ajustes Avanzados</h3>
+            
+            <div class="flex items-center justify-between bg-zinc-900 p-3 rounded-xl mb-4 border border-zinc-800">
+                <div>
+                    <h4 class="text-xs font-bold text-white">Asistencia de Voz Inteligente</h4>
+                    <p class="text-[10px] text-gray-500 mt-0.5">Permite a la IA controlar los botones y el hardware.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="aiToggleSwitch" onchange="toggleAiHardwareIntegration()" class="sr-only peer">
+                    <div class="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
+                </label>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-[10px] uppercase font-bold text-zinc-400 block mb-1">ID Tarjeta SD Externa</label>
+                <input type="text" id="sdCardInput" placeholder="Ej: C4A2-1102" class="w-full bg-[#222222] text-xs text-white rounded-xl px-3 py-2 outline-none border border-zinc-800">
+            </div>
+
+            <div class="flex gap-2 justify-end">
+                <button onclick="toggleConfigModal()" class="bg-zinc-800 px-4 py-2 rounded-xl text-xs text-gray-300 font-bold">Cerrar</button>
+                <button onclick="saveSettings()" class="bg-amber-600 px-4 py-2 rounded-xl text-xs text-white font-bold">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertBox" class="hidden fixed bottom-5 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md p-4 rounded-xl z-50 shadow-2xl bg-zinc-900 border border-zinc-800"><p id="alertText" class="text-xs font-bold text-white"></p></div>
+
     <script>
-        const API_KEY = "AIzaSyDr0rhqgkS3A27swSH-m75fVbviECxTiUI";
+        const YOUTUBE_API_KEY = "AIzaSyDr0rhqgkS3A27swSH-m75fVbviECxTiUI";
         let searchList = [];
         let currentVideoIndex = -1;
+        let overlayTimer = null;
+        let isInterfaceLocked = false;
+        let isAiGlobalEnabled = false; // Estado del interruptor
 
-        // Cargar código guardado al abrir la página
         window.onload = function() {
+            // Cargar estado guardado de la IA
+            isAiGlobalEnabled = localStorage.getItem('ai_global_enabled') === 'true';
+            document.getElementById('aiToggleSwitch').checked = isAiGlobalEnabled;
+            updateUiForAiStatus();
+
             const savedSD = localStorage.getItem('sd_card_code');
-            if (savedSD) {
-                document.getElementById('sdCardInput').value = savedSD;
-            }
+            if (savedSD) document.getElementById('sdCardInput').value = savedSD;
+
+            renderSearchHistory();
+            renderVideoHistory();
+            executeSearchQuery("cumbias bailables ecuatorianas 2026");
         };
 
-        function toggleConfigModal() {
-            const modal = document.getElementById('configModal');
-            modal.classList.toggle('hidden');
+        function toggleAiHardwareIntegration() {
+            isAiGlobalEnabled = document.getElementById('aiToggleSwitch').checked;
+            localStorage.setItem('ai_global_enabled', isAiGlobalEnabled);
+            updateUiForAiStatus();
+            showAlert(isAiGlobalEnabled ? "Cerebro IA activado para control de hardware y botones." : "Asistente de voz limitado a búsquedas simples.", "info");
         }
 
-        function saveSDCode() {
-            const code = document.getElementById('sdCardInput').value.trim();
-            localStorage.setItem('sd_card_code', code);
-            if (code) {
-                showAlert(`Código "${code}" guardado con éxito para tu tarjeta SD.`, "info");
+        function updateUiForAiStatus() {
+            const badge = document.getElementById('aiBadge');
+            const placeholder = document.getElementById('searchBarPlaceholder');
+            const indicator = document.getElementById('navMicIndicator');
+            const micBtn = document.getElementById('globalMicBtn');
+
+            if (isAiGlobalEnabled) {
+                badge.className = "text-[9px] bg-red-600 text-white font-bold px-1 py-0.5 rounded ml-1 uppercase animate-pulse";
+                badge.textContent = "AI ACTIVE";
+                placeholder.textContent = "Modo Manos Libres Activo. Presiona el micro...";
+                indicator.className = "w-2.5 h-2.5 rounded-full bg-red-500 shadow-md shadow-red-500/50 animate-ping";
+                micBtn.className = "text-red-500 p-2 rounded-full hover:bg-zinc-800 transition-all";
             } else {
-                showAlert("Configurado para usar el Almacenamiento Interno.", "info");
+                badge.className = "text-[9px] bg-zinc-800 text-zinc-400 font-bold px-1 py-0.5 rounded ml-1 uppercase";
+                badge.textContent = "OS";
+                placeholder.textContent = "Control de voz inactivo. Toca para buscar...";
+                indicator.className = "w-2.5 h-2.5 rounded-full bg-zinc-600";
+                micBtn.className = "text-zinc-500 p-2 rounded-full hover:bg-transparent cursor-not-allowed";
             }
-            toggleConfigModal();
         }
 
-        function checkEnter(event) {
-            if (event.key === 'Enter') searchVideo();
-        }
-
-        // FUNCIÓN DE BÚSQUEDA ORIGINAL (SANA Y SEGURA)
-        async function searchVideo() {
-            const query = document.getElementById('searchInput').value.trim();
-
-            if (!query) {
-                showAlert("Por favor, ingresa un término para buscar.", "warning");
+        // CONTROLADOR DE ASISTENCIA GLOBAL DE VOZ (CEREBRO INTEGRAL)
+        function activateVoiceAssistant() {
+            if (!isAiGlobalEnabled) {
+                showAlert("Por favor, enciende el switch de Inteligencia Artificial en Configuración primero.", "warning");
+                toggleConfigModal();
                 return;
             }
 
-            document.getElementById('searchBtn').disabled = true;
-            document.getElementById('btnText').classList.add('hidden');
-            document.getElementById('btnSpinner').classList.remove('hidden');
-            closeAlert();
-
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error?.message || "Error al conectar con YouTube.");
-                }
-
-                if (data.items && data.items.length > 0) {
-                    searchList = data.items;
-                    renderResultsList();
-                    loadVideoByIndex(0);
-                } else {
-                    showAlert("No se encontraron videos. Intenta otra búsqueda.", "info");
-                }
-            } catch (error) {
-                console.error(error);
-                showAlert(`Error: ${error.message}`, "error");
-            } finally {
-                document.getElementById('searchBtn').disabled = false;
-                document.getElementById('btnText').classList.remove('hidden');
-                document.getElementById('btnSpinner').classList.add('hidden');
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showAlert("Reconocimiento de voz nativo no soportado en esta versión web.", "error");
+                return;
             }
+
+            const rec = new SpeechRecognition();
+            rec.lang = 'es-EC';
+            rec.interimResults = false;
+
+            const micBtn = document.getElementById('globalMicBtn');
+            const banner = document.getElementById('aiBanner');
+            const bannerText = document.getElementById('aiBannerText');
+
+            micBtn.className = "text-white p-2 rounded-full pulse-mic-global";
+            banner.classList.remove('hidden');
+            banner.classList.add('flex');
+            bannerText.textContent = "Cerebro OS Escuchando... Di un comando o pide un video.";
+
+            rec.start();
+
+            rec.onresult = function(e) {
+                const phrase = e.results[0][0].transcript;
+                document.getElementById('searchInput').value = phrase;
+                bannerText.textContent = "Analizando acciones y mapeando hardware...";
+                
+                // Ejecutar el motor de parseo lógico de hardware e interfaz
+                executeAiHardwareRouter(phrase);
+            };
+
+            rec.onerror = function() {
+                resetMicUI();
+                showAlert("Error en la captura de audio.", "warning");
+            };
+
+            rec.onend = function() { resetMicUI(); };
         }
 
-        function renderResultsList() {
-            const container = document.getElementById('resultsContainer');
-            container.innerHTML = ""; 
-            
+        function resetMicUI() {
+            document.getElementById('globalMicBtn').className = "text-red-500 p-2 rounded-full hover:bg-zinc-800 transition-all";
+            document.getElementById('aiBanner').classList.add('hidden');
+        }
+
+        // EL ENRUTADOR COGNITIVO: Mapea frases a botones fijos del teléfono
+        function executeAiHardwareRouter(phrase) {
+            const cmd = phrase.toLowerCase().trim();
+            saveToLocalHistory(`Voz: "${phrase}"`);
+
+            // 1. COMANDOS DE NAVEGACIÓN Y MULTIMEDIA
+            if (cmd.includes("siguiente") || cmd.includes("pasa la otra") || cmd.includes("adelanta video")) {
+                showAlert("IA Acción: Siguiente video ejecutado.", "info");
+                playNext();
+                closeSearchMode();
+                return;
+            }
+            if (cmd.includes("anterior") || cmd.includes("retrocede") || cmd.includes("regresa")) {
+                showAlert("IA Acción: Video anterior ejecutado.", "info");
+                playPrevious();
+                closeSearchMode();
+                return;
+            }
+            if (cmd.includes("pausa") || cmd.includes("para") || cmd.includes("detén") || cmd.includes("deten")) {
+                showAlert("IA Acción: Pausa multimedia enviada.", "info");
+                togglePlayback();
+                closeSearchMode();
+                return;
+            }
+            if (cmd.includes("reproduce") || cmd.includes("play") || cmd.includes("continua")) {
+                showAlert("IA Acción: Reanudando reproducción.", "info");
+                closeSearchMode();
+                return;
+            }
+
+            // 2. COMANDOS DE INTERFAZ (PANTALLA)
+            if (cmd.includes("maximiza") || cmd.includes("pantalla completa") || cmd.includes("agranda")) {
+                showAlert("IA Acción: Maximizando visualizador.", "info");
+                goFullscreenHorizontal();
+                closeSearchMode();
+                return;
+            }
+            if (cmd.includes("historial") || cmd.includes("muéstrame el historial")) {
+                showAlert("IA Acción: Abriendo módulo de historial.", "info");
+                document.getElementById('historyModule').scrollIntoView({ behavior: 'smooth' });
+                closeSearchMode();
+                return;
+            }
+
+            // 3. COMANDOS DE HARDWARE REAL (Brillo y Volumen vía Android Studio)
+            // Extraer números si el usuario dice "Volumen al 20"
+            const matchNumber = cmd.match(/\d+/);
+            const level = matchNumber ? parseInt(matchNumber[0]) : null;
+
+            if (cmd.includes("volumen") || cmd.includes("silencio") || cmd.includes("baja la voz") || cmd.includes("sube el sonido")) {
+                let targetVol = level !== null ? level : (cmd.includes("sube") ? 80 : 20);
+                if (cmd.includes("silencio") || cmd.includes("haz silencio")) targetVol = 0;
+                
+                showAlert(`IA Acción Hardware -> Volumen fijado en: ${targetVol}%`, "info");
+                
+                // Enlace con el canal de Java en Android Studio
+                if (window.AndroidInterface && window.AndroidInterface.changePhoneVolume) {
+                    window.AndroidInterface.changePhoneVolume(targetVol);
+                }
+                closeSearchMode();
+                return;
+            }
+
+            if (cmd.includes("brillo") || cmd.includes("pantalla oscura") || cmd.includes("iluminación")) {
+                let targetBrightness = level !== null ? level : (cmd.includes("sube") ? 90 : 15);
+                showAlert(`IA Acción Hardware -> Brillo de pantalla fijado en: ${targetBrightness}%`, "info");
+                
+                // Enlace con el canal de Java en Android Studio
+                if (window.AndroidInterface && window.AndroidInterface.changePhoneBrightness) {
+                    window.AndroidInterface.changePhoneBrightness(targetBrightness);
+                }
+                closeSearchMode();
+                return;
+            }
+
+            // 4. SI NO ES NINGÚN COMANDO DE HARDWARE, PASA A SER BÚSQUEDA INTELIGENTE
+            let refinedSearch = cmd;
+            if (cmd.includes("busca") || cmd.includes("ponme")) {
+                refinedSearch = cmd.replace("busca", "").replace("ponme", "").replace("por favor", "").trim();
+            }
+            showAlert(`IA Inteligencia: Buscando en YouTube -> "${refinedSearch}"`, "info");
+            executeSearchQuery(refinedSearch);
+            closeSearchMode();
+        }
+
+        // MOTOR REPRODUCTOR Y RENDERS STANDARD
+        async function executeSearchQuery(query) {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.items && data.items.length > 0) {
+                    searchList = data.items;
+                    renderResultsCards();
+                    loadVideoByIndex(0);
+                }
+            } catch (err) { console.log(err); }
+        }
+
+        function renderResultsCards() {
+            const container = document.getElementById('resultsContainer'); container.innerHTML = "";
             searchList.forEach((item, index) => {
                 container.innerHTML += `
-                    <div id="card-${index}" onclick="loadVideoByIndex(${index})" class="flex bg-[#161616] border border-[#232323] rounded-xl p-2 items-center gap-3 cursor-pointer hover:bg-[#222222] transition-all">
-                        <div class="relative w-28 sm:w-36 aspect-video rounded-lg overflow-hidden flex-shrink-0 bg-black">
-                            <img src="${item.snippet.thumbnails.medium.url}" class="w-full h-full object-cover">
-                        </div>
+                    <div id="card-${index}" onclick="loadVideoByIndex(${index})" class="flex bg-[#161616] border border-[#212121] rounded-xl p-2 items-start gap-3 cursor-pointer hover:bg-[#212121]">
+                        <img src="${item.snippet.thumbnails.medium.url}" class="w-24 aspect-video rounded-lg object-cover bg-black flex-shrink-0">
                         <div class="flex-1 min-w-0">
-                            <h4 class="text-sm font-bold text-white line-clamp-2 leading-tight">${item.snippet.title}</h4>
-                            <p class="text-xs text-gray-400 mt-1 truncate">${item.snippet.channelTitle}</p>
+                            <h4 class="text-xs font-bold text-white line-clamp-2 leading-tight">${item.snippet.title}</h4>
+                            <p class="text-[10px] text-gray-400 mt-0.5 truncate">${item.snippet.channelTitle}</p>
                         </div>
                     </div>`;
             });
-
-            document.getElementById('resultsSection').classList.remove('hidden');
         }
 
         function loadVideoByIndex(index) {
             if (index < 0 || index >= searchList.length) return;
             currentVideoIndex = index;
             const item = searchList[index];
+            document.getElementById('playerPlaceholder').classList.add('hidden');
+            document.getElementById('mainVideoPlayer').src = `https://www.youtube-nocookie.com/embed/${item.id.videoId}?autoplay=1&rel=0&modestbranding=1&controls=0`;
+            document.getElementById('videoTitle').textContent = item.snippet.title;
+            document.getElementById('overlayMiniTitle').textContent = item.snippet.title;
+            addVideoToHistory(item.id.videoId, item.snippet.title, item.snippet.thumbnails.medium.url);
+            resetOverlayTimeout();
+        }
 
-            document.getElementById('mainPlayer').src = `https://www.youtube-nocookie.com/embed/${item.id.videoId}?autoplay=1&mute=1&rel=0&modestbranding=1`;
-            
-            document.getElementById('placeholderState').classList.add('hidden');
-            document.getElementById('videoContainer').classList.remove('hidden');
+        function addVideoToHistory(id, title, thumbnail) {
+            let history = JSON.parse(localStorage.getItem('yt_video_history')) || [];
+            history = history.filter(v => v.id !== id); history.unshift({ id, title, thumbnail });
+            localStorage.setItem('yt_video_history', JSON.stringify(history));
+            renderVideoHistory();
+        }
 
-            document.getElementById('videoTitle').innerHTML = item.snippet.title;
-            document.getElementById('videoChannel').innerHTML = `Canal: ${item.snippet.channelTitle}`;
-            document.getElementById('videoMeta').classList.remove('hidden');
-
-            searchList.forEach((_, idx) => {
-                const el = document.getElementById(`card-${idx}`);
-                if (el) {
-                    el.className = (idx === index) 
-                        ? "flex bg-[#1f1f1f] border border-red-600 rounded-xl p-2 items-center gap-3 cursor-pointer transition-all" 
-                        : "flex bg-[#161616] border border-[#232323] rounded-xl p-2 items-center gap-3 cursor-pointer hover:bg-[#222222] transition-all";
-                }
+        function renderVideoHistory() {
+            const container = document.getElementById('videoHistoryContainer'); container.innerHTML = "";
+            let history = JSON.parse(localStorage.getItem('yt_video_history')) || [];
+            if(history.length===0){ container.innerHTML=`<p class="text-[11px] text-zinc-600">Vacío.</p>`; return; }
+            history.forEach(video => {
+                container.innerHTML += `
+                    <div onclick="document.getElementById('playerPlaceholder').classList.add('hidden'); document.getElementById('mainVideoPlayer').src='https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1';" class="w-24 flex-shrink-0 bg-[#161616] border border-[#232323] p-1 rounded-lg cursor-pointer">
+                        <img src="${video.thumbnail}" class="w-full aspect-video object-cover rounded bg-black">
+                        <h4 class="text-[9px] text-zinc-400 line-clamp-2 mt-1 leading-tight">${video.title}</h4>
+                    </div>`;
             });
         }
 
-        function playNext() { 
-            if (searchList.length > 0) loadVideoByIndex((currentVideoIndex + 1) % searchList.length); 
+        function handlePlayerClick() {
+            if (isInterfaceLocked) return;
+            const overlay = document.getElementById('playerControlsOverlay');
+            overlay.classList.toggle('opacity-0'); overlay.classList.toggle('pointer-events-none');
+            resetOverlayTimeout();
         }
+        function resetOverlayTimeout() { clearTimeout(overlayTimer); overlayTimer = setTimeout(() => { document.getElementById('playerControlsOverlay').classList.add('opacity-0', 'pointer-events-none'); }, 4000); }
         
-        function playPrevious() { 
-            if (searchList.length > 0) loadVideoByIndex((currentVideoIndex - 1 + searchList.length) % searchList.length); 
+        function togglePlayback() { showAlert("Play/Pausa alterado.", "info"); }
+        function playNext() { loadVideoByIndex((currentVideoIndex + 1) % searchList.length); }
+        function playPrevious() { loadVideoByIndex((currentVideoIndex - 1 + searchList.length) % searchList.length); }
+        function goFullscreenHorizontal() { document.getElementById('playerWrapper').requestFullscreen().catch(()=>{}); }
+
+        function openSearchMode() { document.getElementById('searchOverlay').classList.remove('hidden'); document.getElementById('searchInput').focus(); }
+        function closeSearchMode() { document.getElementById('searchOverlay').classList.add('hidden'); }
+        function checkEnter(event) { if (event.key === 'Enter') triggerSearch(); }
+        function triggerSearch() { const q = document.getElementById('searchInput').value.trim(); if(q) { executeSearchQuery(q); closeSearchMode(); } }
+
+        function saveToLocalHistory(text) {
+            let history = JSON.parse(localStorage.getItem('yt_search_history')) || [];
+            history.unshift(text); localStorage.setItem('yt_search_history', JSON.stringify(history.slice(0,10))); renderSearchHistory();
         }
-
-        function goFullscreenHorizontal() {
-            const container = document.getElementById('fullscreenContainer');
-            if (container.requestFullscreen) container.requestFullscreen();
-            if (screen.orientation?.lock) screen.orientation.lock('landscape').catch(() => {});
+        function renderSearchHistory() {
+            const container = document.getElementById('historyContainer'); container.innerHTML = "";
+            let history = JSON.parse(localStorage.getItem('yt_search_history')) || [];
+            history.forEach(t => { container.innerHTML += `<div class="bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-xs text-zinc-300 font-mono">${t}</div>`; });
         }
+        function clearAllHistory() { localStorage.removeItem('yt_search_history'); renderSearchHistory(); }
+        function goHome() { executeSearchQuery("musica bailable"); }
 
-        // PREPARACIÓN DE COMANDOS SEPARADOS POR AUDIO/VIDEO Y RECONOCIMIENTO DE RUTA SD
-        function downloadMedia(type) {
-            if (currentVideoIndex === -1) {
-                showAlert("Selecciona una canción de la lista para poder descargar.", "warning");
-                return;
-            }
-
-            const videoId = searchList[currentVideoIndex].id.videoId;
-            const title = searchList[currentVideoIndex].snippet.title;
-            const sdCode = localStorage.getItem('sd_card_code') || "";
-            const baseStorage = sdCode ? `/storage/${sdCode}` : `/storage/emulated/0`;
-            
-            let targetFolder = (type === 'mp3') ? `${baseStorage}/Download/MiMusica/` : `${baseStorage}/Download/MisVideos/`;
-
-            showAlert(`Preparado para descargar ${type.toUpperCase()} en: ${targetFolder}`, "info");
-
-            // Interfaz nativa para conectar con el teléfono (Android Studio / Capa de fondo)
-            if (window.AndroidInterface && window.AndroidInterface.executeYtdlpCommand) {
-                window.AndroidInterface.executeYtdlpCommand(videoId, type, targetFolder, title);
-            } else {
-                console.log("Comando armado con éxito listo para el contenedor nativo:", { videoId, type, targetFolder });
-            }
-        }
+        function toggleConfigModal() { document.getElementById('configModal').classList.toggle('hidden'); }
+        function saveSettings() { localStorage.setItem('sd_card_code', document.getElementById('sdCardInput').value.trim()); toggleConfigModal(); }
 
         function showAlert(msg, type) {
             document.getElementById('alertText').textContent = msg;
-            const box = document.getElementById('alertBox');
-            box.className = "w-full max-w-2xl p-4 mb-6 rounded-xl border flex items-center gap-3 transition-all duration-300 " + 
-                (type === 'error' ? 'bg-red-950/40 border-red-800 text-red-200' : type === 'warning' ? 'bg-amber-950/40 border-amber-800 text-amber-200' : 'bg-blue-950/40 border-blue-800 text-blue-200');
-            box.classList.remove('hidden');
-        }
-
-        function closeAlert() { 
-            document.getElementById('alertBox').classList.add('hidden'); 
+            const box = document.getElementById('alertBox'); box.classList.remove('hidden');
+            setTimeout(() => box.classList.add('hidden'), 4500);
         }
     </script>
 </body>
