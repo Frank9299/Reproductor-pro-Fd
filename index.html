@@ -1,441 +1,799 @@
+```html
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Premium Studio OS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Universal Media OS</title>
+    
+    <!-- Librerías Core -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style id="dynamic-font">
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap');
+        body { font-family: 'Montserrat', sans-serif; }
+    </style>
+
     <style>
-        body { background-color: #0f0f0f; color: #f1f1f1; font-family: Roboto, Arial, sans-serif; }
-        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #0f0f0f; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #2f2f2f; border-radius: 10px; }
-        .fade-overlay { transition: opacity 0.4s ease-in-out; }
-        
-        /* Animación premium de escucha global */
-        .pulse-mic-global { animation: mic-global-glow 1.2s infinite ease-in-out; }
-        @keyframes mic-global-glow {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); background-color: rgba(220, 38, 38, 0.4); }
-            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); background-color: rgba(220, 38, 38, 0.8); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); background-color: rgba(220, 38, 38, 0.4); }
+        :root {
+            --primary-color: #ec4899; /* Rosa Neón Default, adaptable vía settings */
+            --bg-color: #0b0f19;
+            --panel-bg: rgba(15, 20, 30, 0.75);
         }
+
+        body {
+            background-color: var(--bg-color);
+            color: #ffffff;
+            overflow: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Scrollbars y Utilidades */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
+        
+        .hide-scroll::-webkit-scrollbar { display: none !important; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Animaciones Globales */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .view-section.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* Animación IA Core */
+        .ai-pulse-active { animation: ai-glow 1.5s infinite ease-in-out; }
+        @keyframes ai-glow {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); background-color: rgba(220, 38, 38, 0.8); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); background-color: rgba(239, 68, 68, 1); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); background-color: rgba(220, 38, 38, 0.8); }
+        }
+
+        /* Sliders */
+        input[type=range] { -webkit-appearance: none; background: transparent; height: 10px; width: 100%; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: var(--primary-color); cursor: pointer; margin-top: -4px; box-shadow: 0 0 8px var(--primary-color); transition: transform 0.1s; }
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.3); }
+
+        .vertical-slider { -webkit-appearance: none; writing-mode: vertical-lr; direction: rtl; width: 10px; height: 120px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col relative selection:bg-red-600">
+<body class="flex h-screen w-screen selection:bg-pink-600">
 
-    <nav id="topNav" class="w-full bg-[#0f0f0f] sticky top-0 z-40 flex items-center justify-between px-4 py-3 border-b border-[#212121]">
-        <div class="flex items-center gap-4">
-            <button onclick="goHome()" class="p-2 hover:bg-[#212121] rounded-full text-white" title="Inicio">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            </button>
-            <div class="flex items-center gap-1 cursor-pointer" onclick="goHome()">
-                <svg class="w-7 h-7 text-red-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.516 0-9.387.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.387.508 9.387.508s7.517 0 9.387-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
-                <span class="text-lg font-black tracking-tighter flex items-center">Premium<span id="aiBadge" class="text-[9px] bg-zinc-800 text-zinc-400 font-bold px-1 py-0.5 rounded ml-1 uppercase transition-all">OS</span></span>
+    <!-- REPRODUCTOR DE AUDIO HTML OCULTO -->
+    <audio id="main-audio"></audio>
+    <input type="file" id="fallback-folder-picker" webkitdirectory directory multiple class="hidden" onchange="procesarCarpetaFallback(this.files)">
+
+    <!-- ==================== SIDEBAR NAVEGACIÓN ==================== -->
+    <aside class="w-16 sm:w-20 glass-panel flex flex-col items-center py-6 border-r border-white/10 z-40 shrink-0 shadow-2xl justify-between relative">
+        <div class="flex flex-col items-center gap-8 w-full">
+            <!-- Logo Animado -->
+            <div class="w-10 h-10 rounded-full flex items-center justify-center bg-slate-900 border border-white/10 shadow-[0_0_15px_var(--primary-color)]">
+                <i class="fas fa-compact-disc text-xl fa-spin-hover" style="color: var(--primary-color);" id="global-logo"></i>
             </div>
+
+            <!-- Menú Principal -->
+            <nav class="flex flex-col gap-6 w-full">
+                <button onclick="switchAppView('local')" id="nav-local" class="nav-btn w-full p-3 text-gray-400 hover:text-white transition-all flex flex-col items-center gap-1 group">
+                    <i class="fas fa-music text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] font-bold tracking-widest uppercase">Local</span>
+                </button>
+                <button onclick="switchAppView('youtube')" id="nav-youtube" class="nav-btn w-full p-3 text-gray-400 hover:text-white transition-all flex flex-col items-center gap-1 group">
+                    <i class="fab fa-youtube text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] font-bold tracking-widest uppercase">Stream</span>
+                </button>
+                <button onclick="openSettingsModal()" id="nav-settings" class="nav-btn w-full p-3 text-gray-400 hover:text-white transition-all flex flex-col items-center gap-1 group">
+                    <i class="fas fa-sliders-h text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[9px] font-bold tracking-widest uppercase">Config</span>
+                </button>
+            </nav>
         </div>
 
-        <div class="flex-1 max-w-xl mx-4 hidden md:block">
-            <div onclick="openSearchMode()" class="flex items-center bg-[#121212] border border-[#303030] rounded-full px-4 py-2 cursor-pointer text-gray-400 justify-between">
-                <span id="searchBarPlaceholder">Control de voz inactivo. Toca para buscar...</span>
-                <div class="flex items-center gap-2">
-                    <div id="navMicIndicator" class="w-2.5 h-2.5 rounded-full bg-zinc-600"></div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                </div>
+        <!-- Botón Global IA (El Cerebro) -->
+        <button onclick="activateVoiceAssistant()" id="global-ai-btn" class="w-12 h-12 rounded-full bg-slate-800 text-red-500 border border-red-500/30 flex items-center justify-center shadow-lg transition-all hover:bg-slate-700 mt-auto group" title="Asistente IA de Voz">
+            <i class="fas fa-microphone text-xl group-hover:scale-110 transition-transform"></i>
+        </button>
+    </aside>
+
+    <!-- ==================== MAIN CONTENT AREA ==================== -->
+    <main class="flex-1 flex flex-col relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+        
+        <!-- TOPBAR DE ESTADO -->
+        <header class="h-14 glass-panel border-b border-white/5 flex justify-between items-center px-4 shrink-0 z-30">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500" id="topbar-title">Media OS</span>
+                <span id="aiBadge" class="text-[8px] bg-slate-800 text-gray-400 font-bold px-1.5 py-0.5 rounded border border-white/10 uppercase">IA Ready</span>
             </div>
-        </div>
 
-        <div class="flex items-center gap-2">
-            <button onclick="openSearchMode()" class="md:hidden p-2 hover:bg-[#212121] rounded-full text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
-            <button onclick="toggleConfigModal()" class="p-2 hover:bg-[#212121] rounded-full text-amber-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></button>
-        </div>
-    </nav>
-
-    <div id="searchOverlay" class="hidden fixed inset-0 bg-[#0f0f0f] z-50 flex flex-col">
-        <div class="w-full flex items-center px-4 py-3 border-b border-[#212121] gap-3">
-            <button onclick="closeSearchMode()" class="p-2 hover:bg-[#212121] rounded-full text-white">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
-            </button>
-            
-            <div class="flex-1 flex items-center bg-[#212121] rounded-full px-4 py-1.5 gap-2">
-                <input type="text" id="searchInput" placeholder="Escribe o presiona el micrófono para dar una orden..." class="w-full bg-transparent border-none text-white outline-none text-base py-1 placeholder-gray-500" onkeydown="checkEnter(event)">
-                
-                <button id="globalMicBtn" onclick="activateVoiceAssistant()" class="text-zinc-400 p-2 rounded-full hover:bg-[#333333] transition-all" title="Dar una orden de voz">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.42 2.72 6.2 6 6.72V21h2v-3.28c3.28-.52 6-3.3 6-6.72h-1.7z"/></svg>
+            <!-- Role Switcher (Control Remoto) -->
+            <div class="flex bg-black/50 rounded-full p-1 border border-white/10 text-[10px] font-bold shadow-inner">
+                <button id="role-player-btn" onclick="switchRole('controlled')" class="px-3 py-1 rounded-full transition-all bg-[var(--primary-color)] text-white shadow-md">
+                    <i class="fas fa-play-circle mr-1"></i> Player
+                </button>
+                <button id="role-controller-btn" onclick="switchRole('controller')" class="px-3 py-1 rounded-full transition-all text-gray-400 hover:text-white">
+                    <i class="fas fa-gamepad mr-1"></i> Remoto
                 </button>
             </div>
-            <button onclick="triggerSearch()" class="bg-red-600 text-white font-bold px-4 py-2 rounded-full text-sm">Buscar</button>
-        </div>
+        </header>
 
-        <div id="aiBanner" class="bg-red-950/30 text-red-400 text-xs py-2 px-4 font-mono hidden items-center gap-2 border-b border-red-900/40">
-            <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-            <span id="aiBannerText">Esperando comando...</span>
-        </div>
-        
-        <div class="flex-1 overflow-y-auto p-4 custom-scroll">
-            <div class="text-sm text-gray-400 mb-3 px-2 font-bold uppercase tracking-wider text-xs">Bitácora de Operaciones de Voz IA</div>
-            <div id="historyContainer" class="flex flex-col gap-1.5"></div>
-        </div>
-    </div>
+        <!-- CONTENEDOR DE VISTAS -->
+        <div class="flex-1 relative w-full h-full overflow-hidden">
+            
+            <!-- VISTA 1: AUDIO LOCAL (Reproductor.html fusionado) -->
+            <section id="view-local" class="view-section active flex-col absolute inset-0 w-full h-full bg-black/40">
+                <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                    <!-- Lista de Archivos -->
+                    <div class="w-full md:w-1/3 border-r border-white/5 flex flex-col h-full bg-slate-900/50">
+                        <div class="p-3 border-b border-white/5 flex justify-between items-center bg-black/20">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest"><i class="fas fa-folder-open mr-1"></i> Biblioteca</span>
+                            <button id="sd-folder-picker-btn" onclick="solicitarAccAccessCarpeta()" class="text-[10px] bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full transition-all border border-white/10">Cargar Ruta SD</button>
+                        </div>
+                        <div id="file-list" class="flex-1 overflow-y-auto p-2 space-y-1 hide-scroll relative">
+                            <!-- Lista generada por JS -->
+                            <div id="sd-placeholder-box" class="text-center text-gray-500 mt-10 px-4">
+                                <i class="fas fa-sd-card text-3xl opacity-40 mb-2"></i>
+                                <h3 class="text-sm text-white font-semibold mb-1">Sin Origen</h3>
+                                <p class="text-[10px]">Carga tu carpeta de música para comenzar.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Visualizador y Controles Locales -->
+                    <div class="flex-1 flex flex-col relative h-full">
+                        <canvas id="visualizer-canvas" class="absolute inset-0 w-full h-full opacity-60 pointer-events-none"></canvas>
+                        
+                        <div class="flex-1 flex flex-col items-center justify-center p-6 z-10 relative">
+                            <h2 id="full-title" class="text-2xl md:text-4xl font-black text-center text-white truncate w-full max-w-lg mb-2 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Ninguna pista</h2>
+                            <p id="full-channel" class="text-xs text-gray-400 uppercase tracking-widest font-bold mb-8">Audio Local OS</p>
+                            
+                            <!-- Barra de progreso local -->
+                            <div class="w-full max-w-md">
+                                <div class="flex justify-between text-[10px] font-bold text-gray-400 mb-1">
+                                    <span id="time-current">0:00</span>
+                                    <span id="time-total">0:00</span>
+                                </div>
+                                <input type="range" id="progress-bar" min="0" max="100" value="0" oninput="window.isDraggingProgress = true" onchange="seekTrackLocal(this.value)">
+                            </div>
+                        </div>
 
-    <main class="w-full max-w-7xl mx-auto p-0 sm:p-4 flex flex-col lg:flex-row gap-6 flex-1">
-        <div class="flex-1 flex flex-col gap-4">
-            <div id="playerWrapper" class="w-full aspect-video bg-black relative overflow-hidden group shadow-2xl rounded-none sm:rounded-2xl" onclick="handlePlayerClick(event)">
-                <iframe id="mainVideoPlayer" class="w-full h-full pointer-events-none" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <!-- Panel Inferior de Controles Locales -->
+                        <div class="glass-panel p-4 flex flex-col md:flex-row items-center justify-between gap-4 z-20 shrink-0 border-t border-white/5">
+                            <div class="flex items-center gap-4 w-full md:w-auto justify-center">
+                                <button onclick="toggleShuffle()" id="btn-shuffle" class="text-gray-400 hover:text-white transition-all"><i class="fas fa-random"></i></button>
+                                <button onclick="prevTrack()" class="text-white hover:text-[var(--primary-color)] text-xl transition-all"><i class="fas fa-step-backward"></i></button>
+                                <button onclick="togglePlayLocal()" class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_15px_var(--primary-color)] hover:scale-105 active:scale-95 transition-all">
+                                    <i id="full-play-icon" class="fas fa-play text-xl ml-1"></i>
+                                </button>
+                                <button onclick="nextTrack()" class="text-white hover:text-[var(--primary-color)] text-xl transition-all"><i class="fas fa-step-forward"></i></button>
+                                <button onclick="toggleRepeat()" id="btn-repeat" class="text-gray-400 hover:text-white transition-all"><i class="fas fa-redo"></i></button>
+                            </div>
+                            <div class="flex items-center gap-3 w-48">
+                                <i class="fas fa-volume-down text-gray-400 text-xs"></i>
+                                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8" oninput="setVolumeLocal(this.value)">
+                                <i class="fas fa-volume-up text-gray-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VISTA 2: YOUTUBE STREAMING (index.html fusionado) -->
+            <section id="view-youtube" class="view-section flex-col absolute inset-0 w-full h-full bg-black">
+                <!-- Buscador Youtube Superior -->
+                <div class="w-full flex items-center p-3 border-b border-white/10 bg-slate-900/80 z-20">
+                    <div class="flex-1 flex items-center bg-black/50 border border-white/10 rounded-full px-4 py-2 gap-3 focus-within:border-[var(--primary-color)] transition-all">
+                        <i class="fab fa-youtube text-red-500"></i>
+                        <input type="text" id="ytSearchInput" placeholder="Busca en YouTube o pídeselo a la IA..." class="w-full bg-transparent border-none text-white text-sm outline-none" onkeydown="if(event.key === 'Enter') triggerYTSearch()">
+                        <button onclick="triggerYTSearch()" class="text-gray-400 hover:text-white"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
                 
-                <div id="playerPlaceholder" class="absolute inset-0 bg-[#121212] flex flex-col items-center justify-center text-center p-4">
-                    <p class="text-sm text-gray-400">Activa la asistencia IA en Configuración para gestionar el reproductor con manos libres.</p>
+                <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+                    <!-- Reproductor de Video -->
+                    <div class="flex-1 bg-black relative flex flex-col justify-center items-center shadow-2xl">
+                        <div id="ytPlayerWrapper" class="w-full h-full aspect-video md:aspect-auto max-h-[70vh] bg-[#0a0a0a] relative group">
+                            <iframe id="mainVideoPlayer" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                            <div id="ytPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black">
+                                <i class="fab fa-youtube text-5xl text-white/10 mb-2"></i>
+                                <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Motor de Streaming Inactivo</p>
+                            </div>
+                        </div>
+                        <div class="w-full p-4 bg-slate-900/60 border-t border-white/5 flex justify-between items-center shrink-0">
+                            <div class="truncate">
+                                <h3 id="ytVideoTitle" class="text-sm font-bold text-white truncate">Consola de Video</h3>
+                                <p id="ytVideoChannel" class="text-[10px] text-gray-400">Canal / IA OS</p>
+                            </div>
+                            <button onclick="document.getElementById('mainVideoPlayer').requestFullscreen()" class="text-gray-400 hover:text-white p-2 bg-white/5 rounded-lg border border-white/10"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Resultados de Búsqueda -->
+                    <div class="w-full lg:w-80 border-l border-white/5 bg-slate-900/80 flex flex-col h-full z-10 shrink-0 hidden md:flex" id="ytResultsPane">
+                        <div class="p-3 border-b border-white/5 bg-black/40">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Resultados IA</span>
+                        </div>
+                        <div id="ytResultsContainer" class="flex-1 overflow-y-auto p-2 space-y-2 hide-scroll"></div>
+                    </div>
                 </div>
-
-                <div id="playerControlsOverlay" class="fade-overlay opacity-0 absolute inset-0 bg-black/60 flex flex-col justify-between p-3 pointer-events-none z-30">
-                    <div class="w-full flex items-center justify-between pointer-events-auto">
-                        <h4 id="overlayMiniTitle" class="text-xs font-medium text-white truncate max-w-[65%]">Sin reproducción</h4>
-                        <button id="lockBtn" onclick="toggleInterfaceLock(event)" class="p-1.5 bg-white/10 rounded-full text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg></button>
-                    </div>
-                    <div class="w-full flex items-center justify-center gap-8 pointer-events-auto">
-                        <button onclick="playPrevious()" class="p-3 bg-black/40 text-white"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
-                        <button onclick="togglePlayback()" id="playCenterBtn" class="p-4 bg-black/50 text-white border border-white/20"><svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 12 12 12 12-4.48 12-12S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></button>
-                        <button onclick="playNext()" class="p-3 bg-black/40 text-white"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6zm9-12h2v12h-2z"/></svg></button>
-                    </div>
-                    <div class="w-full flex items-center justify-between pointer-events-auto">
-                        <span class="text-xs font-mono text-gray-400">Manos Libres Habilitado</span>
-                        <button onclick="goFullscreenHorizontal()" class="p-1 text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75v4.5m0-4.5h-4.5m4.5 0L15 9m5.25 11.25v-4.5m0 4.5h-4.5m4.5 0l-6-6"/></svg></button>
-                    </div>
-                </div>
-                <div id="strictLockOverlay" class="hidden absolute inset-0 bg-black/40 z-40 flex items-center justify-center"><button onclick="unlockInterface(event)" class="bg-amber-600 text-white px-4 py-2 rounded-xl text-sm font-bold">Desbloquear</button></div>
-            </div>
-
-            <div class="p-4 bg-[#121212] border border-[#212121] rounded-2xl">
-                <h1 id="videoTitle" class="text-base font-bold text-white">Consola de Control del Sistema</h1>
-                <p id="videoChannel" class="text-xs text-gray-400 mt-1">Órdenes soportadas: Brillo, Volumen, Navegación, Pantalla completa y Pausa.</p>
-            </div>
-
-            <div id="historyModule" class="bg-[#121212] border border-[#212121] rounded-2xl p-4">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">🕒 Historial de Canales e Ítems</h3>
-                <div id="videoHistoryContainer" class="flex gap-3 overflow-x-auto pb-2 custom-scroll"></div>
-            </div>
-        </div>
-
-        <div class="w-full lg:w-[420px] flex flex-col bg-[#121212] border border-[#212121] rounded-2xl p-4">
-            <h3 class="text-sm font-bold text-white mb-3">✨ Feed Multimedia Activo</h3>
-            <div id="resultsContainer" class="flex flex-col gap-3 max-h-[75vh] overflow-y-auto pr-1 custom-scroll"></div>
+            </section>
+            
         </div>
     </main>
 
-    <div id="configModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-        <div class="bg-[#161616] border border-amber-600/30 w-full max-w-sm rounded-2xl p-5 shadow-2xl">
-            <h3 class="text-sm font-bold text-amber-500 uppercase tracking-wider mb-4 border-b border-zinc-800 pb-2">⚙️ Ajustes Avanzados</h3>
+    <!-- ==================== MODAL DE CONFIGURACIÓN Y HARDWARE ==================== -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 z-50 items-center justify-center hidden opacity-0 transition-opacity duration-300 flex">
+        <div class="bg-slate-900 border border-white/10 p-6 rounded-2xl w-11/12 max-w-md shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-pink-500"></div>
             
-            <div class="flex items-center justify-between bg-zinc-900 p-3 rounded-xl mb-4 border border-zinc-800">
-                <div>
-                    <h4 class="text-xs font-bold text-white">Asistencia de Voz Inteligente</h4>
-                    <p class="text-[10px] text-gray-500 mt-0.5">Permite a la IA controlar los botones y el hardware.</p>
+            <div class="flex justify-between items-center mb-5 border-b border-white/5 pb-3">
+                <h2 class="text-sm font-bold uppercase tracking-widest text-white"><i class="fas fa-cogs mr-2 text-gray-400"></i> Núcleo de Ajustes</h2>
+                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-lg"></i></button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Theme Color -->
+                <div class="bg-black/30 p-3 rounded-xl border border-white/5">
+                    <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Acento del Sistema (Neón)</label>
+                    <input type="color" id="setting-color" class="w-full h-8 rounded cursor-pointer bg-transparent" value="#ec4899" onchange="updateThemeColor(this.value)">
                 </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" id="aiToggleSwitch" onchange="toggleAiHardwareIntegration()" class="sr-only peer">
-                    <div class="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600"></div>
-                </label>
-            </div>
 
-            <div class="mb-4">
-                <label class="text-[10px] uppercase font-bold text-zinc-400 block mb-1">ID Tarjeta SD Externa</label>
-                <input type="text" id="sdCardInput" placeholder="Ej: C4A2-1102" class="w-full bg-[#222222] text-xs text-white rounded-xl px-3 py-2 outline-none border border-zinc-800">
-            </div>
+                <!-- Hardware Control (Vía Android Interface) -->
+                <div class="bg-black/30 p-3 rounded-xl border border-white/5">
+                    <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Control de Hardware (WebView)</label>
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-sun text-xs text-amber-500 w-4 text-center"></i>
+                        <input type="range" class="flex-1" min="0" max="100" value="50" onchange="if(window.AndroidInterface && window.AndroidInterface.changePhoneBrightness) window.AndroidInterface.changePhoneBrightness(this.value)">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-volume-up text-xs text-blue-500 w-4 text-center"></i>
+                        <input type="range" class="flex-1" min="0" max="100" value="80" onchange="if(window.AndroidInterface && window.AndroidInterface.changePhoneVolume) window.AndroidInterface.changePhoneVolume(this.value)">
+                    </div>
+                </div>
 
-            <div class="flex gap-2 justify-end">
-                <button onclick="toggleConfigModal()" class="bg-zinc-800 px-4 py-2 rounded-xl text-xs text-gray-300 font-bold">Cerrar</button>
-                <button onclick="saveSettings()" class="bg-amber-600 px-4 py-2 rounded-xl text-xs text-white font-bold">Guardar</button>
+                <!-- Visualizer Type -->
+                <div class="bg-black/30 p-3 rounded-xl border border-white/5">
+                    <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Motor Gráfico (Local Audio)</label>
+                    <select id="setting-visualizer" class="w-full bg-slate-800 text-white px-2 py-1.5 rounded text-xs outline-none border border-white/10" onchange="setVisualizerMode(this.value)">
+                        <option value="bars">1. Barras Espectrales</option>
+                        <option value="wave">2. Onda Fluida</option>
+                        <option value="circle">3. Anillo Radiactivo</option>
+                        <option value="matrix">4. Cascada Matrix</option>
+                    </select>
+                </div>
             </div>
+            
+            <button onclick="closeSettingsModal()" class="w-full mt-5 py-2.5 rounded-xl text-white font-bold text-xs uppercase tracking-widest bg-slate-800 hover:bg-slate-700 transition-all border border-white/10 shadow-lg">Aplicar y Cerrar</button>
         </div>
     </div>
 
-    <div id="alertBox" class="hidden fixed bottom-5 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md p-4 rounded-xl z-50 shadow-2xl bg-zinc-900 border border-zinc-800"><p id="alertText" class="text-xs font-bold text-white"></p></div>
+    <!-- BANNER IA OVERLAY -->
+    <div id="aiBanner" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 border border-red-500/50 text-white text-xs px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-3 hidden transition-all">
+        <span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+        <span id="aiBannerText" class="font-bold tracking-wide">Cerebro IA Escuchando...</span>
+    </div>
 
-    <script>
-        const YOUTUBE_API_KEY = "AIzaSyDr0rhqgkS3A27swSH-m75fVbviECxTiUI";
-        let searchList = [];
-        let currentVideoIndex = -1;
-        let overlayTimer = null;
-        let isInterfaceLocked = false;
-        let isAiGlobalEnabled = false; // Estado del interruptor
+    <!-- ==================== LÓGICA DE INGENIERÍA (JAVASCRIPT) ==================== -->
+    <script type="module">
+        // ---------------------------------------------------------
+        // MÓDULO 1: FIREBASE CORE & SYNC (Preservado y Ampliado)
+        // ---------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
-        window.onload = function() {
-            // Cargar estado guardado de la IA
-            isAiGlobalEnabled = localStorage.getItem('ai_global_enabled') === 'true';
-            document.getElementById('aiToggleSwitch').checked = isAiGlobalEnabled;
-            updateUiForAiStatus();
-
-            const savedSD = localStorage.getItem('sd_card_code');
-            if (savedSD) document.getElementById('sdCardInput').value = savedSD;
-
-            renderSearchHistory();
-            renderVideoHistory();
-            executeSearchQuery("cumbias bailables ecuatorianas 2026");
+        const firebaseConfig = {
+            apiKey: "AIzaSyCROZ20n9v4WesAHLg-Ngk-wAsWg3IquaE",
+            authDomain: "reproductor-de-musica-d9baf.firebaseapp.com",
+            databaseURL: "https://reproductor-de-musica-d9baf-default-rtdb.firebaseio.com",
+            projectId: "reproductor-de-musica-d9baf"
         };
 
-        function toggleAiHardwareIntegration() {
-            isAiGlobalEnabled = document.getElementById('aiToggleSwitch').checked;
-            localStorage.setItem('ai_global_enabled', isAiGlobalEnabled);
-            updateUiForAiStatus();
-            showAlert(isAiGlobalEnabled ? "Cerebro IA activado para control de hardware y botones." : "Asistente de voz limitado a búsquedas simples.", "info");
-        }
+        const app = initializeApp(firebaseConfig);
+        window.db = getDatabase(app);
 
-        function updateUiForAiStatus() {
-            const badge = document.getElementById('aiBadge');
-            const placeholder = document.getElementById('searchBarPlaceholder');
-            const indicator = document.getElementById('navMicIndicator');
-            const micBtn = document.getElementById('globalMicBtn');
+        // Estado Global Consolidado
+        window.OS_STATE = {
+            role: 'controlled', // 'controller' o 'controlled'
+            activeEngine: 'local', // 'local' o 'youtube'
+            localPlaying: false,
+            ytPlaying: false,
+            isAiGlobalEnabled: true,
+            themeColor: '#ec4899'
+        };
 
-            if (isAiGlobalEnabled) {
-                badge.className = "text-[9px] bg-red-600 text-white font-bold px-1 py-0.5 rounded ml-1 uppercase animate-pulse";
-                badge.textContent = "AI ACTIVE";
-                placeholder.textContent = "Modo Manos Libres Activo. Presiona el micro...";
-                indicator.className = "w-2.5 h-2.5 rounded-full bg-red-500 shadow-md shadow-red-500/50 animate-ping";
-                micBtn.className = "text-red-500 p-2 rounded-full hover:bg-zinc-800 transition-all";
+        // Emitir comandos a Firebase
+        window.sendFirebaseCommand = function(type, value, engine = 'local') {
+            set(ref(window.db, 'reproductor_control/command'), {
+                type: type, value: value, engine: engine, timestamp: Date.now()
+            });
+        };
+
+        // Emitir Status (Solo si somos el 'controlled'/Player)
+        window.reportStatusToFirebase = function() {
+            if(window.OS_STATE.role !== 'controlled') return;
+            const statusObj = {
+                activeEngine: window.OS_STATE.activeEngine,
+                localTrackName: window.todasLasPistas && window.indicePistaActual > -1 ? window.todasLasPistas[window.indicePistaActual].nombre : "Ninguna",
+                localProgress: document.getElementById('progress-bar').value || 0,
+                localPlaying: window.OS_STATE.localPlaying,
+                ytVideoId: window.currentYtVideoId || null,
+                ytTitle: document.getElementById('ytVideoTitle').innerText || "",
+                timestamp: Date.now()
+            };
+            set(ref(window.db, 'reproductor_control/status'), statusObj);
+        };
+
+        // Escuchar Comandos (Ejecutar si somos Player)
+        let lastCommandTimestamp = 0;
+        onValue(ref(window.db, 'reproductor_control/command'), (snapshot) => {
+            const cmd = snapshot.val();
+            if(cmd && cmd.timestamp > lastCommandTimestamp) {
+                lastCommandTimestamp = cmd.timestamp;
+                if(window.OS_STATE.role === 'controlled') {
+                    if(cmd.engine === 'local') {
+                        if(cmd.type === 'PLAY') window.executeLocalPlay();
+                        else if(cmd.type === 'PAUSE') window.executeLocalPause();
+                        else if(cmd.type === 'NEXT') window.executeLocalNext();
+                        else if(cmd.type === 'PREV') window.executeLocalPrev();
+                        else if(cmd.type === 'PLAY_TRACK') window.playLocalTrack(cmd.value);
+                    } else if (cmd.engine === 'youtube') {
+                        if(cmd.type === 'PLAY_YT') window.loadYTVideo(cmd.value.id, cmd.value.title, cmd.value.channel);
+                    }
+                    else if (cmd.engine === 'system') {
+                        if(cmd.type === 'SWITCH_VIEW') window.switchAppView(cmd.value, true);
+                    }
+                }
+            }
+        });
+
+        // Escuchar Status (UI Update si somos Controller)
+        onValue(ref(window.db, 'reproductor_control/status'), (snapshot) => {
+            const status = snapshot.val();
+            if(status && window.OS_STATE.role === 'controller') {
+                // Sincronizar Vista activa remotamente si cambió
+                if(status.activeEngine !== window.OS_STATE.activeEngine) {
+                    window.switchAppView(status.activeEngine, true);
+                }
+                
+                if(status.activeEngine === 'local') {
+                    document.getElementById('full-title').textContent = status.localTrackName;
+                    if(!window.isDraggingProgress) document.getElementById('progress-bar').value = status.localProgress;
+                    window.OS_STATE.localPlaying = status.localPlaying;
+                    document.getElementById('full-play-icon').className = status.localPlaying ? "fas fa-pause text-xl" : "fas fa-play text-xl ml-1";
+                } else if (status.activeEngine === 'youtube') {
+                    document.getElementById('ytVideoTitle').innerText = status.ytTitle;
+                    if(status.ytVideoId && status.ytVideoId !== window.currentYtVideoId) {
+                        window.loadYTVideo(status.ytVideoId, status.ytTitle, "Modo Remoto", true);
+                    }
+                }
+            }
+        });
+
+        // ---------------------------------------------------------
+        // MÓDULO 2: UI ROUTER & CORE LOGIC
+        // ---------------------------------------------------------
+        
+        window.switchAppView = function(viewId, fromRemote = false) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('text-[var(--primary-color)]'));
+            
+            const target = document.getElementById(`view-${viewId}`);
+            const navBtn = document.getElementById(`nav-${viewId}`);
+            
+            if(target) target.classList.add('active');
+            if(navBtn) navBtn.classList.add('text-[var(--primary-color)]');
+            
+            window.OS_STATE.activeEngine = viewId;
+
+            // Lógica de Pausa Cruzada: Si pasas a YT, pausa Local, y viceversa
+            if(viewId === 'youtube' && window.OS_STATE.localPlaying) window.executeLocalPause();
+            // Nota: La API iFrame de YT pausa es compleja sin librería wrapper, usaremos recarga del iframe si es necesario o detener al cambiar a local.
+            if(viewId === 'local') {
+                const ytFrame = document.getElementById('mainVideoPlayer');
+                if(ytFrame.src.includes('autoplay=1')) ytFrame.src = ytFrame.src.replace('autoplay=1', 'autoplay=0'); 
+            }
+
+            // Avisar a Firebase si somos controlador manual
+            if(!fromRemote && window.OS_STATE.role === 'controller') {
+                window.sendFirebaseCommand('SWITCH_VIEW', viewId, 'system');
+            }
+            window.reportStatusToFirebase();
+        };
+
+        window.switchRole = function(role) {
+            window.OS_STATE.role = role;
+            const pBtn = document.getElementById('role-player-btn');
+            const cBtn = document.getElementById('role-controller-btn');
+            
+            if(role === 'controller') {
+                pBtn.className = "px-3 py-1 rounded-full transition-all text-gray-400 hover:text-white";
+                cBtn.className = "px-3 py-1 rounded-full transition-all bg-[var(--primary-color)] text-white shadow-md";
+                if(window.OS_STATE.localPlaying) window.executeLocalPause(); // Apaga reproducción local al volverse control
             } else {
-                badge.className = "text-[9px] bg-zinc-800 text-zinc-400 font-bold px-1 py-0.5 rounded ml-1 uppercase";
-                badge.textContent = "OS";
-                placeholder.textContent = "Control de voz inactivo. Toca para buscar...";
-                indicator.className = "w-2.5 h-2.5 rounded-full bg-zinc-600";
-                micBtn.className = "text-zinc-500 p-2 rounded-full hover:bg-transparent cursor-not-allowed";
+                pBtn.className = "px-3 py-1 rounded-full transition-all bg-[var(--primary-color)] text-white shadow-md";
+                cBtn.className = "px-3 py-1 rounded-full transition-all text-gray-400 hover:text-white";
             }
-        }
+        };
 
-        // CONTROLADOR DE ASISTENCIA GLOBAL DE VOZ (CEREBRO INTEGRAL)
-        function activateVoiceAssistant() {
-            if (!isAiGlobalEnabled) {
-                showAlert("Por favor, enciende el switch de Inteligencia Artificial en Configuración primero.", "warning");
-                toggleConfigModal();
-                return;
-            }
+        window.openSettingsModal = function() { 
+            const mod = document.getElementById('settings-modal');
+            mod.classList.remove('hidden'); setTimeout(()=> mod.classList.remove('opacity-0'), 10);
+        };
+        window.closeSettingsModal = function() {
+            const mod = document.getElementById('settings-modal');
+            mod.classList.add('opacity-0'); setTimeout(()=> mod.classList.add('hidden'), 300);
+        };
 
+        window.updateThemeColor = function(color) {
+            document.documentElement.style.setProperty('--primary-color', color);
+            window.OS_STATE.themeColor = color;
+        };
+    </script>
+
+    <!-- --------------------------------------------------------- -->
+    <!-- MÓDULO 3: INTELIGENCIA ARTIFICIAL (VOZ Y HARDWARE)        -->
+    <!-- --------------------------------------------------------- -->
+    <script>
+        window.activateVoiceAssistant = function() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                showAlert("Reconocimiento de voz nativo no soportado en esta versión web.", "error");
+                alert("API de reconocimiento de voz no soportada en este navegador/WebView.");
                 return;
             }
 
             const rec = new SpeechRecognition();
-            rec.lang = 'es-EC';
+            rec.lang = 'es-ES';
             rec.interimResults = false;
 
-            const micBtn = document.getElementById('globalMicBtn');
+            const btn = document.getElementById('global-ai-btn');
             const banner = document.getElementById('aiBanner');
             const bannerText = document.getElementById('aiBannerText');
 
-            micBtn.className = "text-white p-2 rounded-full pulse-mic-global";
+            btn.classList.add('ai-pulse-active');
             banner.classList.remove('hidden');
-            banner.classList.add('flex');
-            bannerText.textContent = "Cerebro OS Escuchando... Di un comando o pide un video.";
+            bannerText.textContent = "Analizando comando...";
 
             rec.start();
 
             rec.onresult = function(e) {
-                const phrase = e.results[0][0].transcript;
-                document.getElementById('searchInput').value = phrase;
-                bannerText.textContent = "Analizando acciones y mapeando hardware...";
-                
-                // Ejecutar el motor de parseo lógico de hardware e interfaz
-                executeAiHardwareRouter(phrase);
+                const phrase = e.results[0][0].transcript.toLowerCase().trim();
+                bannerText.textContent = "Procesando: " + phrase;
+                setTimeout(() => window.executeAiRouter(phrase), 500);
             };
 
-            rec.onerror = function() {
-                resetMicUI();
-                showAlert("Error en la captura de audio.", "warning");
+            rec.onerror = rec.onend = function() {
+                btn.classList.remove('ai-pulse-active');
+                setTimeout(() => banner.classList.add('hidden'), 1500);
             };
+        };
 
-            rec.onend = function() { resetMicUI(); };
-        }
+        window.executeAiRouter = function(cmd) {
+            console.log("Comando IA:", cmd);
+            let handled = false;
 
-        function resetMicUI() {
-            document.getElementById('globalMicBtn').className = "text-red-500 p-2 rounded-full hover:bg-zinc-800 transition-all";
-            document.getElementById('aiBanner').classList.add('hidden');
-        }
+            // 1. HARDWARE (Android Interface)
+            const num = cmd.match(/\d+/);
+            const level = num ? parseInt(num[0]) : null;
 
-        // EL ENRUTADOR COGNITIVO: Mapea frases a botones fijos del teléfono
-        function executeAiHardwareRouter(phrase) {
-            const cmd = phrase.toLowerCase().trim();
-            saveToLocalHistory(`Voz: "${phrase}"`);
-
-            // 1. COMANDOS DE NAVEGACIÓN Y MULTIMEDIA
-            if (cmd.includes("siguiente") || cmd.includes("pasa la otra") || cmd.includes("adelanta video")) {
-                showAlert("IA Acción: Siguiente video ejecutado.", "info");
-                playNext();
-                closeSearchMode();
-                return;
-            }
-            if (cmd.includes("anterior") || cmd.includes("retrocede") || cmd.includes("regresa")) {
-                showAlert("IA Acción: Video anterior ejecutado.", "info");
-                playPrevious();
-                closeSearchMode();
-                return;
-            }
-            if (cmd.includes("pausa") || cmd.includes("para") || cmd.includes("detén") || cmd.includes("deten")) {
-                showAlert("IA Acción: Pausa multimedia enviada.", "info");
-                togglePlayback();
-                closeSearchMode();
-                return;
-            }
-            if (cmd.includes("reproduce") || cmd.includes("play") || cmd.includes("continua")) {
-                showAlert("IA Acción: Reanudando reproducción.", "info");
-                closeSearchMode();
-                return;
-            }
-
-            // 2. COMANDOS DE INTERFAZ (PANTALLA)
-            if (cmd.includes("maximiza") || cmd.includes("pantalla completa") || cmd.includes("agranda")) {
-                showAlert("IA Acción: Maximizando visualizador.", "info");
-                goFullscreenHorizontal();
-                closeSearchMode();
-                return;
-            }
-            if (cmd.includes("historial") || cmd.includes("muéstrame el historial")) {
-                showAlert("IA Acción: Abriendo módulo de historial.", "info");
-                document.getElementById('historyModule').scrollIntoView({ behavior: 'smooth' });
-                closeSearchMode();
-                return;
-            }
-
-            // 3. COMANDOS DE HARDWARE REAL (Brillo y Volumen vía Android Studio)
-            // Extraer números si el usuario dice "Volumen al 20"
-            const matchNumber = cmd.match(/\d+/);
-            const level = matchNumber ? parseInt(matchNumber[0]) : null;
-
-            if (cmd.includes("volumen") || cmd.includes("silencio") || cmd.includes("baja la voz") || cmd.includes("sube el sonido")) {
-                let targetVol = level !== null ? level : (cmd.includes("sube") ? 80 : 20);
-                if (cmd.includes("silencio") || cmd.includes("haz silencio")) targetVol = 0;
-                
-                showAlert(`IA Acción Hardware -> Volumen fijado en: ${targetVol}%`, "info");
-                
-                // Enlace con el canal de Java en Android Studio
-                if (window.AndroidInterface && window.AndroidInterface.changePhoneVolume) {
-                    window.AndroidInterface.changePhoneVolume(targetVol);
+            if(cmd.includes("volumen") || cmd.includes("sonido")) {
+                let target = level !== null ? level : (cmd.includes("sube") ? 80 : 20);
+                if(window.AndroidInterface && window.AndroidInterface.changePhoneVolume) {
+                    window.AndroidInterface.changePhoneVolume(target);
                 }
-                closeSearchMode();
-                return;
+                handled = true;
             }
-
-            if (cmd.includes("brillo") || cmd.includes("pantalla oscura") || cmd.includes("iluminación")) {
-                let targetBrightness = level !== null ? level : (cmd.includes("sube") ? 90 : 15);
-                showAlert(`IA Acción Hardware -> Brillo de pantalla fijado en: ${targetBrightness}%`, "info");
-                
-                // Enlace con el canal de Java en Android Studio
-                if (window.AndroidInterface && window.AndroidInterface.changePhoneBrightness) {
-                    window.AndroidInterface.changePhoneBrightness(targetBrightness);
+            if(cmd.includes("brillo") || cmd.includes("luz")) {
+                let target = level !== null ? level : (cmd.includes("sube") ? 90 : 20);
+                if(window.AndroidInterface && window.AndroidInterface.changePhoneBrightness) {
+                    window.AndroidInterface.changePhoneBrightness(target);
                 }
-                closeSearchMode();
-                return;
+                handled = true;
             }
 
-            // 4. SI NO ES NINGÚN COMANDO DE HARDWARE, PASA A SER BÚSQUEDA INTELIGENTE
-            let refinedSearch = cmd;
-            if (cmd.includes("busca") || cmd.includes("ponme")) {
-                refinedSearch = cmd.replace("busca", "").replace("ponme", "").replace("por favor", "").trim();
+            // 2. SISTEMA / MODOS
+            if(cmd.includes("modo control") || cmd.includes("control remoto")) {
+                window.switchRole('controller');
+                handled = true;
             }
-            showAlert(`IA Inteligencia: Buscando en YouTube -> "${refinedSearch}"`, "info");
-            executeSearchQuery(refinedSearch);
-            closeSearchMode();
-        }
 
-        // MOTOR REPRODUCTOR Y RENDERS STANDARD
-        async function executeSearchQuery(query) {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`;
+            // 3. MEDIA CONTROLS
+            if(cmd.includes("pausa") || cmd.includes("deten")) {
+                if(window.OS_STATE.activeEngine === 'local') window.executeLocalPause();
+                handled = true;
+            }
+            if(cmd.includes("siguiente") || cmd.includes("otra")) {
+                if(window.OS_STATE.activeEngine === 'local') window.executeLocalNext();
+                handled = true;
+            }
+
+            // 4. BÚSQUEDA Y REPRODUCCIÓN INTELIGENTE
+            if(!handled) {
+                let search = cmd.replace("busca", "").replace("pon", "").replace("reproduce", "").replace("en youtube", "").trim();
+                if(cmd.includes("youtube") || cmd.includes("video")) {
+                    window.switchAppView('youtube');
+                    document.getElementById('ytSearchInput').value = search;
+                    window.triggerYTSearch(search);
+                } else {
+                    // Default a YouTube si no hay música local
+                    if(window.todasLasPistas && window.todasLasPistas.length > 0) {
+                        window.switchAppView('local');
+                        // Filtrar y tocar la primera coincidencia (Simplificado)
+                        const found = window.todasLasPistas.findIndex(p => p.nombre.toLowerCase().includes(search));
+                        if(found !== -1) window.playLocalTrack(found);
+                    } else {
+                        window.switchAppView('youtube');
+                        document.getElementById('ytSearchInput').value = search;
+                        window.triggerYTSearch(search);
+                    }
+                }
+            }
+            document.getElementById('aiBannerText').textContent = "Ejecutado.";
+        };
+    </script>
+
+    <!-- --------------------------------------------------------- -->
+    <!-- MÓDULO 4: YOUTUBE ENGINE (Preservado del index.html)      -->
+    <!-- --------------------------------------------------------- -->
+    <script>
+        const YT_API_KEY = "AIzaSyDr0rhqgkS3A27swSH-m75fVbviECxTiUI";
+        window.currentYtVideoId = null;
+
+        window.triggerYTSearch = async function(query = null) {
+            const q = query || document.getElementById('ytSearchInput').value.trim();
+            if(!q) return;
+            
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(q)}&type=video&key=${YT_API_KEY}`;
             try {
                 const res = await fetch(url);
                 const data = await res.json();
-                if (data.items && data.items.length > 0) {
-                    searchList = data.items;
-                    renderResultsCards();
-                    loadVideoByIndex(0);
+                if(data.items && data.items.length > 0) {
+                    renderYTResults(data.items);
+                    if(window.innerWidth < 1024) document.getElementById('ytResultsPane').classList.remove('hidden');
                 }
-            } catch (err) { console.log(err); }
-        }
+            } catch(e) { console.error("YT API Error", e); }
+        };
 
-        function renderResultsCards() {
-            const container = document.getElementById('resultsContainer'); container.innerHTML = "";
-            searchList.forEach((item, index) => {
-                container.innerHTML += `
-                    <div id="card-${index}" onclick="loadVideoByIndex(${index})" class="flex bg-[#161616] border border-[#212121] rounded-xl p-2 items-start gap-3 cursor-pointer hover:bg-[#212121]">
-                        <img src="${item.snippet.thumbnails.medium.url}" class="w-24 aspect-video rounded-lg object-cover bg-black flex-shrink-0">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-xs font-bold text-white line-clamp-2 leading-tight">${item.snippet.title}</h4>
-                            <p class="text-[10px] text-gray-400 mt-0.5 truncate">${item.snippet.channelTitle}</p>
-                        </div>
+        function renderYTResults(items) {
+            const cont = document.getElementById('ytResultsContainer');
+            cont.innerHTML = "";
+            items.forEach((item, i) => {
+                const el = document.createElement('div');
+                el.className = "flex bg-black/40 border border-white/5 rounded-lg p-2 gap-2 cursor-pointer hover:bg-white/10 transition-all";
+                el.innerHTML = `
+                    <img src="${item.snippet.thumbnails.default.url}" class="w-20 aspect-video rounded object-cover bg-black">
+                    <div class="flex-1 overflow-hidden flex flex-col justify-center">
+                        <h4 class="text-[10px] font-bold text-white line-clamp-2 leading-tight">${item.snippet.title}</h4>
+                        <p class="text-[8px] text-[var(--primary-color)] truncate mt-0.5">${item.snippet.channelTitle}</p>
                     </div>`;
+                el.onclick = () => {
+                    if(window.OS_STATE.role === 'controller') {
+                        window.sendFirebaseCommand('PLAY_YT', {id: item.id.videoId, title: item.snippet.title, channel: item.snippet.channelTitle}, 'youtube');
+                    } else {
+                        window.loadYTVideo(item.id.videoId, item.snippet.title, item.snippet.channelTitle);
+                    }
+                    if(window.innerWidth < 1024) document.getElementById('ytResultsPane').classList.add('hidden');
+                };
+                cont.appendChild(el);
             });
         }
 
-        function loadVideoByIndex(index) {
-            if (index < 0 || index >= searchList.length) return;
-            currentVideoIndex = index;
-            const item = searchList[index];
-            document.getElementById('playerPlaceholder').classList.add('hidden');
-            document.getElementById('mainVideoPlayer').src = `https://www.youtube-nocookie.com/embed/${item.id.videoId}?autoplay=1&rel=0&modestbranding=1&controls=0`;
-            document.getElementById('videoTitle').textContent = item.snippet.title;
-            document.getElementById('overlayMiniTitle').textContent = item.snippet.title;
-            addVideoToHistory(item.id.videoId, item.snippet.title, item.snippet.thumbnails.medium.url);
-            resetOverlayTimeout();
+        window.loadYTVideo = function(id, title, channel, fromRemote = false) {
+            window.currentYtVideoId = id;
+            document.getElementById('ytPlaceholder').classList.add('hidden');
+            // Reproductor Minimalista de YT API, sin logos ni controles groseros
+            document.getElementById('mainVideoPlayer').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&controls=1`;
+            document.getElementById('ytVideoTitle').innerText = title;
+            document.getElementById('ytVideoChannel').innerText = channel;
+            
+            if(!fromRemote) window.reportStatusToFirebase();
+        };
+    </script>
+
+    <!-- --------------------------------------------------------- -->
+    <!-- MÓDULO 5: LOCAL AUDIO ENGINE (Preservado y Optimizado)    -->
+    <!-- --------------------------------------------------------- -->
+    <script>
+        window.todasLasPistas = [];
+        window.indicePistaActual = -1;
+        const mainAudio = document.getElementById('main-audio');
+        const supportedExts = ['.mp3', '.wav', '.m4a', '.ogg', '.flac'];
+
+        // Solicitud FS nativa
+        window.solicitarAccAccessCarpeta = async function() {
+            if (window.OS_STATE.role === 'controller') return;
+            if (!window.showDirectoryPicker) {
+                document.getElementById('fallback-folder-picker').click(); return;
+            }
+            try {
+                const handle = await window.showDirectoryPicker({ mode: 'read' });
+                window.todasLasPistas = [];
+                await procesarDirRec(handle, "");
+                renderLocalList();
+            } catch(e) { console.log(e); document.getElementById('fallback-folder-picker').click(); }
+        };
+
+        window.procesarCarpetaFallback = function(files) {
+            window.todasLasPistas = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+                if (supportedExts.includes(ext)) window.todasLasPistas.push({ nombre: file.name, fileObject: file });
+            }
+            renderLocalList();
+        };
+
+        async function procesarDirRec(handle, path) {
+            for await (const entry of handle.values()) {
+                if (entry.kind === 'directory') await procesarDirRec(entry, path + entry.name + "/");
+                else if (entry.kind === 'file') {
+                    const ext = entry.name.slice(entry.name.lastIndexOf('.')).toLowerCase();
+                    if(supportedExts.includes(ext)) window.todasLasPistas.push({ nombre: entry.name, manejador: entry });
+                }
+            }
         }
 
-        function addVideoToHistory(id, title, thumbnail) {
-            let history = JSON.parse(localStorage.getItem('yt_video_history')) || [];
-            history = history.filter(v => v.id !== id); history.unshift({ id, title, thumbnail });
-            localStorage.setItem('yt_video_history', JSON.stringify(history));
-            renderVideoHistory();
-        }
-
-        function renderVideoHistory() {
-            const container = document.getElementById('videoHistoryContainer'); container.innerHTML = "";
-            let history = JSON.parse(localStorage.getItem('yt_video_history')) || [];
-            if(history.length===0){ container.innerHTML=`<p class="text-[11px] text-zinc-600">Vacío.</p>`; return; }
-            history.forEach(video => {
-                container.innerHTML += `
-                    <div onclick="document.getElementById('playerPlaceholder').classList.add('hidden'); document.getElementById('mainVideoPlayer').src='https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1';" class="w-24 flex-shrink-0 bg-[#161616] border border-[#232323] p-1 rounded-lg cursor-pointer">
-                        <img src="${video.thumbnail}" class="w-full aspect-video object-cover rounded bg-black">
-                        <h4 class="text-[9px] text-zinc-400 line-clamp-2 mt-1 leading-tight">${video.title}</h4>
-                    </div>`;
+        function renderLocalList() {
+            const list = document.getElementById('file-list');
+            list.innerHTML = '';
+            if(window.todasLasPistas.length === 0) {
+                list.innerHTML = '<div class="text-center text-gray-500 mt-4 text-xs">Carpeta vacía</div>'; return;
+            }
+            window.todasLasPistas.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.className = "p-2 rounded bg-white/5 border border-white/5 hover:bg-white/10 cursor-pointer flex items-center gap-2 group transition-all";
+                div.innerHTML = `<i class="fas fa-play text-[8px] text-gray-500 group-hover:text-[var(--primary-color)]"></i> <span class="text-xs truncate text-gray-200">${p.nombre.replace(/\.[^/.]+$/, "")}</span>`;
+                div.onclick = () => {
+                    if(window.OS_STATE.role === 'controller') window.sendFirebaseCommand('PLAY_TRACK', idx, 'local');
+                    else window.playLocalTrack(idx);
+                };
+                list.appendChild(div);
             });
         }
 
-        function handlePlayerClick() {
-            if (isInterfaceLocked) return;
-            const overlay = document.getElementById('playerControlsOverlay');
-            overlay.classList.toggle('opacity-0'); overlay.classList.toggle('pointer-events-none');
-            resetOverlayTimeout();
-        }
-        function resetOverlayTimeout() { clearTimeout(overlayTimer); overlayTimer = setTimeout(() => { document.getElementById('playerControlsOverlay').classList.add('opacity-0', 'pointer-events-none'); }, 4000); }
+        window.playLocalTrack = async function(idx) {
+            if (idx < 0 || idx >= window.todasLasPistas.length) return;
+            window.indicePistaActual = idx;
+            const pista = window.todasLasPistas[idx];
+
+            try {
+                let file;
+                if (pista.fileObject) file = pista.fileObject;
+                else {
+                    if ((await pista.manejador.queryPermission({mode: 'read'})) !== 'granted') await pista.manejador.requestPermission({mode: 'read'});
+                    file = await pista.manejador.getFile();
+                }
+
+                mainAudio.src = URL.createObjectURL(file);
+                document.getElementById('full-title').innerText = pista.nombre.replace(/\.[^/.]+$/, "");
+                
+                setupAudioEngine(); // Activa visualizador
+                window.executeLocalPlay();
+            } catch(e) { console.error("Error reproduciendo local", e); }
+        };
+
+        // Controles de Playback Locales
+        window.togglePlayLocal = function() {
+            if(window.OS_STATE.role === 'controller') {
+                window.sendFirebaseCommand(window.OS_STATE.localPlaying ? 'PAUSE' : 'PLAY', null, 'local');
+            } else {
+                window.OS_STATE.localPlaying ? window.executeLocalPause() : window.executeLocalPlay();
+            }
+        };
+
+        window.executeLocalPlay = function() {
+            if(window.todasLasPistas.length === 0) return;
+            if(window.indicePistaActual === -1) window.playLocalTrack(0);
+            else { mainAudio.play(); window.OS_STATE.localPlaying = true; updateLocalUI(); }
+        };
+
+        window.executeLocalPause = function() { mainAudio.pause(); window.OS_STATE.localPlaying = false; updateLocalUI(); };
+        window.executeLocalNext = function() { window.playLocalTrack((window.indicePistaActual + 1) % window.todasLasPistas.length); };
+        window.executeLocalPrev = function() { window.playLocalTrack((window.indicePistaActual - 1 + window.todasLasPistas.length) % window.todasLasPistas.length); };
         
-        function togglePlayback() { showAlert("Play/Pausa alterado.", "info"); }
-        function playNext() { loadVideoByIndex((currentVideoIndex + 1) % searchList.length); }
-        function playPrevious() { loadVideoByIndex((currentVideoIndex - 1 + searchList.length) % searchList.length); }
-        function goFullscreenHorizontal() { document.getElementById('playerWrapper').requestFullscreen().catch(()=>{}); }
+        window.seekTrackLocal = function(val) { if(mainAudio.duration) mainAudio.currentTime = (val/100)*mainAudio.duration; };
+        window.setVolumeLocal = function(val) { mainAudio.volume = val; };
 
-        function openSearchMode() { document.getElementById('searchOverlay').classList.remove('hidden'); document.getElementById('searchInput').focus(); }
-        function closeSearchMode() { document.getElementById('searchOverlay').classList.add('hidden'); }
-        function checkEnter(event) { if (event.key === 'Enter') triggerSearch(); }
-        function triggerSearch() { const q = document.getElementById('searchInput').value.trim(); if(q) { executeSearchQuery(q); closeSearchMode(); } }
-
-        function saveToLocalHistory(text) {
-            let history = JSON.parse(localStorage.getItem('yt_search_history')) || [];
-            history.unshift(text); localStorage.setItem('yt_search_history', JSON.stringify(history.slice(0,10))); renderSearchHistory();
+        function updateLocalUI() {
+            document.getElementById('full-play-icon').className = window.OS_STATE.localPlaying ? "fas fa-pause text-xl" : "fas fa-play text-xl ml-1";
+            window.reportStatusToFirebase();
         }
-        function renderSearchHistory() {
-            const container = document.getElementById('historyContainer'); container.innerHTML = "";
-            let history = JSON.parse(localStorage.getItem('yt_search_history')) || [];
-            history.forEach(t => { container.innerHTML += `<div class="bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-xs text-zinc-300 font-mono">${t}</div>`; });
-        }
-        function clearAllHistory() { localStorage.removeItem('yt_search_history'); renderSearchHistory(); }
-        function goHome() { executeSearchQuery("musica bailable"); }
 
-        function toggleConfigModal() { document.getElementById('configModal').classList.toggle('hidden'); }
-        function saveSettings() { localStorage.setItem('sd_card_code', document.getElementById('sdCardInput').value.trim()); toggleConfigModal(); }
+        // Time Update
+        mainAudio.addEventListener('timeupdate', () => {
+            if(mainAudio.duration) {
+                const c = mainAudio.currentTime, d = mainAudio.duration;
+                document.getElementById('progress-bar').value = (c/d)*100;
+                document.getElementById('time-current').innerText = `${Math.floor(c/60)}:${Math.floor(c%60).toString().padStart(2,'0')}`;
+                document.getElementById('time-total').innerText = `${Math.floor(d/60)}:${Math.floor(d%60).toString().padStart(2,'0')}`;
+            }
+        });
+        mainAudio.addEventListener('ended', () => window.executeLocalNext());
 
-        function showAlert(msg, type) {
-            document.getElementById('alertText').textContent = msg;
-            const box = document.getElementById('alertBox'); box.classList.remove('hidden');
-            setTimeout(() => box.classList.add('hidden'), 4500);
+        // ---------------------------------------------------------
+        // AUDIO CONTEXT & CANVAS VISUALIZER (Básico presencial)
+        // ---------------------------------------------------------
+        let audioCtx = null, analyser = null, dataArray = null;
+        let vMode = 'bars';
+        
+        window.setVisualizerMode = function(m) { vMode = m; };
+
+        function setupAudioEngine() {
+            if(audioCtx) return;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+            const source = audioCtx.createMediaElementSource(mainAudio);
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            drawVisualizer();
         }
+
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            if(!analyser) return;
+            analyser.getByteFrequencyData(dataArray);
+            
+            const cvs = document.getElementById('visualizer-canvas');
+            const ctx = cvs.getContext('2d');
+            
+            // Auto resize
+            if(cvs.width !== cvs.offsetWidth) cvs.width = cvs.offsetWidth;
+            if(cvs.height !== cvs.offsetHeight) cvs.height = cvs.offsetHeight;
+
+            ctx.clearRect(0,0, cvs.width, cvs.height);
+            const color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
+            ctx.fillStyle = color;
+
+            const count = analyser.frequencyBinCount;
+            if (vMode === 'bars') {
+                const bw = (cvs.width / count) * 1.5;
+                let x = 0;
+                for(let i=0; i<count; i++) {
+                    const h = (dataArray[i]/255) * cvs.height;
+                    ctx.fillRect(x, cvs.height - h, bw - 1, h);
+                    x += bw;
+                }
+            } else if (vMode === 'wave') {
+                ctx.beginPath(); ctx.lineWidth=3; ctx.strokeStyle=color;
+                const sw = cvs.width / count; let x=0;
+                for(let i=0; i<count; i++) {
+                    const y = (dataArray[i]/255)*cvs.height*0.5 + cvs.height/4;
+                    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+                    x+=sw;
+                }
+                ctx.stroke();
+            } else if (vMode === 'matrix' || vMode === 'circle') {
+                // Implementación comprimida para evitar sobrecarga: Círculo simple
+                const cX = cvs.width/2, cY = cvs.height/2;
+                ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2;
+                for(let i=0; i<count; i++) {
+                    const ang = (i/count)*Math.PI*2;
+                    const h = (dataArray[i]/255) * (cvs.height/3);
+                    ctx.moveTo(cX + Math.cos(ang)*50, cY + Math.sin(ang)*50);
+                    ctx.lineTo(cX + Math.cos(ang)*(50+h), cY + Math.sin(ang)*(50+h));
+                }
+                ctx.stroke();
+            }
+        }
+
+        // INIT
+        window.addEventListener('DOMContentLoaded', () => {
+            window.switchAppView('local');
+        });
     </script>
 </body>
 </html>
+
+```
