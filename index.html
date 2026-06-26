@@ -1,12 +1,9 @@
-```html
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Universal Media OS</title>
-    
-    <!-- Librerías Core -->
+    <title>Music Franklin Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -17,9 +14,9 @@
 
     <style>
         :root {
-            --primary-color: #ec4899; /* Rosa Neón Default, adaptable vía settings */
+            --primary-color: #ec4899; /* Rosa Neón */
             --bg-color: #0b0f19;
-            --panel-bg: rgba(15, 20, 30, 0.75);
+            --panel-bg: rgba(22, 30, 49, 0.7);
         }
 
         body {
@@ -30,228 +27,505 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Scrollbars y Utilidades */
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
         ::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
+
+        #file-list::-webkit-scrollbar, .hide-scroll::-webkit-scrollbar {
+            display: none !important;
+        }
+        #file-list, .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .smooth-marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+            position: relative;
+        }
         
-        .hide-scroll::-webkit-scrollbar { display: none !important; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .smooth-marquee-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marqueeSmooth 15s linear infinite;
+        }
+
+        @keyframes marqueeSmooth {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        .wavy-marquee-pro {
+            display: inline-block;
+            padding-left: 100%;
+            font-weight: 900;
+            background-image: linear-gradient(90deg, #ff007f, #00f0ff, #ad00ff, #00ff66, #ff007f);
+            background-size: 400% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: marqueeWavyPro 14s linear infinite, spectrumShift 8s linear infinite;
+            filter: drop-shadow(0 0 12px rgba(255, 0, 127, 0.6));
+        }
+
+        @keyframes marqueeWavyPro {
+            0% { transform: translate3d(0, 0, 0) translateY(0px) skewX(0deg); }
+            25% { transform: translate3d(-25%, 0, 0) translateY(-6px) skewX(-3deg); }
+            50% { transform: translate3d(-50%, 0, 0) translateY(6px) skewX(3deg); }
+            75% { transform: translate3d(-75%, 0, 0) translateY(-5px) skewX(-2deg); }
+            100% { transform: translate3d(-100%, 0, 0) translateY(0px) skewX(0deg); }
+        }
+
+        .rainbow-neon-text {
+            font-weight: 900;
+            background-image: linear-gradient(90deg, #ff007f, #00f0ff, #ad00ff, #00ff66, #ff007f);
+            background-size: 400% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: spectrumShift 8s linear infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 127, 0.45));
+        }
+
+        @keyframes spectrumShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 400% 50%; }
+        }
+
+        input[type=range]:not(.vertical-slider) {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            height: 20px;
+        }
+        input[type=range]:not(.vertical-slider)::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        input[type=range]:not(.vertical-slider)::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            margin-top: -5px;
+            box-shadow: 0 0 8px var(--primary-color);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.3);
+        }
+
+        .vertical-slider {
+            -webkit-appearance: none;
+            writing-mode: vertical-lr;
+            direction: rtl;
+            vertical-align: bottom;
+            width: 20px;
+            height: 140px;
+            margin: 0 auto;
+            background: transparent;
+        }
+        .vertical-slider::-webkit-slider-runnable-track {
+            width: 6px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .vertical-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            margin-left: -5px;
+            box-shadow: 0 0 8px var(--primary-color);
+            transition: transform 0.1s;
+        }
+
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .glass-panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* Animaciones Globales */
         .view-section {
             display: none;
-            animation: fadeIn 0.3s ease-out;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .view-section.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideUp { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
 
         /* Animación IA Core */
         .ai-pulse-active { animation: ai-glow 1.5s infinite ease-in-out; }
         @keyframes ai-glow {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); background-color: rgba(220, 38, 38, 0.8); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); background-color: rgba(239, 68, 68, 1); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); background-color: rgba(220, 38, 38, 0.8); }
+            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); background-color: rgba(219, 39, 119, 0.8); color: white; }
+            70% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); background-color: rgba(236, 72, 153, 1); color: white; }
+            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); background-color: rgba(219, 39, 119, 0.8); color: white; }
         }
-
-        /* Sliders */
-        input[type=range] { -webkit-appearance: none; background: transparent; height: 10px; width: 100%; }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: var(--primary-color); cursor: pointer; margin-top: -4px; box-shadow: 0 0 8px var(--primary-color); transition: transform 0.1s; }
-        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.3); }
-
-        .vertical-slider { -webkit-appearance: none; writing-mode: vertical-lr; direction: rtl; width: 10px; height: 120px; }
     </style>
 </head>
-<body class="flex h-screen w-screen selection:bg-pink-600">
+<body class="flex flex-col h-screen w-screen select-none">
 
-    <!-- REPRODUCTOR DE AUDIO HTML OCULTO -->
     <audio id="main-audio"></audio>
     <input type="file" id="fallback-folder-picker" webkitdirectory directory multiple class="hidden" onchange="procesarCarpetaFallback(this.files)">
 
-    <!-- ==================== SIDEBAR NAVEGACIÓN ==================== -->
-    <aside class="w-16 sm:w-20 glass-panel flex flex-col items-center py-6 border-r border-white/10 z-40 shrink-0 shadow-2xl justify-between relative">
-        <div class="flex flex-col items-center gap-8 w-full">
-            <!-- Logo Animado -->
-            <div class="w-10 h-10 rounded-full flex items-center justify-center bg-slate-900 border border-white/10 shadow-[0_0_15px_var(--primary-color)]">
-                <i class="fas fa-compact-disc text-xl fa-spin-hover" style="color: var(--primary-color);" id="global-logo"></i>
-            </div>
+    <div id="aiBanner" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-900/95 border border-pink-500/50 text-white text-xs px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-3 hidden transition-all">
+        <span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+        <span id="aiBannerText" class="font-bold tracking-wide">Cerebro IA Escuchando...</span>
+    </div>
 
-            <!-- Menú Principal -->
-            <nav class="flex flex-col gap-6 w-full">
-                <button onclick="switchAppView('local')" id="nav-local" class="nav-btn w-full p-3 text-gray-400 hover:text-white transition-all flex flex-col items-center gap-1 group">
-                    <i class="fas fa-music text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[9px] font-bold tracking-widest uppercase">Local</span>
-                </button>
-                <button onclick="switchAppView('youtube')" id="nav-youtube" class="nav-btn w-full p-3 text-gray-400 hover:text-white transition-all flex flex-col items-center gap-1 group">
-                    <i class="fab fa-youtube text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[9px] font-bold tracking-widest uppercase">Stream</span>
-                </button>
-                <button onclick="openSettingsModal()" id="nav-settings" class="nav-btn w-full p-3 text-gray-400 hover:text-white transition-all flex flex-col items-center gap-1 group">
-                    <i class="fas fa-sliders-h text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[9px] font-bold tracking-widest uppercase">Config</span>
-                </button>
-            </nav>
+    <header class="glass-panel flex justify-between items-center px-5 py-4 z-20 shrink-0 relative gap-2">
+        <div class="flex items-center gap-3 z-10 overflow-hidden shrink">
+            <i class="fas fa-compact-disc text-2xl" id="logo-icon" style="color: var(--primary-color);"></i>
+            <h1 id="app-title" class="text-base sm:text-xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-100 to-gray-400 truncate">Music Franklin Pro</h1>
         </div>
 
-        <!-- Botón Global IA (El Cerebro) -->
-        <button onclick="activateVoiceAssistant()" id="global-ai-btn" class="w-12 h-12 rounded-full bg-slate-800 text-red-500 border border-red-500/30 flex items-center justify-center shadow-lg transition-all hover:bg-slate-700 mt-auto group" title="Asistente IA de Voz">
-            <i class="fas fa-microphone text-xl group-hover:scale-110 transition-transform"></i>
-        </button>
-    </aside>
-
-    <!-- ==================== MAIN CONTENT AREA ==================== -->
-    <main class="flex-1 flex flex-col relative overflow-hidden bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]">
+        <div class="flex bg-slate-950/80 rounded-full p-1 border border-white/10 text-[10px] sm:text-xs font-bold z-10 shadow-lg shrink-0 hidden md:flex">
+            <button id="role-player-btn" onclick="switchRole('controlled')" class="px-2.5 sm:px-3 py-1 rounded-full transition-all bg-pink-500 text-white">
+                <i class="fas fa-play-circle mr-1"></i> Reproductor
+            </button>
+            <button id="role-controller-btn" onclick="switchRole('controller')" class="px-2.5 sm:px-3 py-1 rounded-full transition-all text-gray-400">
+                <i class="fas fa-gamepad mr-1"></i> Controlador
+            </button>
+        </div>
         
-        <!-- TOPBAR DE ESTADO -->
-        <header class="h-14 glass-panel border-b border-white/5 flex justify-between items-center px-4 shrink-0 z-30">
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500" id="topbar-title">Media OS</span>
-                <span id="aiBadge" class="text-[8px] bg-slate-800 text-gray-400 font-bold px-1.5 py-0.5 rounded border border-white/10 uppercase">IA Ready</span>
+        <div class="flex items-center gap-1 sm:gap-3 z-10 shrink-0">
+            <button onclick="activateVoiceAssistant()" id="global-ai-btn" class="touch-target text-pink-500 hover:text-pink-400 transition-colors rounded-full" title="Asistente IA de Voz"><i class="fas fa-microphone text-lg sm:text-xl"></i></button>
+            <button onclick="switchView('library')" id="nav-library" class="touch-target text-gray-400 hover:text-white transition-colors" title="Biblioteca Local"><i class="fas fa-folder-open text-lg sm:text-xl"></i></button>
+            <button onclick="switchView('youtube')" id="nav-youtube" class="touch-target text-gray-400 hover:text-white transition-colors" title="YouTube Stream"><i class="fab fa-youtube text-lg sm:text-xl"></i></button>
+            <button onclick="switchView('player')" id="nav-player" class="touch-target text-gray-400 hover:text-white transition-colors" title="Reproductor Local"><i class="fas fa-play-circle text-lg sm:text-xl"></i></button>
+            <button onclick="openSettings()" id="nav-settings" class="touch-target text-gray-400 hover:text-white transition-colors" title="Configuraciones"><i class="fas fa-sliders-h text-lg sm:text-xl"></i></button>
+        </div>
+    </header>
+
+    <main class="flex-1 relative overflow-hidden">
+        
+        <section id="view-library" class="view-section active flex-col relative h-full">
+            <div class="p-4 flex gap-3 bg-slate-900/60 items-center justify-between border-b border-gray-800 shrink-0">
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <span id="current-path-display" class="text-xs text-gray-400 truncate max-w-xs">Ubicación del Catálogo Local</span>
+                </div>
+                <button id="sd-folder-picker-btn" onclick="solicitarAccAccessCarpeta()" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-xs px-5 py-3 rounded-full shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0" style="background-color: var(--primary-color);">
+                    <i class="fas fa-folder-open"></i> Elegir Carpeta SD
+                </button>
             </div>
 
-            <!-- Role Switcher (Control Remoto) -->
-            <div class="flex bg-black/50 rounded-full p-1 border border-white/10 text-[10px] font-bold shadow-inner">
-                <button id="role-player-btn" onclick="switchRole('controlled')" class="px-3 py-1 rounded-full transition-all bg-[var(--primary-color)] text-white shadow-md">
-                    <i class="fas fa-play-circle mr-1"></i> Player
-                </button>
-                <button id="role-controller-btn" onclick="switchRole('controller')" class="px-3 py-1 rounded-full transition-all text-gray-400 hover:text-white">
-                    <i class="fas fa-gamepad mr-1"></i> Remoto
-                </button>
+            <div id="file-list" class="flex-1 overflow-y-auto p-4 space-y-2 pb-24">
+                <div id="sd-placeholder-box" class="text-center text-gray-500 mt-16 px-4">
+                    <div class="w-16 h-16 bg-slate-800/40 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-music text-3xl opacity-40" style="color: var(--primary-color);"></i>
+                    </div>
+                    <h3 class="text-white font-semibold mb-2">Selecciona tu Carpeta Raíz</h3>
+                    <p class="text-xs max-w-sm mx-auto text-gray-400 mb-6">Presiona el botón superior para buscar la carpeta de tu tarjeta SD o almacenamiento.</p>
+                    <button onclick="solicitarAccAccessCarpeta()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-6 py-3.5 rounded-xl font-bold transition-all">
+                        <i class="fas fa-folder-open mr-1"></i> Abrir Selector de Carpeta
+                    </button>
+                </div>
             </div>
-        </header>
 
-        <!-- CONTENEDOR DE VISTAS -->
-        <div class="flex-1 relative w-full h-full overflow-hidden">
-            
-            <!-- VISTA 1: AUDIO LOCAL (Reproductor.html fusionado) -->
-            <section id="view-local" class="view-section active flex-col absolute inset-0 w-full h-full bg-black/40">
-                <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
-                    <!-- Lista de Archivos -->
-                    <div class="w-full md:w-1/3 border-r border-white/5 flex flex-col h-full bg-slate-900/50">
-                        <div class="p-3 border-b border-white/5 flex justify-between items-center bg-black/20">
-                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest"><i class="fas fa-folder-open mr-1"></i> Biblioteca</span>
-                            <button id="sd-folder-picker-btn" onclick="solicitarAccAccessCarpeta()" class="text-[10px] bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full transition-all border border-white/10">Cargar Ruta SD</button>
-                        </div>
-                        <div id="file-list" class="flex-1 overflow-y-auto p-2 space-y-1 hide-scroll relative">
-                            <!-- Lista generada por JS -->
-                            <div id="sd-placeholder-box" class="text-center text-gray-500 mt-10 px-4">
-                                <i class="fas fa-sd-card text-3xl opacity-40 mb-2"></i>
-                                <h3 class="text-sm text-white font-semibold mb-1">Sin Origen</h3>
-                                <p class="text-[10px]">Carga tu carpeta de música para comenzar.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Visualizador y Controles Locales -->
-                    <div class="flex-1 flex flex-col relative h-full">
-                        <canvas id="visualizer-canvas" class="absolute inset-0 w-full h-full opacity-60 pointer-events-none"></canvas>
-                        
-                        <div class="flex-1 flex flex-col items-center justify-center p-6 z-10 relative">
-                            <h2 id="full-title" class="text-2xl md:text-4xl font-black text-center text-white truncate w-full max-w-lg mb-2 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Ninguna pista</h2>
-                            <p id="full-channel" class="text-xs text-gray-400 uppercase tracking-widest font-bold mb-8">Audio Local OS</p>
-                            
-                            <!-- Barra de progreso local -->
-                            <div class="w-full max-w-md">
-                                <div class="flex justify-between text-[10px] font-bold text-gray-400 mb-1">
-                                    <span id="time-current">0:00</span>
-                                    <span id="time-total">0:00</span>
-                                </div>
-                                <input type="range" id="progress-bar" min="0" max="100" value="0" oninput="window.isDraggingProgress = true" onchange="seekTrackLocal(this.value)">
-                            </div>
-                        </div>
+            <div id="custom-touch-scrollbar" class="absolute right-1 top-20 bottom-24 w-3.5 bg-slate-950/40 border border-white/5 rounded-full z-30 hidden select-none">
+                <div id="custom-scrollbar-thumb" class="w-full rounded-full absolute top-0 left-0 transition-all duration-75 cursor-pointer" style="background-color: var(--primary-color); height: 50px; box-shadow: 0 0 10px var(--primary-color);"></div>
+            </div>
 
-                        <!-- Panel Inferior de Controles Locales -->
-                        <div class="glass-panel p-4 flex flex-col md:flex-row items-center justify-between gap-4 z-20 shrink-0 border-t border-white/5">
-                            <div class="flex items-center gap-4 w-full md:w-auto justify-center">
-                                <button onclick="toggleShuffle()" id="btn-shuffle" class="text-gray-400 hover:text-white transition-all"><i class="fas fa-random"></i></button>
-                                <button onclick="prevTrack()" class="text-white hover:text-[var(--primary-color)] text-xl transition-all"><i class="fas fa-step-backward"></i></button>
-                                <button onclick="togglePlayLocal()" class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center shadow-[0_0_15px_var(--primary-color)] hover:scale-105 active:scale-95 transition-all">
-                                    <i id="full-play-icon" class="fas fa-play text-xl ml-1"></i>
-                                </button>
-                                <button onclick="nextTrack()" class="text-white hover:text-[var(--primary-color)] text-xl transition-all"><i class="fas fa-step-forward"></i></button>
-                                <button onclick="toggleRepeat()" id="btn-repeat" class="text-gray-400 hover:text-white transition-all"><i class="fas fa-redo"></i></button>
-                            </div>
-                            <div class="flex items-center gap-3 w-48">
-                                <i class="fas fa-volume-down text-gray-400 text-xs"></i>
-                                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8" oninput="setVolumeLocal(this.value)">
-                                <i class="fas fa-volume-up text-gray-400 text-xs"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- VISTA 2: YOUTUBE STREAMING (index.html fusionado) -->
-            <section id="view-youtube" class="view-section flex-col absolute inset-0 w-full h-full bg-black">
-                <!-- Buscador Youtube Superior -->
-                <div class="w-full flex items-center p-3 border-b border-white/10 bg-slate-900/80 z-20">
-                    <div class="flex-1 flex items-center bg-black/50 border border-white/10 rounded-full px-4 py-2 gap-3 focus-within:border-[var(--primary-color)] transition-all">
-                        <i class="fab fa-youtube text-red-500"></i>
-                        <input type="text" id="ytSearchInput" placeholder="Busca en YouTube o pídeselo a la IA..." class="w-full bg-transparent border-none text-white text-sm outline-none" onkeydown="if(event.key === 'Enter') triggerYTSearch()">
-                        <button onclick="triggerYTSearch()" class="text-gray-400 hover:text-white"><i class="fas fa-search"></i></button>
-                    </div>
-                </div>
+            <div id="mini-player" onclick="switchView('player')" class="absolute bottom-16 left-0 w-full glass-panel border-t border-white/10 p-3 flex flex-col gap-2 cursor-pointer z-40 transition-all duration-300 hover:bg-slate-900/90 shadow-2xl relative hidden">
                 
-                <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-                    <!-- Reproductor de Video -->
-                    <div class="flex-1 bg-black relative flex flex-col justify-center items-center shadow-2xl">
-                        <div id="ytPlayerWrapper" class="w-full h-full aspect-video md:aspect-auto max-h-[70vh] bg-[#0a0a0a] relative group">
-                            <iframe id="mainVideoPlayer" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-                            <div id="ytPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black">
-                                <i class="fab fa-youtube text-5xl text-white/10 mb-2"></i>
-                                <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Motor de Streaming Inactivo</p>
-                            </div>
+                <div id="mini-timer-display" class="hidden absolute top-1 right-2 text-[10px] font-black px-1.5 py-0.5 rounded bg-black/80 tracking-wider z-50 border border-white/10 shadow-lg" style="color: #ef4444 !important;"></div>
+                <div id="mini-start-timer-display" class="hidden absolute top-1 left-2 text-[10px] font-black px-1.5 py-0.5 rounded bg-black/80 tracking-wider z-50 border border-white/10 shadow-lg" style="color: #10b981 !important;"></div>
+
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 overflow-hidden flex-1">
+                        <div class="w-10 h-10 bg-slate-950 rounded-xl flex items-center justify-center shrink-0 border border-white/10 shadow-inner">
+                            <i class="fas fa-music text-sm animate-pulse" style="color: var(--primary-color);"></i>
                         </div>
-                        <div class="w-full p-4 bg-slate-900/60 border-t border-white/5 flex justify-between items-center shrink-0">
-                            <div class="truncate">
-                                <h3 id="ytVideoTitle" class="text-sm font-bold text-white truncate">Consola de Video</h3>
-                                <p id="ytVideoChannel" class="text-[10px] text-gray-400">Canal / IA OS</p>
+                        <div class="flex-1 overflow-hidden flex items-center justify-between gap-2">
+                            
+                            <canvas id="mini-visualizer-canvas" class="w-14 h-7 bg-slate-950/60 rounded border border-white/10 shrink-0"></canvas>
+                            
+                            <div class="flex-1 flex justify-end overflow-hidden px-1">
+                                <div class="smooth-marquee-container bg-black/40 border border-white/5 rounded-md px-2 h-5 flex items-center w-[85px] sm:w-[110px]">
+                                    <div id="mini-title" class="smooth-marquee-content text-[10px] font-bold rainbow-neon-text whitespace-nowrap">Esperando pistas...</div>
+                                </div>
                             </div>
-                            <button onclick="document.getElementById('mainVideoPlayer').requestFullscreen()" class="text-gray-400 hover:text-white p-2 bg-white/5 rounded-lg border border-white/10"><i class="fas fa-expand"></i></button>
+
                         </div>
                     </div>
                     
-                    <!-- Resultados de Búsqueda -->
-                    <div class="w-full lg:w-80 border-l border-white/5 bg-slate-900/80 flex flex-col h-full z-10 shrink-0 hidden md:flex" id="ytResultsPane">
-                        <div class="p-3 border-b border-white/5 bg-black/40">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Resultados IA</span>
-                        </div>
-                        <div id="ytResultsContainer" class="flex-1 overflow-y-auto p-2 space-y-2 hide-scroll"></div>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="toggleMiniVolumePanel(event)" class="touch-target text-gray-400 hover:text-white text-sm p-2" title="Volumen">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                        <button onclick="prevTrack(event)" class="touch-target text-white text-sm opacity-80 hover:opacity-100 p-2">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        <button onclick="togglePlay(event)" class="w-8 h-8 rounded-full bg-white text-slate-950 flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all">
+                            <i id="mini-play-icon" class="fas fa-play text-[10px]"></i>
+                        </button>
+                        <button onclick="nextTrack(event)" class="touch-target text-white text-sm opacity-80 hover:opacity-100 p-2">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
                     </div>
                 </div>
-            </section>
-            
-        </div>
-    </main>
 
-    <!-- ==================== MODAL DE CONFIGURACIÓN Y HARDWARE ==================== -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/80 z-50 items-center justify-center hidden opacity-0 transition-opacity duration-300 flex">
-        <div class="bg-slate-900 border border-white/10 p-6 rounded-2xl w-11/12 max-w-md shadow-2xl relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-pink-500"></div>
+                <div id="mini-volume-panel" onclick="event.stopPropagation()" class="hidden flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-lg border border-white/5 mx-1">
+                    <i class="fas fa-volume-mute text-xs text-gray-400 cursor-pointer" onclick="muteVolume()"></i>
+                    <input type="range" id="mini-volume-slider" min="0" max="1" step="0.01" value="0.8" 
+                           oninput="window.isDraggingVolume = true; window.updateLocalVolumeUI(this.value)" 
+                           onchange="window.isDraggingVolume = false; setVolume(this.value)" class="flex-1">
+                </div>
+            </div>
+        </section>
+
+        <section id="view-player" class="view-section flex-col relative h-full justify-between">
             
-            <div class="flex justify-between items-center mb-5 border-b border-white/5 pb-3">
-                <h2 class="text-sm font-bold uppercase tracking-widest text-white"><i class="fas fa-cogs mr-2 text-gray-400"></i> Núcleo de Ajustes</h2>
-                <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-lg"></i></button>
+            <div class="p-3 bg-slate-950/40 border-b border-white/5 flex items-center justify-between shrink-0 z-30">
+                <button onclick="switchView('library')" class="touch-target text-gray-400 hover:text-white transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3 py-1 bg-white/5 rounded-full border border-white/10 active:scale-95">
+                    <i class="fas fa-chevron-left" style="color: var(--primary-color);"></i> Atrás
+                </button>
+                <span class="text-[10px] uppercase font-bold tracking-widest text-gray-500">Panel Principal Local</span>
+                <button onclick="toggleFullVolumePanel()" class="touch-target text-gray-400 hover:text-white transition-all text-sm px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                    <i class="fas fa-volume-up"></i>
+                </button>
             </div>
 
-            <div class="space-y-4">
-                <!-- Theme Color -->
-                <div class="bg-black/30 p-3 rounded-xl border border-white/5">
-                    <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Acento del Sistema (Neón)</label>
-                    <input type="color" id="setting-color" class="w-full h-8 rounded cursor-pointer bg-transparent" value="#ec4899" onchange="updateThemeColor(this.value)">
+            <div class="relative w-full flex-1 flex flex-col justify-center items-center overflow-hidden min-h-[40vh] border-b border-white/5 px-6">
+                <canvas id="visualizer-canvas" class="absolute inset-0 w-full h-full z-0 opacity-85 pointer-events-none"></canvas>
+                
+                <div id="full-volume-panel" class="hidden absolute top-4 right-4 z-30 bg-slate-900/95 border border-white/10 p-3 rounded-xl flex flex-col items-center gap-2 shadow-2xl w-12 h-40 animate-slideUp">
+                    <input type="range" id="full-volume-slider" class="vertical-slider" min="0" max="1" step="0.01" value="0.8" 
+                           oninput="window.isDraggingVolume = true; window.updateLocalVolumeUI(this.value)" 
+                           onchange="window.isDraggingVolume = false; setVolume(this.value)" style="height: 100px;">
+                    <i class="fas fa-volume-mute text-xs text-gray-400 cursor-pointer mt-1" onclick="muteVolume()"></i>
                 </div>
 
-                <!-- Hardware Control (Vía Android Interface) -->
-                <div class="bg-black/30 p-3 rounded-xl border border-white/5">
-                    <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Control de Hardware (WebView)</label>
-                    <div class="flex items-center gap-3 mb-2">
+                <div class="relative z-10 text-center w-full max-w-md mx-auto">
+                    <div class="smooth-marquee-container max-w-md mx-auto h-16 flex items-center overflow-hidden">
+                        <h2 id="full-title" class="wavy-marquee-pro text-2xl md:text-3xl font-black whitespace-nowrap">Ninguna pista seleccionada</h2>
+                    </div>
+                </div>
+
+                <div id="full-timer-display" class="hidden absolute bottom-4 right-4 text-xs font-black px-3 py-1 rounded-full bg-slate-900/90 border border-white/10 shadow-lg tracking-widest z-50" style="color: #ef4444 !important;"></div>
+                <div id="full-start-timer-display" class="hidden absolute bottom-4 left-4 text-xs font-black px-3 py-1 rounded-full bg-slate-900/90 border border-white/10 shadow-lg tracking-widest z-50" style="color: #10b981 !important;"></div>
+            </div>
+            
+            <div class="relative z-20 w-full bg-slate-950/90 backdrop-blur-xl p-6 pb-16 flex flex-col gap-5 shrink-0 shadow-2xl">
+                
+                <div id="eq-panel" class="hidden bg-slate-900/95 border border-white/10 p-4 rounded-2xl mx-auto w-full max-w-md shadow-2xl transition-all mb-2 animate-slideUp">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-300">Ecualizador de Precisión</h3>
+                        <div class="flex items-center gap-2">
+                            <button onclick="resetEQ()" class="text-[10px] bg-slate-800 px-2.5 py-1 rounded text-gray-300 hover:text-white transition-colors">Planear</button>
+                            <button onclick="toggleEQPanel()" class="text-gray-400 hover:text-white p-1 touch-target flex items-center justify-center rounded-full hover:bg-white/5 transition-all w-7 h-7" title="Cerrar"><i class="fas fa-times text-sm"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between h-36 items-end px-2">
+                        <div class="flex flex-col items-center">
+                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(0, this.value)">
+                            <span class="text-[9px] mt-2 text-gray-400">60Hz</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(1, this.value)">
+                            <span class="text-[9px] mt-2 text-gray-400">230Hz</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(2, this.value)">
+                            <span class="text-[9px] mt-2 text-gray-400">910Hz</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(3, this.value)">
+                            <span class="text-[9px] mt-2 text-gray-400">4kHz</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(4, this.value)">
+                            <span class="text-[9px] mt-2 text-gray-400">14kHz</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full max-w-2xl mx-auto">
+                    <div class="flex justify-between text-[11px] font-bold text-gray-400 mb-1.5 px-1">
+                        <span id="time-current">0:00</span>
+                        <span id="time-total">0:00</span>
+                    </div>
+                    <input type="range" id="progress-bar" min="0" max="100" value="0" 
+                           oninput="window.isDraggingProgress = true; document.getElementById('progress-bar').value = this.value;" 
+                           onchange="window.isDraggingProgress = false; seekTrack(this.value)">
+                </div>
+
+                <div class="w-full max-w-2xl mx-auto flex items-center justify-between px-4">
+                    <button onclick="toggleShuffle()" id="btn-shuffle" class="touch-target text-gray-400 hover:text-white text-lg transition-colors" title="Modo Aleatorio">
+                        <i class="fas fa-random"></i>
+                    </button>
+                    
+                    <div class="flex items-center gap-6">
+                        <button onclick="prevTrack(event)" class="touch-target text-white hover:text-gray-300 text-2xl transition-all active:scale-95">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        
+                        <button onclick="togglePlay(event)" class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all" style="box-shadow: 0 0 25px var(--primary-color);">
+                            <i id="full-play-icon" class="fas fa-play text-slate-950 text-2xl ml-1"></i>
+                        </button>
+                        
+                        <button onclick="nextTrack(event)" class="touch-target text-white hover:text-gray-300 text-2xl transition-all active:scale-95">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                    </div>
+
+                    <button onclick="toggleRepeat(event)" id="btn-repeat" class="touch-target text-gray-400 hover:text-white text-lg transition-colors relative" title="Repetir">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+
+                <div class="w-full max-w-2xl mx-auto flex items-center justify-between border-t border-white/5 pt-4 text-xs font-semibold text-gray-400 px-2">
+                    <button onclick="toggleEQPanel()" class="hover:text-white flex items-center gap-2 py-2 transition-colors">
+                        <i class="fas fa-sliders-h"></i> Ecualizador
+                    </button>
+                    
+                    <div class="flex items-center gap-3 w-40">
+                        <i class="fas fa-volume-mute cursor-pointer hover:text-white" onclick="muteVolume()"></i>
+                        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8" 
+                               oninput="window.isDraggingVolume = true; window.updateLocalVolumeUI(this.value)" 
+                               onchange="window.isDraggingVolume = false; setVolume(this.value)">
+                        <i class="fas fa-volume-up"></i>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="view-youtube" class="view-section flex-col relative h-full bg-black/40">
+            <div class="w-full flex items-center p-3 border-b border-white/10 bg-slate-900/80 z-20 shrink-0">
+                <div class="flex-1 flex items-center bg-black/50 border border-white/10 rounded-full px-4 py-2 gap-3 focus-within:border-pink-500 transition-all" style="focus-within: border-color: var(--primary-color);">
+                    <i class="fab fa-youtube text-red-500"></i>
+                    <input type="text" id="ytSearchInput" placeholder="Busca en YouTube o pídeselo a la IA..." class="w-full bg-transparent border-none text-white text-sm outline-none" onkeydown="if(event.key === 'Enter') triggerYTSearch()">
+                    <button onclick="triggerYTSearch()" class="text-gray-400 hover:text-white"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            
+            <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+                <div class="flex-1 bg-black relative flex flex-col justify-center items-center shadow-2xl">
+                    <div id="ytPlayerWrapper" class="w-full h-full aspect-video md:aspect-auto md:h-full bg-[#0a0a0a] relative group">
+                        <iframe id="mainVideoPlayer" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                        <div id="ytPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black">
+                            <i class="fab fa-youtube text-5xl text-white/10 mb-2"></i>
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Motor de Streaming Inactivo</p>
+                        </div>
+                    </div>
+                    <div class="w-full p-4 bg-slate-900/60 border-t border-white/5 flex justify-between items-center shrink-0">
+                        <div class="truncate">
+                            <h3 id="ytVideoTitle" class="text-sm font-bold text-white truncate">Consola de Video</h3>
+                            <p id="ytVideoChannel" class="text-[10px] text-gray-400">Canal / IA OS</p>
+                        </div>
+                        <button onclick="document.getElementById('mainVideoPlayer').requestFullscreen()" class="text-gray-400 hover:text-white p-2 bg-white/5 rounded-lg border border-white/10"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                
+                <div class="w-full lg:w-80 border-l border-white/5 bg-slate-900/80 flex flex-col h-full z-10 shrink-0 hidden md:flex" id="ytResultsPane">
+                    <div class="p-3 border-b border-white/5 bg-black/40">
+                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Resultados</span>
+                    </div>
+                    <div id="ytResultsContainer" class="flex-1 overflow-y-auto p-2 space-y-2 hide-scroll"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center hidden">
+        <div id="loading-spinner" class="loader mb-5"></div>
+        <p id="loading-msg" class="text-lg font-black tracking-wider text-white text-center px-4">Cargando pistas de audio</p>
+        <p id="loading-submsg" class="text-xs text-gray-400 mt-2 max-w-xs text-center px-4">Escaneando carpetas de almacenamiento recursivamente...</p>
+        <button id="loading-close-btn" class="hidden mt-6 px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg active:scale-95" style="background-color: var(--primary-color); color: white;" onclick="showCustomLoading('', false)">Aceptar</button>
+    </div>
+
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden opacity-0 transition-all duration-300">
+        <div class="bg-slate-900/95 border border-white/10 p-6 rounded-3xl w-11/12 max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold flex items-center gap-2"><i class="fas fa-sliders-h" style="color: var(--primary-color);"></i> Personalización Pro</h2>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-white p-1 flex items-center justify-center rounded-full hover:bg-white/5 transition-all w-7 h-7"><i class="fas fa-times text-lg"></i></button>
+            </div>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">Nombre del Reproductor</label>
+                    <input type="text" id="setting-name" class="w-full bg-slate-950/80 text-white px-3 py-2.5 rounded-xl border border-white/10 focus:border-pink-500 focus:outline-none text-sm transition-all" value="Music Franklin Pro" onchange="updateAppName(this.value)">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">Paleta de Color Neón</label>
+                    <input type="color" id="setting-color" class="w-full h-11 rounded-xl cursor-pointer border border-white/10 bg-transparent p-1" value="#ec4899" onchange="updateThemeColor(this.value)">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">Estilo de Letra (Fuente)</label>
+                    <select id="setting-font" class="w-full bg-slate-950/80 text-white px-3 py-2.5 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-pink-500" onchange="updateFont(this.value)">
+                        <option value="Montserrat">Montserrat (Predeterminada)</option>
+                        <option value="Roboto">Roboto (Moderna)</option>
+                        <option value="Oswald">Oswald (Industrial)</option>
+                        <option value="Playfair Display">Playfair (Sofisticada)</option>
+                        <option value="Rajdhani">Rajdhani (Tecnológica)</option>
+                        <option value="Pacifico">Pacifico (Artísima)</option>
+                        <option value="Press Start 2P">Retro Pixel (Arcade)</option>
+                        <option value="Orbitron">Orbitron (Cyberpunk)</option>
+                        <option value="Cinzel">Cinzel (Clásica Elegante)</option>
+                        <option value="Bebas Neue">Bebas Neue (Impacto)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider">Visualizador de Movimiento (15 Modos)</label>
+                    <select id="setting-visualizer" class="w-full bg-slate-950/80 text-white px-3 py-2.5 rounded-xl border border-white/10 text-sm focus:outline-none focus:border-pink-500" onchange="setVisualizerMode(this.value)">
+                        <option value="bars">1. Barras de Frecuencia Clásicas</option>
+                        <option value="wave">2. Onda de Fluido Oscilante</option>
+                        <option value="circle">3. Anillo Espectral Dinámico</option>
+                        <option value="matrix">4. Cascada Matrix Neon</option>
+                        <option value="dots">5. Polvo Estelar Flotante</option>
+                        <option value="lines">6. Hilos de Frecuencia Cruzados</option>
+                        <option value="mirrored">7. Espejo de Audio Bilateral</option>
+                        <option value="tunnel">8. Túnel Espectral 3D</option>
+                        <option value="liquid">9. Fuego Líquido Fluyente</option>
+                        <option value="rain">10. Lluvia de Beats Descendiente</option>
+                        <option value="pulsar">11. Estrella Pulsante del Beat</option>
+                        <option value="blocks">12. Bloques Retro Arcade con Pico</option>
+                        <option value="concentric">13. Ondas Expansivas Radiales</option>
+                        <option value="double">14. Espectro Doble (Arriba/Abajo)</option>
+                        <option value="aurora">15. Aurora Boreal Fluida</option>
+                    </select>
+                </div>
+
+                <div class="border-t border-white/10 pt-4 mt-4 bg-black/20 p-3 rounded-xl border border-white/5">
+                    <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Control de Hardware (WebView)</label>
+                    <div class="flex items-center gap-3 mb-3">
                         <i class="fas fa-sun text-xs text-amber-500 w-4 text-center"></i>
                         <input type="range" class="flex-1" min="0" max="100" value="50" onchange="if(window.AndroidInterface && window.AndroidInterface.changePhoneBrightness) window.AndroidInterface.changePhoneBrightness(this.value)">
                     </div>
@@ -261,193 +535,390 @@
                     </div>
                 </div>
 
-                <!-- Visualizer Type -->
-                <div class="bg-black/30 p-3 rounded-xl border border-white/5">
-                    <label class="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">Motor Gráfico (Local Audio)</label>
-                    <select id="setting-visualizer" class="w-full bg-slate-800 text-white px-2 py-1.5 rounded text-xs outline-none border border-white/10" onchange="setVisualizerMode(this.value)">
-                        <option value="bars">1. Barras Espectrales</option>
-                        <option value="wave">2. Onda Fluida</option>
-                        <option value="circle">3. Anillo Radiactivo</option>
-                        <option value="matrix">4. Cascada Matrix</option>
-                    </select>
+                <div class="border-t border-white/10 pt-4">
+                    <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider flex justify-between items-center">
+                        <span>Temporizador de Sonido (Apagado)</span>
+                        <span id="timer-status" class="font-bold normal-case hidden" style="color: #ef4444 !important;">00:00:00</span>
+                    </label>
+                    <div class="flex gap-2 items-center">
+                        <div class="flex flex-col items-center flex-1">
+                            <span class="text-[9px] text-gray-500 mb-1">Horas</span>
+                            <input type="number" id="timer-hours" placeholder="00" min="0" max="23" class="w-full bg-slate-950/80 text-white px-2 py-2 rounded-xl border border-white/10 text-center text-xs focus:outline-none focus:border-pink-500">
+                        </div>
+                        <span class="text-gray-500 text-xs mt-4">:</span>
+                        <div class="flex flex-col items-center flex-1">
+                            <span class="text-[9px] text-gray-500 mb-1">Minutos</span>
+                            <input type="number" id="timer-minutes" placeholder="00" min="0" max="59" class="w-full bg-slate-950/80 text-white px-2 py-2 rounded-xl border border-white/10 text-center text-xs focus:outline-none focus:border-pink-500">
+                        </div>
+                        <span class="text-gray-500 text-xs mt-4">:</span>
+                        <div class="flex flex-col items-center flex-1">
+                            <span class="text-[9px] text-gray-500 mb-1">Segundos</span>
+                            <input type="number" id="timer-seconds" placeholder="00" min="0" max="59" class="w-full bg-slate-950/80 text-white px-2 py-2 rounded-xl border border-white/10 text-center text-xs focus:outline-none focus:border-pink-500">
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="startSleepTimer()" id="btn-timer-start" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all">Iniciar Apagado</button>
+                        <button onclick="cancelSleepTimer()" id="btn-timer-cancel" class="py-2 px-3 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 text-xs font-bold rounded-xl transition-all hidden">Cancelar</button>
+                    </div>
+
+                    <div id="settings-timer-display" class="hidden text-center mt-4 text-2xl font-black tracking-widest bg-slate-950/50 py-2 rounded-xl border border-white/5 shadow-inner" style="color: #ef4444 !important;"></div>
                 </div>
+
+                <div class="border-t border-white/10 pt-4 mt-4">
+                    <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider flex justify-between items-center">
+                        <span>Encendido Automático (Play)</span>
+                        <span id="start-timer-status" class="font-bold normal-case hidden" style="color: #10b981 !important;">00:00:00</span>
+                    </label>
+                    <div class="flex gap-2 items-center">
+                        <div class="flex flex-col items-center flex-1">
+                            <span class="text-[9px] text-gray-500 mb-1">Horas</span>
+                            <input type="number" id="start-timer-hours" placeholder="00" min="0" max="23" class="w-full bg-slate-950/80 text-white px-2 py-2 rounded-xl border border-white/10 text-center text-xs focus:outline-none focus:border-pink-500">
+                        </div>
+                        <span class="text-gray-500 text-xs mt-4">:</span>
+                        <div class="flex flex-col items-center flex-1">
+                            <span class="text-[9px] text-gray-500 mb-1">Minutos</span>
+                            <input type="number" id="start-timer-minutes" placeholder="00" min="0" max="59" class="w-full bg-slate-950/80 text-white px-2 py-2 rounded-xl border border-white/10 text-center text-xs focus:outline-none focus:border-pink-500">
+                        </div>
+                        <span class="text-gray-500 text-xs mt-4">:</span>
+                        <div class="flex flex-col items-center flex-1">
+                            <span class="text-[9px] text-gray-500 mb-1">Segundos</span>
+                            <input type="number" id="start-timer-seconds" placeholder="00" min="0" max="59" class="w-full bg-slate-950/80 text-white px-2 py-2 rounded-xl border border-white/10 text-center text-xs focus:outline-none focus:border-pink-500">
+                        </div>
+                    </div>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="startAutoPlayTimer()" id="btn-start-timer-start" class="flex-1 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition-all">Programar Encendido</button>
+                        <button onclick="cancelAutoPlayTimer()" id="btn-start-timer-cancel" class="py-2 px-3 bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-400 text-xs font-bold rounded-xl transition-all hidden">Cancelar</button>
+                    </div>
+                </div>
+
             </div>
             
-            <button onclick="closeSettingsModal()" class="w-full mt-5 py-2.5 rounded-xl text-white font-bold text-xs uppercase tracking-widest bg-slate-800 hover:bg-slate-700 transition-all border border-white/10 shadow-lg">Aplicar y Cerrar</button>
+            <button onclick="closeSettings()" class="w-full mt-6 py-3 rounded-xl text-white font-bold text-sm transition-all shadow-lg active:scale-95" style="background-color: var(--primary-color);">Guardar Configuración</button>
         </div>
     </div>
 
-    <!-- BANNER IA OVERLAY -->
-    <div id="aiBanner" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-900/90 border border-red-500/50 text-white text-xs px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-3 hidden transition-all">
-        <span class="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
-        <span id="aiBannerText" class="font-bold tracking-wide">Cerebro IA Escuchando...</span>
-    </div>
-
-    <!-- ==================== LÓGICA DE INGENIERÍA (JAVASCRIPT) ==================== -->
     <script type="module">
-        // ---------------------------------------------------------
-        // MÓDULO 1: FIREBASE CORE & SYNC (Preservado y Ampliado)
-        // ---------------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
         import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCROZ20n9v4WesAHLg-Ngk-wAsWg3IquaE",
             authDomain: "reproductor-de-musica-d9baf.firebaseapp.com",
             databaseURL: "https://reproductor-de-musica-d9baf-default-rtdb.firebaseio.com",
-            projectId: "reproductor-de-musica-d9baf"
+            projectId: "reproductor-de-musica-d9baf",
+            storageBucket: "reproductor-de-musica-d9baf.firebasestorage.app",
+            messagingSenderId: "154788397343",
+            appId: "1:154788397343:web:f5164dfeac0d2bdae9302a",
+            measurementId: "G-32JP5MDW64"
         };
 
         const app = initializeApp(firebaseConfig);
-        window.db = getDatabase(app);
+        const analytics = getAnalytics(app);
+        const db = getDatabase(app);
 
-        // Estado Global Consolidado
-        window.OS_STATE = {
-            role: 'controlled', // 'controller' o 'controlled'
-            activeEngine: 'local', // 'local' o 'youtube'
-            localPlaying: false,
-            ytPlaying: false,
-            isAiGlobalEnabled: true,
-            themeColor: '#ec4899'
-        };
-
-        // Emitir comandos a Firebase
         window.sendFirebaseCommand = function(type, value, engine = 'local') {
-            set(ref(window.db, 'reproductor_control/command'), {
-                type: type, value: value, engine: engine, timestamp: Date.now()
+            set(ref(db, 'reproductor_control/command'), {
+                type: type,
+                value: value,
+                engine: engine,
+                timestamp: Date.now()
             });
         };
 
-        // Emitir Status (Solo si somos el 'controlled'/Player)
-        window.reportStatusToFirebase = function() {
-            if(window.OS_STATE.role !== 'controlled') return;
-            const statusObj = {
-                activeEngine: window.OS_STATE.activeEngine,
-                localTrackName: window.todasLasPistas && window.indicePistaActual > -1 ? window.todasLasPistas[window.indicePistaActual].nombre : "Ninguna",
-                localProgress: document.getElementById('progress-bar').value || 0,
-                localPlaying: window.OS_STATE.localPlaying,
-                ytVideoId: window.currentYtVideoId || null,
-                ytTitle: document.getElementById('ytVideoTitle').innerText || "",
-                timestamp: Date.now()
-            };
-            set(ref(window.db, 'reproductor_control/status'), statusObj);
+        window.updateFirebaseStatus = function(statusObj) {
+            set(ref(db, 'reproductor_control/status'), statusObj);
         };
 
-        // Escuchar Comandos (Ejecutar si somos Player)
+        window.sendFirebaseSettings = function(settingsObj) {
+            update(ref(db, 'reproductor_control/settings'), {
+                ...settingsObj,
+                sender: window.currentRole,
+                timestamp: Date.now()
+            });
+        };
+
+        window.syncLibraryToFirebase = function() {
+            if (window.currentRole === 'controlled') {
+                const libraryData = {
+                    estructuraCarpetas: {},
+                    todasLasPistas: todasLasPistas.map(p => ({ nombre: p.nombre, carpeta: p.carpeta }))
+                };
+                Object.keys(estructuraCarpetas).forEach(folder => {
+                    libraryData.estructuraCarpetas[folder] = estructuraCarpetas[folder].map(p => ({
+                        nombre: p.nombre, path: p.path
+                    }));
+                });
+                set(ref(db, 'reproductor_control/library'), libraryData);
+            }
+        };
+
+        // ESCUCHA DE COMANDOS
         let lastCommandTimestamp = 0;
-        onValue(ref(window.db, 'reproductor_control/command'), (snapshot) => {
+        onValue(ref(db, 'reproductor_control/command'), (snapshot) => {
             const cmd = snapshot.val();
             if(cmd && cmd.timestamp > lastCommandTimestamp) {
                 lastCommandTimestamp = cmd.timestamp;
-                if(window.OS_STATE.role === 'controlled') {
-                    if(cmd.engine === 'local') {
+                if(window.currentRole === 'controlled') {
+                    if (cmd.engine === 'youtube') {
+                        if (cmd.type === 'PLAY_YT') window.loadYTVideo(cmd.value.id, cmd.value.title, cmd.value.channel);
+                    } else if (cmd.engine === 'system') {
+                        if (cmd.type === 'SWITCH_VIEW') window.switchView(cmd.value, true);
+                    } else {
+                        // LOCAL
                         if(cmd.type === 'PLAY') window.executeLocalPlay();
                         else if(cmd.type === 'PAUSE') window.executeLocalPause();
                         else if(cmd.type === 'NEXT') window.executeLocalNext();
                         else if(cmd.type === 'PREV') window.executeLocalPrev();
-                        else if(cmd.type === 'PLAY_TRACK') window.playLocalTrack(cmd.value);
-                    } else if (cmd.engine === 'youtube') {
-                        if(cmd.type === 'PLAY_YT') window.loadYTVideo(cmd.value.id, cmd.value.title, cmd.value.channel);
-                    }
-                    else if (cmd.engine === 'system') {
-                        if(cmd.type === 'SWITCH_VIEW') window.switchAppView(cmd.value, true);
+                        else if(cmd.type === 'SET_VOLUME') window.executeLocalSetVolume(cmd.value);
+                        else if(cmd.type === 'PLAY_TRACK') window.executeLocalPlayTrack(cmd.value);
+                        else if(cmd.type === 'START_TIMER') window.executeLocalStartTimer(cmd.value);
+                        else if(cmd.type === 'CANCEL_TIMER') window.executeLocalCancelTimer();
+                        else if(cmd.type === 'START_AUTOPLAY') window.executeLocalStartAutoPlay(cmd.value);
+                        else if(cmd.type === 'CANCEL_AUTOPLAY') window.executeLocalCancelAutoPlay();
+                        else if(cmd.type === 'SEEK') window.executeLocalSeek(cmd.value);
+                        else if(cmd.type === 'TOGGLE_SHUFFLE') window.executeLocalToggleShuffle();
+                        else if(cmd.type === 'TOGGLE_REPEAT') window.executeLocalToggleRepeat();
                     }
                 }
             }
         });
 
-        // Escuchar Status (UI Update si somos Controller)
-        onValue(ref(window.db, 'reproductor_control/status'), (snapshot) => {
+        // ESCUCHA DE AJUSTES
+        let lastSettingsTimestamp = 0;
+        onValue(ref(db, 'reproductor_control/settings'), (snapshot) => {
+            const settings = snapshot.val();
+            if(settings && settings.timestamp > lastSettingsTimestamp) {
+                lastSettingsTimestamp = settings.timestamp;
+                if(settings.sender !== window.currentRole) {
+                    if(window.applySyncedSettings) {
+                        window.applySyncedSettings(settings);
+                    }
+                }
+            }
+        });
+
+        // ESCUCHA DE BIBLIOTECA
+        onValue(ref(db, 'reproductor_control/library'), (snapshot) => {
+            if (window.currentRole === 'controller') {
+                const data = snapshot.val();
+                if (data) {
+                    estructuraCarpetas = data.estructuraCarpetas || {};
+                    todasLasPistas = data.todasLasPistas || [];
+                    if (window.isRemoteConnected) {
+                        renderizarEstructuraCarpetasUI();
+                    }
+                }
+            }
+        });
+
+        // ESCUCHA DE ESTADO
+        let remoteTimeout;
+        onValue(ref(db, 'reproductor_control/status'), (snapshot) => {
             const status = snapshot.val();
-            if(status && window.OS_STATE.role === 'controller') {
-                // Sincronizar Vista activa remotamente si cambió
-                if(status.activeEngine !== window.OS_STATE.activeEngine) {
-                    window.switchAppView(status.activeEngine, true);
-                }
+            if(status) {
+                window.isRemoteConnected = true;
                 
-                if(status.activeEngine === 'local') {
-                    document.getElementById('full-title').textContent = status.localTrackName;
-                    if(!window.isDraggingProgress) document.getElementById('progress-bar').value = status.localProgress;
-                    window.OS_STATE.localPlaying = status.localPlaying;
-                    document.getElementById('full-play-icon').className = status.localPlaying ? "fas fa-pause text-xl" : "fas fa-play text-xl ml-1";
-                } else if (status.activeEngine === 'youtube') {
-                    document.getElementById('ytVideoTitle').innerText = status.ytTitle;
-                    if(status.ytVideoId && status.ytVideoId !== window.currentYtVideoId) {
-                        window.loadYTVideo(status.ytVideoId, status.ytTitle, "Modo Remoto", true);
+                if (window.currentRole === 'controller' && window.isConnectingRemote) {
+                    window.showCustomLoading('', false);
+                    window.isConnectingRemote = false;
+                    renderizarEstructuraCarpetasUI();
+                }
+
+                clearTimeout(remoteTimeout);
+                remoteTimeout = setTimeout(() => {
+                    window.isRemoteConnected = false;
+                    if(window.currentRole === 'controller') {
+                        renderizarEstructuraCarpetasUI();
+                    }
+                }, 6000);
+
+                if(window.currentRole === 'controller') {
+                    // Sincronizar motor activo (YouTube o Local)
+                    if (status.activeEngine && status.activeEngine !== state.activeEngine) {
+                        window.switchView(status.activeEngine, true);
+                    }
+
+                    if (status.activeEngine === 'youtube') {
+                        if (document.getElementById('ytVideoTitle')) document.getElementById('ytVideoTitle').innerText = status.ytTitle || "";
+                        if (document.getElementById('ytVideoChannel')) document.getElementById('ytVideoChannel').innerText = status.ytChannel || "";
+                        if (status.ytVideoId && status.ytVideoId !== window.currentYtVideoId) {
+                            window.loadYTVideo(status.ytVideoId, status.ytTitle, status.ytChannel, true);
+                        }
+                    }
+
+                    // Sincronizar estado local
+                    const cleanTitle = status.trackName ? status.trackName.replace(/\.[^/.]+$/, "") : "Ninguna pista seleccionada";
+                    document.getElementById('mini-title').textContent = cleanTitle;
+                    document.getElementById('full-title').textContent = cleanTitle;
+                    
+                    state.isShuffle = status.isShuffle || false;
+                    state.repeatMode = status.repeatMode || 0;
+                    
+                    const shuffleBtn = document.getElementById('btn-shuffle');
+                    if (shuffleBtn) shuffleBtn.style.color = state.isShuffle ? 'var(--primary-color)' : '#9ca3af';
+                    if (window.updateRepeatUI) window.updateRepeatUI();
+
+                    if (Date.now() > window.ignoreStatusUntil) {
+                        state.isPlaying = status.isPlaying;
+                        const playIcon = document.getElementById('full-play-icon');
+                        const miniPlayIcon = document.getElementById('mini-play-icon');
+                        const logoIcon = document.getElementById('logo-icon');
+                        
+                        if(status.isPlaying) {
+                            if(playIcon) playIcon.className = "fas fa-pause text-slate-950 text-2xl";
+                            if(miniPlayIcon) miniPlayIcon.className = "fas fa-pause";
+                            if(logoIcon) logoIcon.classList.add('fa-spin');
+                            document.getElementById('mini-player').classList.remove('hidden');
+                        } else {
+                            if(playIcon) playIcon.className = "fas fa-play text-slate-950 text-2xl ml-1";
+                            if(miniPlayIcon) miniPlayIcon.className = "fas fa-play";
+                            if(logoIcon) logoIcon.classList.remove('fa-spin');
+                        }
+                    }
+
+                    if (!window.isDraggingVolume) {
+                        document.getElementById('volume-slider').value = status.volume;
+                        document.getElementById('mini-volume-slider').value = status.volume;
+                        document.getElementById('full-volume-slider').value = status.volume;
+                    }
+                    
+                    if (!window.isDraggingProgress && status.activeEngine === 'local') {
+                        document.getElementById('progress-bar').value = status.progress;
+                        document.getElementById('time-current').textContent = status.timeCurrent;
+                        document.getElementById('time-total').textContent = status.timeTotal;
+                    }
+
+                    // Temporizadores
+                    if(status.sleepTimerTotalSeconds > 0) {
+                        const hrs = Math.floor(status.sleepTimerTotalSeconds / 3600);
+                        const mins = Math.floor((status.sleepTimerTotalSeconds % 3600) / 60);
+                        const secs = status.sleepTimerTotalSeconds % 60;
+                        const timeStr = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                        
+                        document.getElementById('timer-status').textContent = timeStr;
+                        document.getElementById('timer-status').classList.remove('hidden');
+
+                        ['settings-timer-display', 'mini-timer-display', 'full-timer-display'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if(el) {
+                                el.textContent = timeStr;
+                                el.style.setProperty('color', '#ef4444', 'important');
+                                el.classList.remove('hidden');
+                            }
+                        });
+                    } else {
+                        document.getElementById('timer-status').classList.add('hidden');
+                        ['settings-timer-display', 'mini-timer-display', 'full-timer-display'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if(el) el.classList.add('hidden');
+                        });
+                    }
+
+                    if(status.autoPlayTimerTotalSeconds > 0) {
+                        const hrs = Math.floor(status.autoPlayTimerTotalSeconds / 3600);
+                        const mins = Math.floor((status.autoPlayTimerTotalSeconds % 3600) / 60);
+                        const secs = status.autoPlayTimerTotalSeconds % 60;
+                        const timeStr = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+                        
+                        const stStatus = document.getElementById('start-timer-status');
+                        if(stStatus) {
+                            stStatus.textContent = timeStr;
+                            stStatus.classList.remove('hidden');
+                        }
+                        ['mini-start-timer-display', 'full-start-timer-display'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                el.textContent = timeStr;
+                                el.classList.remove('hidden');
+                            }
+                        });
+                    } else {
+                        const stStatus = document.getElementById('start-timer-status');
+                        if(stStatus) stStatus.classList.add('hidden');
+                        ['mini-start-timer-display', 'full-start-timer-display'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.classList.add('hidden');
+                        });
                     }
                 }
             }
         });
-
-        // ---------------------------------------------------------
-        // MÓDULO 2: UI ROUTER & CORE LOGIC
-        // ---------------------------------------------------------
-        
-        window.switchAppView = function(viewId, fromRemote = false) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('text-[var(--primary-color)]'));
-            
-            const target = document.getElementById(`view-${viewId}`);
-            const navBtn = document.getElementById(`nav-${viewId}`);
-            
-            if(target) target.classList.add('active');
-            if(navBtn) navBtn.classList.add('text-[var(--primary-color)]');
-            
-            window.OS_STATE.activeEngine = viewId;
-
-            // Lógica de Pausa Cruzada: Si pasas a YT, pausa Local, y viceversa
-            if(viewId === 'youtube' && window.OS_STATE.localPlaying) window.executeLocalPause();
-            // Nota: La API iFrame de YT pausa es compleja sin librería wrapper, usaremos recarga del iframe si es necesario o detener al cambiar a local.
-            if(viewId === 'local') {
-                const ytFrame = document.getElementById('mainVideoPlayer');
-                if(ytFrame.src.includes('autoplay=1')) ytFrame.src = ytFrame.src.replace('autoplay=1', 'autoplay=0'); 
-            }
-
-            // Avisar a Firebase si somos controlador manual
-            if(!fromRemote && window.OS_STATE.role === 'controller') {
-                window.sendFirebaseCommand('SWITCH_VIEW', viewId, 'system');
-            }
-            window.reportStatusToFirebase();
-        };
-
-        window.switchRole = function(role) {
-            window.OS_STATE.role = role;
-            const pBtn = document.getElementById('role-player-btn');
-            const cBtn = document.getElementById('role-controller-btn');
-            
-            if(role === 'controller') {
-                pBtn.className = "px-3 py-1 rounded-full transition-all text-gray-400 hover:text-white";
-                cBtn.className = "px-3 py-1 rounded-full transition-all bg-[var(--primary-color)] text-white shadow-md";
-                if(window.OS_STATE.localPlaying) window.executeLocalPause(); // Apaga reproducción local al volverse control
-            } else {
-                pBtn.className = "px-3 py-1 rounded-full transition-all bg-[var(--primary-color)] text-white shadow-md";
-                cBtn.className = "px-3 py-1 rounded-full transition-all text-gray-400 hover:text-white";
-            }
-        };
-
-        window.openSettingsModal = function() { 
-            const mod = document.getElementById('settings-modal');
-            mod.classList.remove('hidden'); setTimeout(()=> mod.classList.remove('opacity-0'), 10);
-        };
-        window.closeSettingsModal = function() {
-            const mod = document.getElementById('settings-modal');
-            mod.classList.add('opacity-0'); setTimeout(()=> mod.classList.add('hidden'), 300);
-        };
-
-        window.updateThemeColor = function(color) {
-            document.documentElement.style.setProperty('--primary-color', color);
-            window.OS_STATE.themeColor = color;
-        };
     </script>
 
-    <!-- --------------------------------------------------------- -->
-    <!-- MÓDULO 3: INTELIGENCIA ARTIFICIAL (VOZ Y HARDWARE)        -->
-    <!-- --------------------------------------------------------- -->
     <script>
+        let estructuraCarpetas = {};
+        let todasLasPistas = [];
+        let indicePistaActual = -1;
+        let mapaManejadoresLocales = {};
+        let isHandlingPopState = false;
+        let isFallbackMode = false; 
+        
+        window.isRemoteConnected = false;
+        window.isConnectingRemote = false;
+        window.currentPlayId = 0;
+        
+        window.isDraggingVolume = false;
+        window.isDraggingProgress = false;
+        window.ignoreStatusUntil = 0;
+        window.currentYtVideoId = null;
+
+        window.currentRole = 'controlled'; 
+
+        const state = {
+            isPlaying: false,
+            isShuffle: false,
+            repeatMode: 0, 
+            lastVolume: 0.8,
+            activeEngine: 'library' // local(library/player) or youtube
+        };
+
+        const supportedExtensions = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.aac', '.mp4'];
+
+        /* ================= NAVEGACIÓN Y CROSS-PAUSE ================= */
+        window.switchView = function(viewId, fromRemote = false) {
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) {
+                target.classList.add('active');
+            }
+            if (viewId === 'player') setTimeout(resizeCanvas, 50);
+
+            // Resaltar icono navegación
+            ['library', 'youtube', 'player'].forEach(id => {
+                const el = document.getElementById(`nav-${id}`);
+                if(el) {
+                    if (id === viewId) el.classList.add('text-[var(--primary-color)]');
+                    else el.classList.remove('text-[var(--primary-color)]');
+                }
+            });
+
+            // Cross Pause Inteligente:
+            if (viewId === 'youtube' && state.isPlaying) {
+                window.executeLocalPause();
+            }
+            if ((viewId === 'library' || viewId === 'player') && state.activeEngine === 'youtube') {
+                const ytFrame = document.getElementById('mainVideoPlayer');
+                if(ytFrame && ytFrame.src.includes('autoplay=1')) ytFrame.src = ytFrame.src.replace('autoplay=1', 'autoplay=0'); 
+            }
+
+            state.activeEngine = viewId;
+            updateCustomScrollbar();
+
+            // Emitir cambio de vista a Firebase si soy el control
+            if (!fromRemote && window.currentRole === 'controller') {
+                window.sendFirebaseCommand('SWITCH_VIEW', viewId, 'system');
+            }
+            reportStatusToFirebase();
+        };
+
+        /* ================= ASISTENTE IA DE VOZ ================= */
         window.activateVoiceAssistant = function() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                alert("API de reconocimiento de voz no soportada en este navegador/WebView.");
+                alert("API de reconocimiento de voz no soportada en este navegador.");
                 return;
             }
 
@@ -478,17 +949,17 @@
         };
 
         window.executeAiRouter = function(cmd) {
-            console.log("Comando IA:", cmd);
             let handled = false;
-
-            // 1. HARDWARE (Android Interface)
             const num = cmd.match(/\d+/);
             const level = num ? parseInt(num[0]) : null;
 
+            // 1. HARDWARE
             if(cmd.includes("volumen") || cmd.includes("sonido")) {
                 let target = level !== null ? level : (cmd.includes("sube") ? 80 : 20);
                 if(window.AndroidInterface && window.AndroidInterface.changePhoneVolume) {
                     window.AndroidInterface.changePhoneVolume(target);
+                } else {
+                    setVolume(target/100);
                 }
                 handled = true;
             }
@@ -500,38 +971,46 @@
                 handled = true;
             }
 
-            // 2. SISTEMA / MODOS
+            // 2. SISTEMA / ROLES
             if(cmd.includes("modo control") || cmd.includes("control remoto")) {
-                window.switchRole('controller');
-                handled = true;
+                switchRole('controller'); handled = true;
             }
 
             // 3. MEDIA CONTROLS
             if(cmd.includes("pausa") || cmd.includes("deten")) {
-                if(window.OS_STATE.activeEngine === 'local') window.executeLocalPause();
+                if(state.activeEngine !== 'youtube') {
+                    window.currentRole === 'controller' ? window.sendFirebaseCommand('PAUSE', null) : window.executeLocalPause();
+                }
                 handled = true;
             }
             if(cmd.includes("siguiente") || cmd.includes("otra")) {
-                if(window.OS_STATE.activeEngine === 'local') window.executeLocalNext();
+                if(state.activeEngine !== 'youtube') {
+                    window.currentRole === 'controller' ? window.sendFirebaseCommand('NEXT', null) : window.executeLocalNext();
+                }
                 handled = true;
             }
 
-            // 4. BÚSQUEDA Y REPRODUCCIÓN INTELIGENTE
+            // 4. BÚSQUEDA Y REPRODUCCIÓN (YOUTUBE Y LOCAL)
             if(!handled) {
-                let search = cmd.replace("busca", "").replace("pon", "").replace("reproduce", "").replace("en youtube", "").trim();
+                let search = cmd.replace(/(busca|pon|reproduce|en youtube|video)/g, "").trim();
                 if(cmd.includes("youtube") || cmd.includes("video")) {
-                    window.switchAppView('youtube');
+                    switchView('youtube');
                     document.getElementById('ytSearchInput').value = search;
                     window.triggerYTSearch(search);
                 } else {
-                    // Default a YouTube si no hay música local
-                    if(window.todasLasPistas && window.todasLasPistas.length > 0) {
-                        window.switchAppView('local');
-                        // Filtrar y tocar la primera coincidencia (Simplificado)
-                        const found = window.todasLasPistas.findIndex(p => p.nombre.toLowerCase().includes(search));
-                        if(found !== -1) window.playLocalTrack(found);
+                    // Try local first
+                    if(todasLasPistas && todasLasPistas.length > 0) {
+                        switchView('player');
+                        const found = todasLasPistas.findIndex(p => p.nombre.toLowerCase().includes(search));
+                        if(found !== -1) { 
+                            window.currentRole === 'controller' ? window.sendFirebaseCommand('PLAY_TRACK', found) : playTrack(found); 
+                        } else { 
+                            switchView('youtube'); 
+                            document.getElementById('ytSearchInput').value = search; 
+                            window.triggerYTSearch(search); 
+                        }
                     } else {
-                        window.switchAppView('youtube');
+                        switchView('youtube');
                         document.getElementById('ytSearchInput').value = search;
                         window.triggerYTSearch(search);
                     }
@@ -539,14 +1018,9 @@
             }
             document.getElementById('aiBannerText').textContent = "Ejecutado.";
         };
-    </script>
 
-    <!-- --------------------------------------------------------- -->
-    <!-- MÓDULO 4: YOUTUBE ENGINE (Preservado del index.html)      -->
-    <!-- --------------------------------------------------------- -->
-    <script>
-        const YT_API_KEY = "AIzaSyDr0rhqgkS3A27swSH-m75fVbviECxTiUI";
-        window.currentYtVideoId = null;
+        /* ================= MOTOR YOUTUBE STREAMING ================= */
+        const YT_API_KEY = "AIzaSyDr0rhqgkS3A27swSH-m75fVbviECxTiUI"; // Considera ofuscarla en prod
 
         window.triggerYTSearch = async function(query = null) {
             const q = query || document.getElementById('ytSearchInput').value.trim();
@@ -568,15 +1042,15 @@
             cont.innerHTML = "";
             items.forEach((item, i) => {
                 const el = document.createElement('div');
-                el.className = "flex bg-black/40 border border-white/5 rounded-lg p-2 gap-2 cursor-pointer hover:bg-white/10 transition-all";
+                el.className = "flex bg-black/40 border border-white/5 rounded-lg p-2 gap-2 cursor-pointer hover:bg-white/10 transition-all group";
                 el.innerHTML = `
                     <img src="${item.snippet.thumbnails.default.url}" class="w-20 aspect-video rounded object-cover bg-black">
                     <div class="flex-1 overflow-hidden flex flex-col justify-center">
-                        <h4 class="text-[10px] font-bold text-white line-clamp-2 leading-tight">${item.snippet.title}</h4>
-                        <p class="text-[8px] text-[var(--primary-color)] truncate mt-0.5">${item.snippet.channelTitle}</p>
+                        <h4 class="text-[10px] font-bold text-white line-clamp-2 leading-tight group-hover:text-[var(--primary-color)] transition-colors">${item.snippet.title}</h4>
+                        <p class="text-[8px] text-gray-400 truncate mt-0.5">${item.snippet.channelTitle}</p>
                     </div>`;
                 el.onclick = () => {
-                    if(window.OS_STATE.role === 'controller') {
+                    if(window.currentRole === 'controller') {
                         window.sendFirebaseCommand('PLAY_YT', {id: item.id.videoId, title: item.snippet.title, channel: item.snippet.channelTitle}, 'youtube');
                     } else {
                         window.loadYTVideo(item.id.videoId, item.snippet.title, item.snippet.channelTitle);
@@ -590,210 +1064,898 @@
         window.loadYTVideo = function(id, title, channel, fromRemote = false) {
             window.currentYtVideoId = id;
             document.getElementById('ytPlaceholder').classList.add('hidden');
-            // Reproductor Minimalista de YT API, sin logos ni controles groseros
             document.getElementById('mainVideoPlayer').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&controls=1`;
             document.getElementById('ytVideoTitle').innerText = title;
             document.getElementById('ytVideoChannel').innerText = channel;
             
-            if(!fromRemote) window.reportStatusToFirebase();
+            if(!fromRemote) reportStatusToFirebase();
         };
-    </script>
 
-    <!-- --------------------------------------------------------- -->
-    <!-- MÓDULO 5: LOCAL AUDIO ENGINE (Preservado y Optimizado)    -->
-    <!-- --------------------------------------------------------- -->
-    <script>
-        window.todasLasPistas = [];
-        window.indicePistaActual = -1;
-        const mainAudio = document.getElementById('main-audio');
-        const supportedExts = ['.mp3', '.wav', '.m4a', '.ogg', '.flac'];
+        /* ================= MOTOR LOCAL (MODIFICACIONES PARA SYNC) ================= */
+        function saveCatalogMeta() { localStorage.setItem('franklin_pro_has_catalog', 'true'); }
 
-        // Solicitud FS nativa
-        window.solicitarAccAccessCarpeta = async function() {
-            if (window.OS_STATE.role === 'controller') return;
-            if (!window.showDirectoryPicker) {
-                document.getElementById('fallback-folder-picker').click(); return;
+        window.reintentarConexion = function() {
+            window.isConnectingRemote = true;
+            showCustomLoading('Reconectando con el reproductor...', true, '');
+            setTimeout(() => {
+                if (window.isConnectingRemote && !window.isRemoteConnected) {
+                    showCustomLoading('No se pudo conectar. Asegúrese de que el reproductor esté activo.', true, '', true);
+                    window.isConnectingRemote = false;
+                    renderizarEstructuraCarpetasUI();
+                } else if (window.isRemoteConnected) {
+                    showCustomLoading('', false);
+                    renderizarEstructuraCarpetasUI();
+                }
+            }, 3500); 
+        };
+
+        function switchRole(role) {
+            window.currentRole = role;
+            const playerBtn = document.getElementById('role-player-btn');
+            const controllerBtn = document.getElementById('role-controller-btn');
+            
+            if(role === 'controller') {
+                if(playerBtn) playerBtn.className = "px-2.5 sm:px-3 py-1 rounded-full transition-all text-gray-400";
+                if(controllerBtn) controllerBtn.className = "px-2.5 sm:px-3 py-1 rounded-full transition-all bg-pink-500 text-white";
+                
+                if(!mainAudio.paused) mainAudio.pause();
+                mainAudio.src = ""; 
+                state.isPlaying = false;
+                window.currentPlayId = (window.currentPlayId || 0) + 1; 
+                updateUIIcons();
+
+                if (!window.isRemoteConnected) {
+                    window.isConnectingRemote = true;
+                    showCustomLoading('Cargando, conectándose con el otro dispositivo...', true, '');
+                    setTimeout(() => {
+                        if (window.isConnectingRemote && !window.isRemoteConnected) {
+                            showCustomLoading('Por favor, conecte el otro dispositivo.', true, '', true);
+                            window.isConnectingRemote = false;
+                            renderizarEstructuraCarpetasUI();
+                        }
+                    }, 3500);
+                } else {
+                    renderizarEstructuraCarpetasUI();
+                }
+            } else {
+                if(playerBtn) playerBtn.className = "px-2.5 sm:px-3 py-1 rounded-full transition-all bg-pink-500 text-white";
+                if(controllerBtn) controllerBtn.className = "px-2.5 sm:px-3 py-1 rounded-full transition-all text-gray-400";
+                
+                window.isConnectingRemote = false;
+                showCustomLoading('', false);
+                renderizarEstructuraCarpetasUI();
             }
+            localStorage.setItem('franklin_pro_role', role);
+            updateFilePickerVisibility(); 
+        }
+
+        function updateFilePickerVisibility() {
+            const pickerBtn = document.getElementById('sd-folder-picker-btn');
+            const placeholderBox = document.getElementById('sd-placeholder-box');
+            if (window.currentRole === 'controller') {
+                if (pickerBtn) pickerBtn.style.setProperty('display', 'none', 'important');
+                if (placeholderBox) placeholderBox.style.setProperty('display', 'none', 'important');
+            } else {
+                if (pickerBtn) pickerBtn.style.setProperty('display', 'flex', 'important');
+                if (placeholderBox && Object.keys(estructuraCarpetas).length === 0) {
+                    placeholderBox.style.setProperty('display', 'block', 'important');
+                }
+            }
+        }
+
+        let sleepTimerInterval = null, sleepTimerTotalSeconds = 0;
+        let autoPlayTimerInterval = null, autoPlayTimerTotalSeconds = 0;
+
+        // Indexed DB Logic
+        const dbName = "FranklinProDB", storeName = "FolderStore";
+        function openDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onupgradeneeded = (e) => { e.target.result.createObjectStore(storeName); };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
+        }
+        async function saveFolderHandle(handle) {
             try {
-                const handle = await window.showDirectoryPicker({ mode: 'read' });
-                window.todasLasPistas = [];
-                await procesarDirRec(handle, "");
-                renderLocalList();
-            } catch(e) { console.log(e); document.getElementById('fallback-folder-picker').click(); }
-        };
+                const db = await openDatabase();
+                const tx = db.transaction(storeName, "readwrite");
+                await tx.objectStore(storeName).put(handle, "rootDirectory");
+            } catch (err) {}
+        }
+        async function getSavedFolderHandle() {
+            try {
+                const db = await openDatabase();
+                const tx = db.transaction(storeName, "readonly");
+                return await new Promise((resolve, reject) => {
+                    const req = tx.objectStore(storeName).get("rootDirectory");
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            } catch (err) { return null; }
+        }
+
+        window.solicitarAccAccessCarpeta = async function() {
+            if (window.currentRole === 'controller') return;
+            if (!window.showDirectoryPicker) { document.getElementById('fallback-folder-picker').click(); return; }
+            try {
+                const directorioManejador = await window.showDirectoryPicker({ mode: 'read' });
+                showLoading(true);
+                isFallbackMode = false; estructuraCarpetas = {}; todasLasPistas = []; mapaManejadoresLocales = {};
+                await saveFolderHandle(directorioManejador);
+                await procesarDirectoriosRecursivos(directorioManejador, "");
+                setupInitialFolderPointer();
+                showLoading(false);
+            } catch (err) {
+                showLoading(false); document.getElementById('fallback-folder-picker').click();
+            }
+        }
 
         window.procesarCarpetaFallback = function(files) {
-            window.todasLasPistas = [];
+            if (window.currentRole === 'controller' || !files || files.length === 0) return;
+            showLoading(true);
+            isFallbackMode = true; estructuraCarpetas = {}; todasLasPistas = [];
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
-                if (supportedExts.includes(ext)) window.todasLasPistas.push({ nombre: file.name, fileObject: file });
-            }
-            renderLocalList();
-        };
-
-        async function procesarDirRec(handle, path) {
-            for await (const entry of handle.values()) {
-                if (entry.kind === 'directory') await procesarDirRec(entry, path + entry.name + "/");
-                else if (entry.kind === 'file') {
-                    const ext = entry.name.slice(entry.name.lastIndexOf('.')).toLowerCase();
-                    if(supportedExts.includes(ext)) window.todasLasPistas.push({ nombre: entry.name, manejador: entry });
+                if (supportedExtensions.includes(ext)) {
+                    let rutaPadre = "";
+                    if (file.webkitRelativePath) {
+                        const partes = file.webkitRelativePath.split('/');
+                        partes.shift(); partes.pop(); rutaPadre = partes.join('/');
+                    }
+                    const nombreCarpeta = rutaPadre || "Raíz";
+                    if (!estructuraCarpetas[nombreCarpeta]) estructuraCarpetas[nombreCarpeta] = [];
+                    estructuraCarpetas[nombreCarpeta].push({ nombre: file.name, path: rutaPadre });
+                    todasLasPistas.push({ nombre: file.name, carpeta: nombreCarpeta, fileObject: file });
                 }
+            }
+            setupInitialFolderPointer();
+            showLoading(false);
+        }
+
+        async function procesarDirectoriosRecursivos(manejador, rutaPadre) {
+            for await (const entrada of manejador.values()) {
+                try {
+                    if (entrada.kind === 'directory') {
+                        await procesarDirectoriosRecursivos(entrada, rutaPadre ? `${rutaPadre}/${entrada.name}` : entrada.name);
+                    } else if (entrada.kind === 'file') {
+                        const ext = entrada.name.slice(entrada.name.lastIndexOf('.')).toLowerCase();
+                        if (supportedExtensions.includes(ext)) {
+                            const nombreCarpeta = rutaPadre || "Raíz";
+                            if (!estructuraCarpetas[nombreCarpeta]) estructuraCarpetas[nombreCarpeta] = [];
+                            estructuraCarpetas[nombreCarpeta].push({ nombre: entrada.name, path: rutaPadre });
+                            mapaManejadoresLocales[entrada.name] = entrada;
+                            todasLasPistas.push({ nombre: entrada.name, carpeta: nombreCarpeta, manejador: entrada });
+                        }
+                    }
+                } catch (e) { continue; }
             }
         }
 
-        function renderLocalList() {
-            const list = document.getElementById('file-list');
-            list.innerHTML = '';
-            if(window.todasLasPistas.length === 0) {
-                list.innerHTML = '<div class="text-center text-gray-500 mt-4 text-xs">Carpeta vacía</div>'; return;
+        function setupInitialFolderPointer() {
+            renderizarEstructuraCarpetasUI();
+            saveCatalogMeta();
+            updateCustomScrollbar();
+            if(window.syncLibraryToFirebase) window.syncLibraryToFirebase();
+        }
+
+        async function attemptAutoLoadFolder() {
+            if (!window.showDirectoryPicker) return; 
+            const savedHandle = await getSavedFolderHandle();
+            if (savedHandle) {
+                try {
+                    if (await savedHandle.queryPermission({ mode: 'read' }) === 'granted') {
+                        showLoading(true);
+                        isFallbackMode = false; estructuraCarpetas = {}; todasLasPistas = []; mapaManejadoresLocales = {};
+                        await procesarDirectoriosRecursivos(savedHandle, "");
+                        setupInitialFolderPointer();
+                        showLoading(false);
+                    }
+                } catch (err) {}
             }
-            window.todasLasPistas.forEach((p, idx) => {
-                const div = document.createElement('div');
-                div.className = "p-2 rounded bg-white/5 border border-white/5 hover:bg-white/10 cursor-pointer flex items-center gap-2 group transition-all";
-                div.innerHTML = `<i class="fas fa-play text-[8px] text-gray-500 group-hover:text-[var(--primary-color)]"></i> <span class="text-xs truncate text-gray-200">${p.nombre.replace(/\.[^/.]+$/, "")}</span>`;
-                div.onclick = () => {
-                    if(window.OS_STATE.role === 'controller') window.sendFirebaseCommand('PLAY_TRACK', idx, 'local');
-                    else window.playLocalTrack(idx);
-                };
-                list.appendChild(div);
+        }
+
+        function renderizarEstructuraCarpetasUI() {
+            const fileListEl = document.getElementById('file-list');
+            if(!fileListEl) return;
+            fileListEl.innerHTML = '';
+            const keys = Object.keys(estructuraCarpetas);
+
+            if (window.currentRole === 'controller') {
+                if (!window.isRemoteConnected) {
+                    fileListEl.innerHTML = `
+                        <div class="text-center text-gray-500 mt-16 px-4">
+                            <div class="w-16 h-16 bg-slate-800/40 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-plug-circle-xmark text-3xl opacity-40" style="color: var(--primary-color);"></i>
+                            </div>
+                            <h3 class="text-white font-semibold mb-2">Dispositivo Desconectado</h3>
+                            <button onclick="window.reintentarConexion()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-6 py-3.5 rounded-xl font-bold transition-all shadow-lg">
+                                <i class="fas fa-sync-alt mr-1"></i> Reintentar
+                            </button>
+                        </div>`;
+                    updateCustomScrollbar(); return;
+                } else if (keys.length === 0) {
+                    fileListEl.innerHTML = `<div class="text-center text-gray-500 mt-16">Biblioteca Remota Vacía</div>`;
+                    updateCustomScrollbar(); return;
+                }
+            } else {
+                if (keys.length === 0) {
+                    fileListEl.innerHTML = `
+                        <div id="sd-placeholder-box" class="text-center text-gray-500 mt-16 px-4">
+                            <div class="w-16 h-16 bg-slate-800/40 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-music text-3xl opacity-40" style="color: var(--primary-color);"></i>
+                            </div>
+                            <h3 class="text-white font-semibold mb-2">Selecciona tu Carpeta Raíz</h3>
+                            <button onclick="solicitarAccAccessCarpeta()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-6 py-3.5 rounded-xl font-bold transition-all">
+                                <i class="fas fa-folder-open mr-1"></i> Abrir Selector
+                            </button>
+                        </div>`;
+                    updateCustomScrollbar(); return;
+                }
+            }
+
+            keys.forEach(nombreCarpeta => {
+                const bloque = document.createElement('div');
+                bloque.className = "carpeta-bloque mb-3 bg-slate-900/60 border border-white/5 rounded-2xl overflow-hidden";
+                bloque.innerHTML = `
+                    <div class="carpeta-header p-4 flex justify-between items-center cursor-pointer hover:bg-slate-800/40" onclick="toggleFolderCollapse('folder-box-${CSS.escape(nombreCarpeta)}')">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <i class="fas fa-folder text-amber-400 text-lg"></i>
+                            <span class="text-sm font-bold truncate text-gray-200">${nombreCarpeta.toUpperCase()}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-400 font-semibold">${estructuraCarpetas[nombreCarpeta].length} pistas</span>
+                            <i class="fas fa-chevron-down text-gray-500 text-xs ml-1"></i>
+                        </div>
+                    </div>
+                    <div class="canciones-lista hidden divide-y divide-white/5 bg-slate-950/20" id="folder-box-${CSS.escape(nombreCarpeta)}"></div>`;
+                
+                const listaNode = bloque.querySelector('.canciones-lista');
+                estructuraCarpetas[nombreCarpeta].forEach(pista => {
+                    const itemIdx = todasLasPistas.findIndex(x => x.nombre === pista.nombre && x.carpeta === nombreCarpeta);
+                    const item = document.createElement('div');
+                    item.className = `cancion-item-ui flex items-center p-3.5 cursor-pointer hover:bg-slate-800/60 transition-all justify-between group ${indicePistaActual === itemIdx ? 'border-l-4 border-pink-500 bg-slate-800/40' : ''}`;
+                    item.id = `item-track-${itemIdx}`;
+                    item.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <div class="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center border border-white/5 shrink-0">
+                                <i class="fas fa-play text-[10px] text-gray-400 group-hover:text-pink-500"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="text-xs font-bold block truncate text-gray-100">${pista.nombre.replace(/\.[^/.]+$/, "")}</span>
+                            </div>
+                        </div>`;
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        if(window.currentRole === 'controller') window.sendFirebaseCommand('PLAY_TRACK', itemIdx);
+                        else playTrack(itemIdx);
+                    };
+                    listaNode.appendChild(item);
+                });
+                fileListEl.appendChild(bloque);
+            });
+            setTimeout(updateCustomScrollbar, 100);
+        }
+
+        window.toggleFolderCollapse = function(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.classList.toggle('hidden');
+                const icon = el.previousElementSibling.querySelector('.fa-chevron-down, .fa-chevron-up');
+                if (icon) { icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up'); }
+                setTimeout(updateCustomScrollbar, 50);
+            }
+        }
+
+        /* Scroll Custom Logic */
+        const fileList = document.getElementById('file-list');
+        const customScrollbar = document.getElementById('custom-touch-scrollbar');
+        const customScrollbarThumb = document.getElementById('custom-scrollbar-thumb');
+        let isDraggingScrollbar = false;
+
+        function updateCustomScrollbar() {
+            if (!fileList || !customScrollbar || !customScrollbarThumb) return;
+            const scrollHeight = fileList.scrollHeight, clientHeight = fileList.clientHeight, scrollTop = fileList.scrollTop;
+            if (scrollHeight <= clientHeight) { customScrollbar.classList.add('hidden'); return; }
+            customScrollbar.classList.remove('hidden');
+            const trackHeight = customScrollbar.clientHeight;
+            const thumbHeight = Math.max(30, (clientHeight / scrollHeight) * trackHeight);
+            customScrollbarThumb.style.height = `${thumbHeight}px`;
+            customScrollbarThumb.style.top = `${(scrollTop / (scrollHeight - clientHeight)) * (trackHeight - thumbHeight)}px`;
+        }
+        function scrollListWithCoordinates(clientY) {
+            const trackRect = customScrollbar.getBoundingClientRect(), thumbHeight = customScrollbarThumb.clientHeight;
+            let relativeY = Math.max(0, Math.min(clientY - trackRect.top - (thumbHeight / 2), customScrollbar.clientHeight - thumbHeight));
+            fileList.scrollTop = (relativeY / (customScrollbar.clientHeight - thumbHeight)) * (fileList.scrollHeight - fileList.clientHeight);
+        }
+        if(customScrollbar) {
+            customScrollbar.addEventListener('touchstart', (e) => { isDraggingScrollbar = true; scrollListWithCoordinates(e.touches[0].clientY); }, { passive: true });
+            customScrollbar.addEventListener('touchmove', (e) => { if (isDraggingScrollbar) { if(e.cancelable) e.preventDefault(); scrollListWithCoordinates(e.touches[0].clientY); } }, { passive: false });
+            customScrollbar.addEventListener('touchend', () => { isDraggingScrollbar = false; });
+            customScrollbar.addEventListener('mousedown', (e) => { isDraggingScrollbar = true; scrollListWithCoordinates(e.clientY); });
+        }
+        window.addEventListener('mousemove', (e) => { if (isDraggingScrollbar) { e.preventDefault(); scrollListWithCoordinates(e.clientY); } });
+        window.addEventListener('mouseup', () => { isDraggingScrollbar = false; });
+        if(fileList) fileList.addEventListener('scroll', updateCustomScrollbar);
+
+        function updateMediaSession() {
+            if ('mediaSession' in navigator && indicePistaActual !== -1 && todasLasPistas[indicePistaActual]) {
+                const pista = todasLasPistas[indicePistaActual];
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: pista.nombre.replace(/\.[^/.]+$/, ""),
+                    artist: localStorage.getItem('franklin_pro_name') || "Music Franklin Pro",
+                    album: "Origen: " + pista.carpeta.toUpperCase()
+                });
+                navigator.mediaSession.playbackState = state.isPlaying ? "playing" : "paused";
+            }
+        }
+        function initMediaSessionActions() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setActionHandler('play', () => { togglePlay(); });
+                navigator.mediaSession.setActionHandler('pause', () => { togglePlay(); });
+                navigator.mediaSession.setActionHandler('previoustrack', () => { prevTrack(); });
+                navigator.mediaSession.setActionHandler('nexttrack', () => { nextTrack(); });
+            }
+        }
+
+        function reportStatusToFirebase() {
+            if(window.currentRole !== 'controlled') return;
+            if(window.updateFirebaseStatus) {
+                window.updateFirebaseStatus({
+                    activeEngine: state.activeEngine || 'library',
+                    ytVideoId: window.currentYtVideoId || null,
+                    ytTitle: document.getElementById('ytVideoTitle') ? document.getElementById('ytVideoTitle').innerText : "",
+                    ytChannel: document.getElementById('ytVideoChannel') ? document.getElementById('ytVideoChannel').innerText : "",
+                    trackName: todasLasPistas[indicePistaActual] ? todasLasPistas[indicePistaActual].nombre : "Ninguna pista seleccionada",
+                    indicePistaActual: indicePistaActual,
+                    isPlaying: state.isPlaying,
+                    volume: mainAudio.volume,
+                    progress: document.getElementById('progress-bar').value || 0,
+                    timeCurrent: document.getElementById('time-current').textContent || "0:00",
+                    timeTotal: document.getElementById('time-total').textContent || "0:00",
+                    sleepTimerTotalSeconds: sleepTimerTotalSeconds,
+                    autoPlayTimerTotalSeconds: autoPlayTimerTotalSeconds,
+                    isShuffle: state.isShuffle,
+                    repeatMode: state.repeatMode
+                });
+            }
+        }
+
+        /* Reproductor Núcleo Local */
+        const mainAudio = document.getElementById('main-audio');
+        let currentBlobUrl = null;
+
+        window.playTrack = async function(index) {
+            if (index < 0 || index >= todasLasPistas.length) return;
+            window.currentPlayId = (window.currentPlayId || 0) + 1;
+            const myPlayId = window.currentPlayId;
+
+            document.querySelectorAll('.cancion-item-ui').forEach(el => el.classList.remove('border-l-4', 'border-pink-500', 'bg-slate-800/40'));
+            indicePistaActual = index;
+            const pista = todasLasPistas[indicePistaActual];
+            const currentEl = document.getElementById(`item-track-${indicePistaActual}`);
+            if(currentEl) currentEl.classList.add('border-l-4', 'border-pink-500', 'bg-slate-800/40');
+
+            try {
+                if(currentBlobUrl) { mainAudio.pause(); URL.revokeObjectURL(currentBlobUrl); }
+                let archivoFisico;
+                if (isFallbackMode) archivoFisico = pista.fileObject;
+                else {
+                    const opts = { mode: 'read' };
+                    if ((await pista.manejador.queryPermission(opts)) !== 'granted') await pista.manejador.requestPermission(opts);
+                    archivoFisico = await pista.manejador.getFile();
+                }
+
+                if (myPlayId !== window.currentPlayId || window.currentRole === 'controller') return;
+                currentBlobUrl = URL.createObjectURL(archivoFisico);
+                mainAudio.src = currentBlobUrl;
+                const cleanName = pista.nombre.replace(/\.[^/.]+$/, "");
+                document.getElementById('mini-title').textContent = cleanName;
+                document.getElementById('full-title').textContent = cleanName;
+                document.getElementById('mini-player').classList.remove('hidden');
+
+                setupAudioEngine(); 
+                await mainAudio.play();
+                state.isPlaying = true;
+                updateUIIcons(); updateMediaSession(); reportStatusToFirebase();
+            } catch (err) { console.error("Error al cargar pista:", err); }
+        }
+
+        window.togglePlay = function(event) {
+            if(event) event.stopPropagation();
+            if(window.currentRole === 'controller') {
+                window.ignoreStatusUntil = Date.now() + 1500; 
+                state.isPlaying = !state.isPlaying;
+                updateUIIcons();
+                window.sendFirebaseCommand(state.isPlaying ? 'PLAY' : 'PAUSE', null);
+                return;
+            }
+            state.isPlaying ? window.executeLocalPause() : window.executeLocalPlay();
+        }
+
+        window.executeLocalPlay = function() {
+            if(todasLasPistas.length === 0) return;
+            if(indicePistaActual === -1) { playTrack(0); return; }
+            setupAudioEngine(); mainAudio.play(); state.isPlaying = true;
+            updateUIIcons(); updateMediaSession(); reportStatusToFirebase();
+        };
+
+        window.executeLocalPause = function() {
+            mainAudio.pause(); state.isPlaying = false;
+            updateUIIcons(); updateMediaSession(); reportStatusToFirebase();
+        };
+
+        window.nextTrack = function(event) {
+            if(event) event.stopPropagation();
+            window.currentRole === 'controller' ? window.sendFirebaseCommand('NEXT', null) : window.executeLocalNext();
+        }
+
+        window.executeLocalNext = function() {
+            if(todasLasPistas.length === 0) return;
+            if(state.isShuffle) playTrack(Math.floor(Math.random() * todasLasPistas.length));
+            else {
+                let nextIndex = indicePistaActual + 1;
+                if(nextIndex >= todasLasPistas.length) {
+                    if(state.repeatMode === 1) nextIndex = 0; else return;
+                }
+                playTrack(nextIndex);
+            }
+        };
+
+        window.prevTrack = function(event) {
+            if(event) event.stopPropagation();
+            window.currentRole === 'controller' ? window.sendFirebaseCommand('PREV', null) : window.executeLocalPrev();
+        }
+
+        window.executeLocalPrev = function() {
+            if(todasLasPistas.length === 0) return;
+            playTrack(indicePistaActual - 1 < 0 ? todasLasPistas.length - 1 : indicePistaActual - 1);
+        };
+
+        window.executeLocalPlayTrack = function(idx) { playTrack(idx); };
+
+        function updateUIIcons() {
+            const playIcon = document.getElementById('full-play-icon');
+            const miniPlayIcon = document.getElementById('mini-play-icon');
+            const logoIcon = document.getElementById('logo-icon');
+
+            if(state.isPlaying) {
+                if(playIcon) playIcon.className = "fas fa-pause text-slate-950 text-2xl";
+                if(miniPlayIcon) miniPlayIcon.className = "fas fa-pause";
+                if(logoIcon) logoIcon.classList.add('fa-spin');
+            } else {
+                if(playIcon) playIcon.className = "fas fa-play text-slate-950 text-2xl ml-1";
+                if(miniPlayIcon) miniPlayIcon.className = "fas fa-play";
+                if(logoIcon) logoIcon.classList.remove('fa-spin');
+            }
+        }
+
+        let lastFirebaseReportTime = 0;
+        if(mainAudio) {
+            mainAudio.addEventListener('timeupdate', () => {
+                if(mainAudio.duration) {
+                    const c = mainAudio.currentTime, t = mainAudio.duration;
+                    document.getElementById('progress-bar').value = (c / t) * 100;
+                    document.getElementById('time-current').textContent = formatTime(c);
+                    document.getElementById('time-total').textContent = formatTime(t);
+                    const now = Date.now();
+                    if(now - lastFirebaseReportTime > 2000) { lastFirebaseReportTime = now; reportStatusToFirebase(); }
+                }
+            });
+            mainAudio.addEventListener('ended', () => {
+                state.repeatMode === 2 ? (mainAudio.currentTime = 0, mainAudio.play()) : nextTrack();
             });
         }
 
-        window.playLocalTrack = async function(idx) {
-            if (idx < 0 || idx >= window.todasLasPistas.length) return;
-            window.indicePistaActual = idx;
-            const pista = window.todasLasPistas[idx];
+        window.seekTrack = function(val) {
+            window.currentRole === 'controller' ? window.sendFirebaseCommand('SEEK', val) : window.executeLocalSeek(val);
+        }
+        window.executeLocalSeek = function(val) { if(mainAudio.duration) { mainAudio.currentTime = (val / 100) * mainAudio.duration; reportStatusToFirebase(); } };
 
-            try {
-                let file;
-                if (pista.fileObject) file = pista.fileObject;
-                else {
-                    if ((await pista.manejador.queryPermission({mode: 'read'})) !== 'granted') await pista.manejador.requestPermission({mode: 'read'});
-                    file = await pista.manejador.getFile();
-                }
-
-                mainAudio.src = URL.createObjectURL(file);
-                document.getElementById('full-title').innerText = pista.nombre.replace(/\.[^/.]+$/, "");
-                
-                setupAudioEngine(); // Activa visualizador
-                window.executeLocalPlay();
-            } catch(e) { console.error("Error reproduciendo local", e); }
+        window.updateLocalVolumeUI = function(val) {
+            document.getElementById('volume-slider').value = val;
+            document.getElementById('mini-volume-slider').value = val;
+            document.getElementById('full-volume-slider').value = val;
+        };
+        window.setVolume = function(val) {
+            window.currentRole === 'controller' ? window.sendFirebaseCommand('SET_VOLUME', val) : window.executeLocalSetVolume(val);
+        }
+        window.executeLocalSetVolume = function(val) {
+            mainAudio.volume = val; if(val > 0) state.lastVolume = val;
+            window.updateLocalVolumeUI(val); reportStatusToFirebase();
         };
 
-        // Controles de Playback Locales
-        window.togglePlayLocal = function() {
-            if(window.OS_STATE.role === 'controller') {
-                window.sendFirebaseCommand(window.OS_STATE.localPlaying ? 'PAUSE' : 'PLAY', null, 'local');
-            } else {
-                window.OS_STATE.localPlaying ? window.executeLocalPause() : window.executeLocalPlay();
+        window.muteVolume = function() {
+            if(window.currentRole === 'controller') {
+                const currentVol = parseFloat(document.getElementById('volume-slider').value);
+                if(currentVol > 0) { state.lastVolume = currentVol; window.updateLocalVolumeUI(0); setVolume(0); } 
+                else { window.updateLocalVolumeUI(state.lastVolume || 0.8); setVolume(state.lastVolume || 0.8); }
+                return;
             }
-        };
-
-        window.executeLocalPlay = function() {
-            if(window.todasLasPistas.length === 0) return;
-            if(window.indicePistaActual === -1) window.playLocalTrack(0);
-            else { mainAudio.play(); window.OS_STATE.localPlaying = true; updateLocalUI(); }
-        };
-
-        window.executeLocalPause = function() { mainAudio.pause(); window.OS_STATE.localPlaying = false; updateLocalUI(); };
-        window.executeLocalNext = function() { window.playLocalTrack((window.indicePistaActual + 1) % window.todasLasPistas.length); };
-        window.executeLocalPrev = function() { window.playLocalTrack((window.indicePistaActual - 1 + window.todasLasPistas.length) % window.todasLasPistas.length); };
-        
-        window.seekTrackLocal = function(val) { if(mainAudio.duration) mainAudio.currentTime = (val/100)*mainAudio.duration; };
-        window.setVolumeLocal = function(val) { mainAudio.volume = val; };
-
-        function updateLocalUI() {
-            document.getElementById('full-play-icon').className = window.OS_STATE.localPlaying ? "fas fa-pause text-xl" : "fas fa-play text-xl ml-1";
-            window.reportStatusToFirebase();
+            setVolume(mainAudio.volume > 0 ? 0 : (state.lastVolume || 0.8));
         }
 
-        // Time Update
-        mainAudio.addEventListener('timeupdate', () => {
-            if(mainAudio.duration) {
-                const c = mainAudio.currentTime, d = mainAudio.duration;
-                document.getElementById('progress-bar').value = (c/d)*100;
-                document.getElementById('time-current').innerText = `${Math.floor(c/60)}:${Math.floor(c%60).toString().padStart(2,'0')}`;
-                document.getElementById('time-total').innerText = `${Math.floor(d/60)}:${Math.floor(d%60).toString().padStart(2,'0')}`;
-            }
-        });
-        mainAudio.addEventListener('ended', () => window.executeLocalNext());
+        window.toggleMiniVolumePanel = function(event) { if(event) event.stopPropagation(); document.getElementById('mini-volume-panel').classList.toggle('hidden'); }
+        window.toggleFullVolumePanel = function() { document.getElementById('full-volume-panel').classList.toggle('hidden'); }
 
-        // ---------------------------------------------------------
-        // AUDIO CONTEXT & CANVAS VISUALIZER (Básico presencial)
-        // ---------------------------------------------------------
-        let audioCtx = null, analyser = null, dataArray = null;
-        let vMode = 'bars';
-        
-        window.setVisualizerMode = function(m) { vMode = m; };
+        window.toggleShuffle = function() { window.currentRole === 'controller' ? window.sendFirebaseCommand('TOGGLE_SHUFFLE', null) : window.executeLocalToggleShuffle(); };
+        window.executeLocalToggleShuffle = function() {
+            state.isShuffle = !state.isShuffle;
+            const btn = document.getElementById('btn-shuffle');
+            if (btn) btn.style.color = state.isShuffle ? 'var(--primary-color)' : '#9ca3af';
+            reportStatusToFirebase();
+        };
+
+        window.toggleRepeat = function(event) {
+            if(event) event.stopPropagation();
+            window.currentRole === 'controller' ? window.sendFirebaseCommand('TOGGLE_REPEAT', null) : window.executeLocalToggleRepeat();
+        };
+        window.executeLocalToggleRepeat = function() {
+            state.repeatMode = (state.repeatMode + 1) % 3;
+            window.updateRepeatUI(); reportStatusToFirebase();
+        };
+        window.updateRepeatUI = function() {
+            const btn = document.getElementById('btn-repeat');
+            if(!btn) return;
+            btn.style.color = state.repeatMode === 0 ? '#9ca3af' : 'var(--primary-color)';
+            btn.innerHTML = state.repeatMode === 2 ? '<i class="fas fa-redo"></i><span class="absolute text-[8px] font-extrabold top-1.5 right-1.5">1</span>' : '<i class="fas fa-redo"></i>';
+        };
+
+        function formatTime(sec) { const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${s < 10 ? '0' + s : s}`; }
+
+        window.toggleEQPanel = function() {
+            const eqPanel = document.getElementById('eq-panel');
+            if (eqPanel.classList.contains('hidden')) { eqPanel.classList.remove('hidden'); history.pushState({view: 'player', menu: 'eq'}, ''); } 
+            else { eqPanel.classList.add('hidden'); if (history.state && history.state.menu === 'eq') history.back(); }
+        }
+
+        function showLoading(show) { window.showCustomLoading('Cargando pistas de audio', show, 'Escaneando carpetas de almacenamiento recursivamente...'); }
+        window.showCustomLoading = function(msg, show, submsg = "", isWarning = false) {
+            const overlay = document.getElementById('loading-overlay');
+            if(!overlay) return;
+            if(show) {
+                document.getElementById('loading-msg').textContent = msg;
+                document.getElementById('loading-submsg').textContent = submsg;
+                if(isWarning) { document.getElementById('loading-spinner').classList.add('hidden'); document.getElementById('loading-close-btn').classList.remove('hidden'); } 
+                else { document.getElementById('loading-spinner').classList.remove('hidden'); document.getElementById('loading-close-btn').classList.add('hidden'); }
+                overlay.classList.remove('hidden');
+            } else overlay.classList.add('hidden');
+        };
+
+        /* Temporizadores */
+        window.startSleepTimer = function() {
+            const totalSecs = (parseInt(document.getElementById('timer-hours').value) || 0) * 3600 + (parseInt(document.getElementById('timer-minutes').value) || 0) * 60 + (parseInt(document.getElementById('timer-seconds').value) || 0);
+            window.currentRole === 'controller' ? window.sendFirebaseCommand('START_TIMER', totalSecs) : window.executeLocalStartTimer(totalSecs);
+        }
+        window.executeLocalStartTimer = function(customSecs) {
+            sleepTimerTotalSeconds = customSecs;
+            if (sleepTimerTotalSeconds <= 0) { if(window.currentRole !== 'controller') alert("Introduce más de 0 segundos."); return; }
+            if (sleepTimerInterval) clearInterval(sleepTimerInterval);
+            document.getElementById('btn-timer-cancel').classList.remove('hidden');
+            document.getElementById('timer-status').classList.remove('hidden');
+            document.getElementById('btn-timer-start').textContent = "Actualizar";
+            updateTimerUI();
+            sleepTimerInterval = setInterval(() => {
+                sleepTimerTotalSeconds--;
+                if (sleepTimerTotalSeconds <= 0) { clearInterval(sleepTimerInterval); sleepTimerInterval = null; executeSleepTimeout(); } 
+                else updateTimerUI();
+            }, 1000);
+        };
+        window.cancelSleepTimer = function() { window.currentRole === 'controller' ? window.sendFirebaseCommand('CANCEL_TIMER', null) : window.executeLocalCancelTimer(); }
+        window.executeLocalCancelTimer = function() {
+            if (sleepTimerInterval) { clearInterval(sleepTimerInterval); sleepTimerInterval = null; }
+            sleepTimerTotalSeconds = 0;
+            document.getElementById('btn-timer-cancel').classList.add('hidden');
+            document.getElementById('timer-status').classList.add('hidden');
+            document.getElementById('btn-timer-start').textContent = "Iniciar Apagado";
+            ['timer-hours', 'timer-minutes', 'timer-seconds'].forEach(id => document.getElementById(id).value = "");
+            ['settings-timer-display', 'mini-timer-display', 'full-timer-display'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+            reportStatusToFirebase();
+        };
+        function updateTimerUI() {
+            const timeStr = `${Math.floor(sleepTimerTotalSeconds / 3600).toString().padStart(2,'0')}:${Math.floor((sleepTimerTotalSeconds % 3600) / 60).toString().padStart(2,'0')}:${(sleepTimerTotalSeconds % 60).toString().padStart(2,'0')}`;
+            document.getElementById('timer-status').textContent = timeStr;
+            ['settings-timer-display', 'mini-timer-display', 'full-timer-display'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = timeStr; el.style.setProperty('color', '#ef4444', 'important'); el.classList[sleepTimerTotalSeconds > 0 ? 'remove' : 'add']('hidden'); }
+            });
+            reportStatusToFirebase();
+        }
+        function executeSleepTimeout() { if (state.isPlaying) window.executeLocalPause(); window.executeLocalCancelTimer(); }
+
+        window.startAutoPlayTimer = function() {
+            const totalSecs = (parseInt(document.getElementById('start-timer-hours').value) || 0) * 3600 + (parseInt(document.getElementById('start-timer-minutes').value) || 0) * 60 + (parseInt(document.getElementById('start-timer-seconds').value) || 0);
+            window.currentRole === 'controller' ? window.sendFirebaseCommand('START_AUTOPLAY', totalSecs) : window.executeLocalStartAutoPlay(totalSecs);
+        }
+        window.executeLocalStartAutoPlay = function(customSecs) {
+            autoPlayTimerTotalSeconds = customSecs;
+            if (autoPlayTimerTotalSeconds <= 0) return;
+            if (autoPlayTimerInterval) clearInterval(autoPlayTimerInterval);
+            document.getElementById('btn-start-timer-cancel').classList.remove('hidden');
+            document.getElementById('start-timer-status').classList.remove('hidden');
+            document.getElementById('btn-start-timer-start').textContent = "Actualizar";
+            updateAutoPlayTimerUI();
+            autoPlayTimerInterval = setInterval(() => {
+                autoPlayTimerTotalSeconds--;
+                if (autoPlayTimerTotalSeconds <= 0) { clearInterval(autoPlayTimerInterval); autoPlayTimerInterval = null; executeAutoPlayTimeout(); } 
+                else updateAutoPlayTimerUI();
+            }, 1000);
+        };
+        window.cancelAutoPlayTimer = function() { window.currentRole === 'controller' ? window.sendFirebaseCommand('CANCEL_AUTOPLAY', null) : window.executeLocalCancelAutoPlay(); }
+        window.executeLocalCancelAutoPlay = function() {
+            if (autoPlayTimerInterval) { clearInterval(autoPlayTimerInterval); autoPlayTimerInterval = null; }
+            autoPlayTimerTotalSeconds = 0;
+            document.getElementById('btn-start-timer-cancel').classList.add('hidden');
+            document.getElementById('start-timer-status').classList.add('hidden');
+            document.getElementById('btn-start-timer-start').textContent = "Programar Encendido";
+            ['start-timer-hours', 'start-timer-minutes', 'start-timer-seconds'].forEach(id => document.getElementById(id).value = "");
+            ['mini-start-timer-display', 'full-start-timer-display'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+            reportStatusToFirebase();
+        };
+        function updateAutoPlayTimerUI() {
+            const timeStr = `${Math.floor(autoPlayTimerTotalSeconds / 3600).toString().padStart(2,'0')}:${Math.floor((autoPlayTimerTotalSeconds % 3600) / 60).toString().padStart(2,'0')}:${(autoPlayTimerTotalSeconds % 60).toString().padStart(2,'0')}`;
+            const stStatus = document.getElementById('start-timer-status');
+            if (stStatus) { stStatus.textContent = timeStr; stStatus.classList[autoPlayTimerTotalSeconds > 0 ? 'remove' : 'add']('hidden'); }
+            ['mini-start-timer-display', 'full-start-timer-display'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = timeStr; el.classList[autoPlayTimerTotalSeconds > 0 ? 'remove' : 'add']('hidden'); }
+            });
+            reportStatusToFirebase();
+        }
+        function executeAutoPlayTimeout() { window.executeLocalCancelAutoPlay(); if (!state.isPlaying) window.executeLocalPlay(); }
+
+        /* Audio Engine y Ecualizador (Mantenidos Intactos) */
+        let audioCtx = null, analyserNode = null, sourceNode = null, eqFilters = [], dataArray = null;
 
         function setupAudioEngine() {
-            if(audioCtx) return;
+            if(audioCtx) return; 
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             audioCtx = new AudioContext();
-            const source = audioCtx.createMediaElementSource(mainAudio);
-            analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 256;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
+            sourceNode = audioCtx.createMediaElementSource(mainAudio);
+            analyserNode = audioCtx.createAnalyser();
+            analyserNode.fftSize = 256; 
+            dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+
+            const frequencies = [60, 230, 910, 4000, 14000];
+            let lastOutput = sourceNode;
+
+            frequencies.forEach((freq, idx) => {
+                const filter = audioCtx.createBiquadFilter();
+                if(idx === 0) filter.type = 'lowshelf';
+                else if(idx === frequencies.length - 1) filter.type = 'highshelf';
+                else { filter.type = 'peaking'; filter.Q.value = 1.0; }
+                filter.frequency.value = freq; filter.gain.value = 0; 
+                lastOutput.connect(filter); lastOutput = filter; eqFilters.push(filter);
+            });
+
+            lastOutput.connect(analyserNode);
+            analyserNode.connect(audioCtx.destination);
             drawVisualizer();
+        }
+
+        window.updateEQ = function(bandIdx, val) { if(eqFilters[bandIdx]) eqFilters[bandIdx].gain.value = parseFloat(val); }
+        window.resetEQ = function() {
+            eqFilters.forEach((filter) => filter.gain.value = 0);
+            document.querySelectorAll('.vertical-slider').forEach(slider => slider.value = 0);
+        }
+
+        /* 15 Modos de Visualizador */
+        const canvas = document.getElementById('visualizer-canvas');
+        const canvasCtx = canvas ? canvas.getContext('2d') : null;
+        let currentMode = 'bars';
+
+        function resizeCanvas() {
+            if (!canvas || !canvas.parentElement) return;
+            canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight;
+            const miniCanvas = document.getElementById('mini-visualizer-canvas');
+            if (miniCanvas) { miniCanvas.width = miniCanvas.clientWidth || 56; miniCanvas.height = miniCanvas.clientHeight || 28; }
+            updateCustomScrollbar();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        window.setVisualizerMode = function(mode, fromRemote = false) {
+            currentMode = mode; localStorage.setItem('franklin_pro_visualizer', mode);
+            if (!fromRemote) syncSettingsRemote({ visualizerMode: mode });
         }
 
         function drawVisualizer() {
             requestAnimationFrame(drawVisualizer);
-            if(!analyser) return;
-            analyser.getByteFrequencyData(dataArray);
-            
-            const cvs = document.getElementById('visualizer-canvas');
-            const ctx = cvs.getContext('2d');
-            
-            // Auto resize
-            if(cvs.width !== cvs.offsetWidth) cvs.width = cvs.offsetWidth;
-            if(cvs.height !== cvs.offsetHeight) cvs.height = cvs.offsetHeight;
+            if(!analyserNode) return;
+            analyserNode.getByteFrequencyData(dataArray);
+            const count = analyserNode.frequencyBinCount;
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
 
-            ctx.clearRect(0,0, cvs.width, cvs.height);
-            const color = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
-            ctx.fillStyle = color;
-
-            const count = analyser.frequencyBinCount;
-            if (vMode === 'bars') {
-                const bw = (cvs.width / count) * 1.5;
-                let x = 0;
-                for(let i=0; i<count; i++) {
-                    const h = (dataArray[i]/255) * cvs.height;
-                    ctx.fillRect(x, cvs.height - h, bw - 1, h);
-                    x += bw;
-                }
-            } else if (vMode === 'wave') {
-                ctx.beginPath(); ctx.lineWidth=3; ctx.strokeStyle=color;
-                const sw = cvs.width / count; let x=0;
-                for(let i=0; i<count; i++) {
-                    const y = (dataArray[i]/255)*cvs.height*0.5 + cvs.height/4;
-                    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-                    x+=sw;
-                }
-                ctx.stroke();
-            } else if (vMode === 'matrix' || vMode === 'circle') {
-                // Implementación comprimida para evitar sobrecarga: Círculo simple
-                const cX = cvs.width/2, cY = cvs.height/2;
-                ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2;
-                for(let i=0; i<count; i++) {
-                    const ang = (i/count)*Math.PI*2;
-                    const h = (dataArray[i]/255) * (cvs.height/3);
-                    ctx.moveTo(cX + Math.cos(ang)*50, cY + Math.sin(ang)*50);
-                    ctx.lineTo(cX + Math.cos(ang)*(50+h), cY + Math.sin(ang)*(50+h));
-                }
-                ctx.stroke();
-            }
+            if(canvas && canvasCtx) renderCanvasScene(canvas, canvasCtx, currentMode, count, primaryColor, 'main');
+            const miniCanvas = document.getElementById('mini-visualizer-canvas');
+            if (miniCanvas) { const miniCtx = miniCanvas.getContext('2d'); renderCanvasScene(miniCanvas, miniCtx, currentMode, count, primaryColor, 'mini'); }
         }
 
-        // INIT
+        function renderCanvasScene(c, ctx, mode, count, primaryColor, prefix) {
+            ctx.fillStyle = "rgba(11, 15, 25, 0.25)"; ctx.fillRect(0, 0, c.width, c.height);
+            ctx.strokeStyle = primaryColor; ctx.fillStyle = primaryColor;
+
+            switch(mode) {
+                case 'bars': {
+                    const barWidth = (c.width / count) * 1.6; let x = 0;
+                    for(let i = 0; i < count; i++) { const magnitude = (dataArray[i] / 255) * c.height * 0.85; ctx.fillRect(x, c.height - magnitude, barWidth - 1, magnitude); x += barWidth; }
+                    break;
+                }
+                case 'wave': {
+                    ctx.beginPath(); ctx.lineWidth = prefix === 'mini' ? 1.5 : 4; const sliceWidth = c.width / count; let x = 0;
+                    for(let i = 0; i < count; i++) { const v = dataArray[i] / 128.0; const y = (v * c.height) / 2.5 + (c.height / 6); if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); x += sliceWidth; }
+                    ctx.lineTo(c.width, c.height/2); ctx.stroke(); break;
+                }
+                case 'circle': {
+                    const cX = c.width / 2, cY = c.height / 2, baseRadius = Math.min(cX, cY) * 0.35;
+                    ctx.beginPath(); ctx.arc(cX, cY, baseRadius, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+                    ctx.strokeStyle = primaryColor;
+                    for(let i = 0; i < count; i++) {
+                        const angle = (i / count) * Math.PI * 2, factor = (dataArray[i] / 255) * baseRadius * 0.9;
+                        ctx.beginPath(); ctx.moveTo(cX + Math.cos(angle) * baseRadius, cY + Math.sin(angle) * baseRadius); ctx.lineTo(cX + Math.cos(angle) * (baseRadius + factor), cY + Math.sin(angle) * (baseRadius + factor)); ctx.lineWidth = prefix === 'mini' ? 1 : 3; ctx.stroke();
+                    }
+                    break;
+                }
+                case 'matrix': {
+                    const cols = prefix === 'mini' ? 12 : 24, colWidth = c.width / cols;
+                    for(let i = 0; i < cols; i++) {
+                        const intensity = Math.floor((dataArray[Math.floor((i / cols) * count)] / 255) * 12);
+                        for(let j = 0; j < intensity; j++) {
+                            ctx.fillStyle = hexToRgba(primaryColor, (j + 1) / 12);
+                            ctx.fillRect(i * colWidth + 1, c.height - (j * (prefix === 'mini' ? 3 : 28)) - (prefix === 'mini' ? 4 : 24), colWidth - 2, prefix === 'mini' ? 2 : 20);
+                        }
+                    }
+                    break;
+                }
+                case 'dots': {
+                    const step = prefix === 'mini' ? 4 : 2;
+                    for(let i = 0; i < count; i += step) {
+                        const fVal = dataArray[i];
+                        ctx.beginPath(); ctx.arc((i / count) * c.width, c.height - (fVal / 255) * c.height * 0.9, (fVal / 255) * (prefix === 'mini' ? 3 : 12) + 1, 0, Math.PI * 2); ctx.fillStyle = hexToRgba(primaryColor, fVal / 255); ctx.fill();
+                    }
+                    break;
+                }
+                case 'lines': {
+                    ctx.lineWidth = prefix === 'mini' ? 0.5 : 1.5; const step = prefix === 'mini' ? 12 : 6;
+                    for(let i = 0; i < count; i += step) { const amp = (dataArray[i] / 255) * c.height; ctx.strokeStyle = hexToRgba(primaryColor, 0.4); ctx.beginPath(); ctx.moveTo(0, c.height - amp); ctx.lineTo(c.width, amp); ctx.stroke(); }
+                    break;
+                }
+                case 'mirrored': {
+                    const midX = c.width / 2, barW = (midX / count) * 1.8;
+                    for(let i = 0; i < count; i++) {
+                        const mag = (dataArray[i] / 255) * c.height * 0.7; ctx.fillStyle = primaryColor;
+                        ctx.fillRect(midX + (i * barW), c.height - mag, barW - 1, mag); ctx.fillRect(midX - (i * barW) - barW, c.height - mag, barW - 1, mag);
+                    }
+                    break;
+                }
+                case 'tunnel': {
+                    const midX = c.width / 2, midY = c.height / 2, maxR = Math.min(midX, midY);
+                    for(let i = 0; i < 6; i++) {
+                        const nodeVal = dataArray[i * 12] || 0;
+                        ctx.beginPath(); ctx.arc(midX, midY, (i / 6) * maxR + (nodeVal / 255) * (prefix === 'mini' ? 8 : 35), 0, Math.PI * 2); ctx.strokeStyle = hexToRgba(primaryColor, (6 - i) / 6); ctx.lineWidth = prefix === 'mini' ? 1 : 3 + (nodeVal/60); ctx.stroke();
+                    }
+                    break;
+                }
+                case 'liquid': {
+                    const slice = c.width / count; ctx.beginPath(); ctx.moveTo(0, c.height);
+                    for(let i = 0; i < count; i++) {
+                        const x = i * slice, y = c.height - ((dataArray[i] / 255) * c.height * 0.75);
+                        if(i === 0) ctx.moveTo(x, y);
+                        else ctx.quadraticCurveTo((i - 1) * slice, c.height - ((dataArray[i-1]/255) * c.height * 0.75), ((i - 1) * slice + x) / 2, (c.height - ((dataArray[i-1]/255) * c.height * 0.75) + y) / 2);
+                    }
+                    ctx.lineTo(c.width, c.height); ctx.fillStyle = hexToRgba(primaryColor, 0.4); ctx.fill(); break;
+                }
+                case 'rain': {
+                    const step = prefix === 'mini' ? 8 : 4;
+                    for(let i = 0; i < count; i += step) {
+                        const val = dataArray[i];
+                        if(val > 150) { ctx.fillStyle = primaryColor; ctx.fillRect((i / count) * c.width + (Math.random()*(prefix === 'mini' ? 4 : 20) - (prefix === 'mini' ? 2 : 10)), (1 - (val / 255)) * c.height, prefix === 'mini' ? 1 : 3, (val / 255) * (prefix === 'mini' ? 10 : 45)); }
+                    }
+                    break;
+                }
+                case 'pulsar': {
+                    const cX = c.width / 2, cY = c.height / 2; let sum = 0;
+                    for(let i = 0; i < 20; i++) sum += dataArray[i];
+                    const pulse = (prefix === 'mini' ? 8 : 40) + ((sum / 20) / 255) * (prefix === 'mini' ? 15 : 110);
+                    ctx.beginPath();
+                    for(let i = 0; i < 12; i++) {
+                        const angle = (i / 12) * Math.PI * 2, r = pulse + (prefix === 'mini' ? (i % 2 === 0 ? 5 : -3) : (i % 2 === 0 ? 30 : -15));
+                        if(i === 0) ctx.moveTo(cX + Math.cos(angle) * r, cY + Math.sin(angle) * r); else ctx.lineTo(cX + Math.cos(angle) * r, cY + Math.sin(angle) * r);
+                    }
+                    ctx.closePath(); ctx.lineWidth = prefix === 'mini' ? 1.5 : 5; ctx.strokeStyle = primaryColor; ctx.stroke(); break;
+                }
+                case 'blocks': {
+                    const widthBlock = c.width / 16, propKey = prefix + '_peakDecay';
+                    if(!window[propKey]) window[propKey] = Array(16).fill(0);
+                    for(let i = 0; i < 16; i++) {
+                        const currentVal = (dataArray[i * 6] / 255) * c.height * 0.8;
+                        window[propKey][i] = currentVal > window[propKey][i] ? currentVal : Math.max(0, window[propKey][i] - (prefix === 'mini' ? 1 : 3.5));
+                        ctx.fillStyle = hexToRgba(primaryColor, 0.75); ctx.fillRect(i * widthBlock + 1, c.height - currentVal, widthBlock - 2, currentVal);
+                        ctx.fillStyle = "#ffffff"; ctx.fillRect(i * widthBlock + 1, c.height - window[propKey][i] - (prefix === 'mini' ? 2 : 6), widthBlock - 2, prefix === 'mini' ? 1 : 4);
+                    }
+                    break;
+                }
+                case 'concentric': {
+                    const cX = c.width / 2, cY = c.height / 2, propKey = prefix + '_ripples';
+                    if(!window[propKey]) window[propKey] = [];
+                    if((dataArray[2] || 0) > 190 && Math.random() < 0.25) window[propKey].push({ r: prefix === 'mini' ? 2 : 10, alpha: 1.0 });
+                    window[propKey].forEach((ripple, idx) => {
+                        ripple.r += prefix === 'mini' ? 1 : 4; ripple.alpha -= 0.015;
+                        if(ripple.alpha <= 0) { window[propKey].splice(idx, 1); return; }
+                        ctx.beginPath(); ctx.arc(cX, cY, ripple.r, 0, Math.PI * 2); ctx.strokeStyle = hexToRgba(primaryColor, ripple.alpha); ctx.lineWidth = prefix === 'mini' ? 0.5 : 2; ctx.stroke();
+                    });
+                    break;
+                }
+                case 'double': {
+                    const w = c.width / count;
+                    for(let i = 0; i < count; i++) { const mag = (dataArray[i] / 255) * (c.height / 2) * 0.85; ctx.fillStyle = primaryColor; ctx.fillRect(i * w, c.height - mag, w - 1, mag); ctx.fillRect(i * w, 0, w - 1, mag); }
+                    break;
+                }
+                case 'aurora': {
+                    ctx.beginPath(); ctx.lineWidth = prefix === 'mini' ? 3 : 15; const slice = c.width / count;
+                    for(let i = 0; i < count; i++) { const dY = (c.height / 2) + Math.sin((i / 8) + Date.now()/1200) * (dataArray[i]/ (prefix === 'mini' ? 12 : 4.5)); if(i === 0) ctx.moveTo(0, dY); else ctx.lineTo(i * slice, dY); }
+                    ctx.strokeStyle = hexToRgba(primaryColor, 0.45); ctx.stroke(); break;
+                }
+            }
+        }
+        function hexToRgba(hex, alpha) {
+            let c; if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){ c= hex.substring(1).split(''); if(c.length== 3) c= [c[0], c[0], c[1], c[1], c[2], c[2]]; c= '0x' + c.join(''); return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')'; } return hex;
+        }
+
+        /* Ajustes UI */
+        const settingsModal = document.getElementById('settings-modal');
+        window.openSettings = function() {
+            if(settingsModal) { settingsModal.classList.remove('hidden'); setTimeout(() => settingsModal.classList.add('opacity-100'), 10); }
+            history.pushState({view: state.activeEngine, menu: 'settings'}, '');
+        }
+        window.closeSettings = function() {
+            if(settingsModal) { settingsModal.classList.remove('opacity-100'); setTimeout(() => settingsModal.classList.add('hidden'), 300); }
+            if (history.state && history.state.menu === 'settings') history.back();
+        }
+
+        window.syncSettingsRemote = function(settingsObj) { if (window.sendFirebaseSettings) window.sendFirebaseSettings(settingsObj); };
+        window.applySyncedSettings = function(settings) {
+            if (!settings) return;
+            if (settings.themeColor) updateThemeColor(settings.themeColor, true);
+            if (settings.font) updateFont(settings.font, true);
+            if (settings.visualizerMode) setVisualizerMode(settings.visualizerMode, true);
+            if (settings.appName) updateAppName(settings.appName, true);
+        };
+
+        window.updateAppName = function(name, fromRemote = false) {
+            const titleEl = document.getElementById('app-title'); const settingNameEl = document.getElementById('setting-name');
+            if(titleEl) titleEl.textContent = name; if(settingNameEl) settingNameEl.value = name;
+            localStorage.setItem('franklin_pro_name', name); updateMediaSession();
+            if (!fromRemote) syncSettingsRemote({ appName: name });
+        }
+        window.updateThemeColor = function(color, fromRemote = false) {
+            document.documentElement.style.setProperty('--primary-color', color);
+            const settingColorEl = document.getElementById('setting-color'); if (settingColorEl) settingColorEl.value = color;
+            localStorage.setItem('franklin_pro_color', color);
+            if (!fromRemote) syncSettingsRemote({ themeColor: color });
+        }
+        window.updateFont = function(font, fromRemote = false) {
+            const dynamicFont = document.getElementById('dynamic-font');
+            if (dynamicFont) dynamicFont.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@300;400;700;900&display=swap'); body { font-family: '${font}', sans-serif; }`;
+            const settingFontEl = document.getElementById('setting-font'); if (settingFontEl) settingFontEl.value = font;
+            localStorage.setItem('franklin_pro_font', font);
+            if (!fromRemote) syncSettingsRemote({ font: font });
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
-            window.switchAppView('local');
+            const savedRole = localStorage.getItem('franklin_pro_role') || 'controlled'; switchRole(savedRole);
+            updateAppName(localStorage.getItem('franklin_pro_name') || "Music Franklin Pro", true);
+            updateThemeColor(localStorage.getItem('franklin_pro_color') || "#ec4899", true);
+            updateFont(localStorage.getItem('franklin_pro_font') || "Montserrat", true);
+            const savedVisualizer = localStorage.getItem('franklin_pro_visualizer') || "bars";
+            setVisualizerMode(savedVisualizer);
+            const selectVis = document.getElementById('setting-visualizer'); if(selectVis) selectVis.value = savedVisualizer;
+
+            attemptAutoLoadFolder();
+            initMediaSessionActions();
+            resizeCanvas();
+            switchView('library');
         });
     </script>
 </body>
 </html>
-
-```
