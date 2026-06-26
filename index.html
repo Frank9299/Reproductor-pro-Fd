@@ -31,10 +31,10 @@
         ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
         ::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 10px; }
 
-        #file-list::-webkit-scrollbar, .hide-scroll::-webkit-scrollbar {
+        #file-list::-webkit-scrollbar {
             display: none !important;
         }
-        #file-list, .hide-scroll {
+        #file-list {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
@@ -120,19 +120,26 @@
             transform: scale(1.3);
         }
 
-        .vertical-slider {
-            -webkit-appearance: none;
-            writing-mode: vertical-lr;
-            direction: rtl;
-            vertical-align: bottom;
+        /* Arreglo específico para sliders verticales táctiles */
+        .vertical-slider-wrapper {
+            position: relative;
             width: 20px;
             height: 140px;
             margin: 0 auto;
+        }
+        .vertical-slider {
+            -webkit-appearance: none;
             background: transparent;
+            position: absolute;
+            width: 140px;
+            height: 20px;
+            top: 60px;
+            left: -60px;
+            transform: rotate(-90deg);
         }
         .vertical-slider::-webkit-slider-runnable-track {
-            width: 6px;
-            height: 100%;
+            width: 100%;
+            height: 6px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 3px;
             cursor: pointer;
@@ -144,7 +151,7 @@
             border-radius: 50%;
             background: #ffffff;
             cursor: pointer;
-            margin-left: -5px;
+            margin-top: -5px;
             box-shadow: 0 0 8px var(--primary-color);
             transition: transform 0.1s;
         }
@@ -185,25 +192,13 @@
             min-height: 44px;
             min-width: 44px;
         }
-
-        /* Animación IA Core */
-        .ai-pulse-active { animation: ai-glow 1.5s infinite ease-in-out; }
-        @keyframes ai-glow {
-            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); background-color: rgba(219, 39, 119, 0.8); color: white; }
-            70% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); background-color: rgba(236, 72, 153, 1); color: white; }
-            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); background-color: rgba(219, 39, 119, 0.8); color: white; }
-        }
     </style>
 </head>
 <body class="flex flex-col h-screen w-screen select-none">
 
-    <audio id="main-audio"></audio>
+    <!-- Manejador de entrada modificado a video para aceptar audios y videos MP4 fluidamente -->
+    <video id="main-audio" class="hidden" playsinline></video>
     <input type="file" id="fallback-folder-picker" webkitdirectory directory multiple class="hidden" onchange="procesarCarpetaFallback(this.files)">
-
-    <div id="aiBanner" class="fixed top-20 left-1/2 transform -translate-x-1/2 bg-slate-900/95 border border-pink-500/50 text-white text-xs px-6 py-3 rounded-full shadow-2xl z-50 flex items-center gap-3 hidden transition-all">
-        <span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
-        <span id="aiBannerText" class="font-bold tracking-wide">Cerebro IA Escuchando...</span>
-    </div>
 
     <header class="glass-panel flex justify-between items-center px-5 py-4 z-20 shrink-0 relative gap-2">
         <div class="flex items-center gap-3 z-10 overflow-hidden shrink">
@@ -211,7 +206,7 @@
             <h1 id="app-title" class="text-base sm:text-xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-100 to-gray-400 truncate">Music Franklin Pro</h1>
         </div>
 
-        <div class="flex bg-slate-950/80 rounded-full p-1 border border-white/10 text-[10px] sm:text-xs font-bold z-10 shadow-lg shrink-0 hidden md:flex">
+        <div class="flex bg-slate-950/80 rounded-full p-1 border border-white/10 text-[10px] sm:text-xs font-bold z-10 shadow-lg shrink-0">
             <button id="role-player-btn" onclick="switchRole('controlled')" class="px-2.5 sm:px-3 py-1 rounded-full transition-all bg-pink-500 text-white">
                 <i class="fas fa-play-circle mr-1"></i> Reproductor
             </button>
@@ -220,21 +215,21 @@
             </button>
         </div>
         
-        <div class="flex items-center gap-1 sm:gap-3 z-10 shrink-0">
-            <button onclick="activateVoiceAssistant()" id="global-ai-btn" class="touch-target text-pink-500 hover:text-pink-400 transition-colors rounded-full" title="Asistente IA de Voz"><i class="fas fa-microphone text-lg sm:text-xl"></i></button>
-            <button onclick="switchView('library')" id="nav-library" class="touch-target text-gray-400 hover:text-white transition-colors" title="Biblioteca Local"><i class="fas fa-folder-open text-lg sm:text-xl"></i></button>
-            <button onclick="switchView('youtube')" id="nav-youtube" class="touch-target text-gray-400 hover:text-white transition-colors" title="YouTube Stream"><i class="fab fa-youtube text-lg sm:text-xl"></i></button>
-            <button onclick="switchView('player')" id="nav-player" class="touch-target text-gray-400 hover:text-white transition-colors" title="Reproductor Local"><i class="fas fa-play-circle text-lg sm:text-xl"></i></button>
-            <button onclick="openSettings()" id="nav-settings" class="touch-target text-gray-400 hover:text-white transition-colors" title="Configuraciones"><i class="fas fa-sliders-h text-lg sm:text-xl"></i></button>
+        <div class="flex items-center gap-2 sm:gap-4 z-10 shrink-0">
+            <button onclick="switchView('library')" class="touch-target text-gray-400 hover:text-white transition-colors" title="Biblioteca"><i class="fas fa-folder-open text-lg sm:text-xl"></i></button>
+            <button onclick="switchView('player')" class="touch-target text-gray-400 hover:text-white transition-colors" title="Reproductor"><i class="fas fa-play-circle text-lg sm:text-xl"></i></button>
+            <button onclick="switchView('remote')" id="btn-nav-remote" class="hidden touch-target text-gray-400 hover:text-white transition-colors" title="Control Remoto"><i class="fas fa-mobile-alt text-lg sm:text-xl"></i></button>
+            <button onclick="openSettings()" class="touch-target text-gray-400 hover:text-white transition-colors" title="Configuraciones"><i class="fas fa-sliders-h text-lg sm:text-xl"></i></button>
         </div>
     </header>
 
     <main class="flex-1 relative overflow-hidden">
         
+        <!-- VISTA: BIBLIOTECA -->
         <section id="view-library" class="view-section active flex-col relative h-full">
             <div class="p-4 flex gap-3 bg-slate-900/60 items-center justify-between border-b border-gray-800 shrink-0">
                 <div class="flex items-center gap-2 overflow-hidden">
-                    <span id="current-path-display" class="text-xs text-gray-400 truncate max-w-xs">Ubicación del Catálogo Local</span>
+                    <span id="current-path-display" class="text-xs text-gray-400 truncate max-w-xs">Ubicación del Catálogo</span>
                 </div>
                 <button id="sd-folder-picker-btn" onclick="solicitarAccAccessCarpeta()" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold text-xs px-5 py-3 rounded-full shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shrink-0" style="background-color: var(--primary-color);">
                     <i class="fas fa-folder-open"></i> Elegir Carpeta SD
@@ -258,7 +253,7 @@
                 <div id="custom-scrollbar-thumb" class="w-full rounded-full absolute top-0 left-0 transition-all duration-75 cursor-pointer" style="background-color: var(--primary-color); height: 50px; box-shadow: 0 0 10px var(--primary-color);"></div>
             </div>
 
-            <div id="mini-player" onclick="switchView('player')" class="absolute bottom-16 left-0 w-full glass-panel border-t border-white/10 p-3 flex flex-col gap-2 cursor-pointer z-40 transition-all duration-300 hover:bg-slate-900/90 shadow-2xl relative hidden">
+            <div id="mini-player" onclick="switchView('player')" class="absolute bottom-16 left-0 w-full glass-panel border-t border-white/10 p-3 flex flex-col gap-2 cursor-pointer z-40 transition-all duration-300 hover:bg-slate-900/90 shadow-2xl relative">
                 
                 <div id="mini-timer-display" class="hidden absolute top-1 right-2 text-[10px] font-black px-1.5 py-0.5 rounded bg-black/80 tracking-wider z-50 border border-white/10 shadow-lg" style="color: #ef4444 !important;"></div>
                 <div id="mini-start-timer-display" class="hidden absolute top-1 left-2 text-[10px] font-black px-1.5 py-0.5 rounded bg-black/80 tracking-wider z-50 border border-white/10 shadow-lg" style="color: #10b981 !important;"></div>
@@ -306,31 +301,38 @@
             </div>
         </section>
 
+        <!-- VISTA: REPRODUCTOR -->
         <section id="view-player" class="view-section flex-col relative h-full justify-between">
             
-            <div class="p-3 bg-slate-950/40 border-b border-white/5 flex items-center justify-between shrink-0 z-30">
+            <div class="p-3 bg-slate-950/40 border-b border-white/5 flex items-center justify-between shrink-0 z-30 pointer-events-auto">
                 <button onclick="switchView('library')" class="touch-target text-gray-400 hover:text-white transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-wider px-3 py-1 bg-white/5 rounded-full border border-white/10 active:scale-95">
-                    <i class="fas fa-chevron-left" style="color: var(--primary-color);"></i> Atrás
+                    <i class="fas fa-chevron-left text-pink-500"></i> Atrás
                 </button>
-                <span class="text-[10px] uppercase font-bold tracking-widest text-gray-500">Panel Principal Local</span>
-                <button onclick="toggleFullVolumePanel()" class="touch-target text-gray-400 hover:text-white transition-all text-sm px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                <span class="text-[10px] uppercase font-bold tracking-widest text-gray-500">Panel Principal</span>
+                <button id="btn-top-volume" onclick="toggleFullVolumePanel()" class="touch-target text-gray-400 hover:text-white transition-all text-sm px-3 py-1 bg-white/5 rounded-full border border-white/10">
                     <i class="fas fa-volume-up"></i>
                 </button>
             </div>
 
-            <div class="relative w-full flex-1 flex flex-col justify-center items-center overflow-hidden min-h-[40vh] border-b border-white/5 px-6">
-                <canvas id="visualizer-canvas" class="absolute inset-0 w-full h-full z-0 opacity-85 pointer-events-none"></canvas>
+            <!-- Contenedor Multimedia donde ocurre la magia gráfica y táctil -->
+            <div id="media-display-area" class="relative w-full flex-1 flex flex-col justify-center items-center overflow-hidden min-h-[40vh] border-b border-white/5 px-6 pointer-events-auto">
                 
-                <div id="full-volume-panel" class="hidden absolute top-4 right-4 z-30 bg-slate-900/95 border border-white/10 p-3 rounded-xl flex flex-col items-center gap-2 shadow-2xl w-12 h-40 animate-slideUp">
-                    <input type="range" id="full-volume-slider" class="vertical-slider" min="0" max="1" step="0.01" value="0.8" 
-                           oninput="window.isDraggingVolume = true; window.updateLocalVolumeUI(this.value)" 
-                           onchange="window.isDraggingVolume = false; setVolume(this.value)" style="height: 100px;">
+                <!-- Lienzo del Visualizador, Video e Imágenes superpuestos -->
+                <canvas id="visualizer-canvas" class="absolute inset-0 w-full h-full z-0 opacity-85 pointer-events-none"></canvas>
+                <img id="main-image" class="hidden absolute inset-0 w-full h-full object-contain z-10 bg-black pointer-events-none">
+                
+                <div id="full-volume-panel" class="hidden absolute top-4 right-4 z-30 bg-slate-900/95 border border-white/10 p-3 rounded-xl flex flex-col items-center gap-2 shadow-2xl w-14 animate-slideUp">
+                    <div class="vertical-slider-wrapper">
+                        <input type="range" id="full-volume-slider" class="vertical-slider" min="0" max="1" step="0.01" value="0.8" 
+                               oninput="window.isDraggingVolume = true; window.updateLocalVolumeUI(this.value)" 
+                               onchange="window.isDraggingVolume = false; setVolume(this.value)">
+                    </div>
                     <i class="fas fa-volume-mute text-xs text-gray-400 cursor-pointer mt-1" onclick="muteVolume()"></i>
                 </div>
 
-                <div class="relative z-10 text-center w-full max-w-md mx-auto">
-                    <div class="smooth-marquee-container max-w-md mx-auto h-16 flex items-center overflow-hidden">
-                        <h2 id="full-title" class="wavy-marquee-pro text-2xl md:text-3xl font-black whitespace-nowrap">Ninguna pista seleccionada</h2>
+                <div class="relative z-20 text-center w-full max-w-md mx-auto mt-auto mb-4 pointer-events-none">
+                    <div class="smooth-marquee-container max-w-md mx-auto h-16 flex items-center overflow-hidden bg-black/40 rounded-full px-4 border border-white/5 backdrop-blur-md">
+                        <h2 id="full-title" class="wavy-marquee-pro text-xl md:text-2xl font-black whitespace-nowrap">Ninguna pista seleccionada</h2>
                     </div>
                 </div>
 
@@ -350,23 +352,23 @@
                     </div>
                     <div class="flex justify-between h-36 items-end px-2">
                         <div class="flex flex-col items-center">
-                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(0, this.value)">
+                            <div class="vertical-slider-wrapper"><input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(0, this.value)"></div>
                             <span class="text-[9px] mt-2 text-gray-400">60Hz</span>
                         </div>
                         <div class="flex flex-col items-center">
-                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(1, this.value)">
+                            <div class="vertical-slider-wrapper"><input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(1, this.value)"></div>
                             <span class="text-[9px] mt-2 text-gray-400">230Hz</span>
                         </div>
                         <div class="flex flex-col items-center">
-                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(2, this.value)">
+                            <div class="vertical-slider-wrapper"><input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(2, this.value)"></div>
                             <span class="text-[9px] mt-2 text-gray-400">910Hz</span>
                         </div>
                         <div class="flex flex-col items-center">
-                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(3, this.value)">
+                            <div class="vertical-slider-wrapper"><input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(3, this.value)"></div>
                             <span class="text-[9px] mt-2 text-gray-400">4kHz</span>
                         </div>
                         <div class="flex flex-col items-center">
-                            <input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(4, this.value)">
+                            <div class="vertical-slider-wrapper"><input type="range" class="vertical-slider" min="-12" max="12" value="0" step="1" oninput="updateEQ(4, this.value)"></div>
                             <span class="text-[9px] mt-2 text-gray-400">14kHz</span>
                         </div>
                     </div>
@@ -406,56 +408,83 @@
                     </button>
                 </div>
 
+                <!-- Modificado: Eliminado el volumen redundante debajo -->
                 <div class="w-full max-w-2xl mx-auto flex items-center justify-between border-t border-white/5 pt-4 text-xs font-semibold text-gray-400 px-2">
                     <button onclick="toggleEQPanel()" class="hover:text-white flex items-center gap-2 py-2 transition-colors">
                         <i class="fas fa-sliders-h"></i> Ecualizador
                     </button>
                     
-                    <div class="flex items-center gap-3 w-40">
-                        <i class="fas fa-volume-mute cursor-pointer hover:text-white" onclick="muteVolume()"></i>
-                        <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.8" 
-                               oninput="window.isDraggingVolume = true; window.updateLocalVolumeUI(this.value)" 
-                               onchange="window.isDraggingVolume = false; setVolume(this.value)">
-                        <i class="fas fa-volume-up"></i>
+                    <div class="flex items-center gap-3">
+                        <button onclick="muteVolume()" class="hover:text-white transition-colors flex items-center gap-2 py-2">
+                            <i class="fas fa-volume-mute"></i> Silenciar
+                        </button>
                     </div>
                 </div>
 
             </div>
         </section>
 
-        <section id="view-youtube" class="view-section flex-col relative h-full bg-black/40">
-            <div class="w-full flex items-center p-3 border-b border-white/10 bg-slate-900/80 z-20 shrink-0">
-                <div class="flex-1 flex items-center bg-black/50 border border-white/10 rounded-full px-4 py-2 gap-3 focus-within:border-pink-500 transition-all" style="focus-within: border-color: var(--primary-color);">
-                    <i class="fab fa-youtube text-red-500"></i>
-                    <input type="text" id="ytSearchInput" placeholder="Busca en YouTube o pídeselo a la IA..." class="w-full bg-transparent border-none text-white text-sm outline-none" onkeydown="if(event.key === 'Enter') triggerYTSearch()">
-                    <button onclick="triggerYTSearch()" class="text-gray-400 hover:text-white"><i class="fas fa-search"></i></button>
-                </div>
+        <!-- VISTA: CONTROLADOR REMOTO (YOUTUBE Y CONTROL DASHBOARD) -->
+        <section id="view-remote" class="view-section flex-col relative h-full bg-slate-900">
+            <div class="p-4 flex gap-3 bg-slate-950/60 items-center justify-center border-b border-gray-800 shrink-0">
+                <h2 class="text-white font-bold text-sm tracking-widest uppercase"><i class="fas fa-mobile-alt text-pink-500 mr-2"></i> Dashboard de Controlador</h2>
             </div>
             
-            <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-                <div class="flex-1 bg-black relative flex flex-col justify-center items-center shadow-2xl">
-                    <div id="ytPlayerWrapper" class="w-full h-full aspect-video md:aspect-auto md:h-full bg-[#0a0a0a] relative group">
-                        <iframe id="mainVideoPlayer" class="w-full h-full" src="" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-                        <div id="ytPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black">
-                            <i class="fab fa-youtube text-5xl text-white/10 mb-2"></i>
-                            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">Motor de Streaming Inactivo</p>
-                        </div>
-                    </div>
-                    <div class="w-full p-4 bg-slate-900/60 border-t border-white/5 flex justify-between items-center shrink-0">
-                        <div class="truncate">
-                            <h3 id="ytVideoTitle" class="text-sm font-bold text-white truncate">Consola de Video</h3>
-                            <p id="ytVideoChannel" class="text-[10px] text-gray-400">Canal / IA OS</p>
-                        </div>
-                        <button onclick="document.getElementById('mainVideoPlayer').requestFullscreen()" class="text-gray-400 hover:text-white p-2 bg-white/5 rounded-lg border border-white/10"><i class="fas fa-expand"></i></button>
-                    </div>
-                </div>
+            <div class="flex-1 overflow-y-auto p-4 space-y-6 pb-24">
                 
-                <div class="w-full lg:w-80 border-l border-white/5 bg-slate-900/80 flex flex-col h-full z-10 shrink-0 hidden md:flex" id="ytResultsPane">
-                    <div class="p-3 border-b border-white/5 bg-black/40">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Resultados</span>
+                <div class="glass-panel p-4 rounded-2xl border border-white/10">
+                    <h3 class="text-xs text-gray-400 font-bold mb-3 uppercase tracking-wider">Buscar en YouTube / Remoto</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="yt-search-input" placeholder="Buscar video o canción..." class="flex-1 bg-slate-950/80 text-white px-4 py-3 rounded-xl border border-white/10 focus:border-pink-500 focus:outline-none text-sm transition-all">
+                        <button onclick="searchYouTube()" class="bg-red-600 hover:bg-red-500 text-white px-5 py-3 rounded-xl font-bold transition-all shadow-lg shadow-red-600/30">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
-                    <div id="ytResultsContainer" class="flex-1 overflow-y-auto p-2 space-y-2 hide-scroll"></div>
                 </div>
+
+                <div class="glass-panel p-6 rounded-2xl border border-white/10 text-center relative">
+                    <h3 class="text-xs text-gray-400 font-bold mb-5 uppercase tracking-wider">Mando de Control</h3>
+                    
+                    <div class="flex justify-center items-center gap-8 mb-8">
+                        <button onclick="prevTrack(event)" class="touch-target text-white hover:text-gray-300 text-3xl transition-all active:scale-95">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        
+                        <button onclick="togglePlay(event)" class="w-20 h-20 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center shadow-xl shadow-pink-500/30 hover:scale-105 active:scale-95 transition-all text-white">
+                            <i id="remote-play-icon" class="fas fa-play text-3xl ml-1"></i>
+                        </button>
+                        
+                        <button onclick="nextTrack(event)" class="touch-target text-white hover:text-gray-300 text-3xl transition-all active:scale-95">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-4 px-4 bg-slate-950/50 p-4 rounded-xl border border-white/5">
+                        <i class="fas fa-volume-down text-gray-400"></i>
+                        <input type="range" id="remote-volume" min="0" max="1" step="0.01" value="0.8" 
+                               oninput="window.updateLocalVolumeUI(this.value)" 
+                               onchange="setVolume(this.value)" class="flex-1">
+                        <i class="fas fa-volume-up text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-4 rounded-2xl border border-white/10 text-center relative">
+                     <h3 class="text-xs text-gray-400 font-bold mb-3 uppercase tracking-wider">Ajuste Volumen YouTube Remoto</h3>
+                     <div class="flex items-center justify-center gap-4">
+                         <button id="btn-yt-volume" onclick="toggleYTVolumePanel(event)" class="w-14 h-14 rounded-full bg-slate-800 text-white flex items-center justify-center shadow-lg active:scale-95 transition-all">
+                             <i class="fab fa-youtube text-red-500 text-2xl"></i>
+                         </button>
+                     </div>
+                     
+                     <div id="yt-volume-panel" class="hidden absolute top-[-160px] left-1/2 transform -translate-x-1/2 z-30 bg-slate-900/95 border border-white/10 p-3 rounded-xl flex flex-col items-center shadow-2xl animate-slideUp">
+                        <div class="vertical-slider-wrapper">
+                            <input type="range" id="yt-volume-slider" class="vertical-slider" min="0" max="100" step="1" value="80" 
+                                   oninput="sendFirebaseCommand('YT_VOLUME', this.value)">
+                        </div>
+                        <i class="fas fa-volume-up text-xs text-red-500 mt-2"></i>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -463,11 +492,12 @@
 
     <div id="loading-overlay" class="fixed inset-0 bg-slate-950/95 z-50 flex flex-col items-center justify-center hidden">
         <div id="loading-spinner" class="loader mb-5"></div>
-        <p id="loading-msg" class="text-lg font-black tracking-wider text-white text-center px-4">Cargando pistas de audio</p>
+        <p id="loading-msg" class="text-lg font-black tracking-wider text-white text-center px-4">Cargando pistas multimedia</p>
         <p id="loading-submsg" class="text-xs text-gray-400 mt-2 max-w-xs text-center px-4">Escaneando carpetas de almacenamiento recursivamente...</p>
         <button id="loading-close-btn" class="hidden mt-6 px-6 py-2 rounded-full font-bold text-sm transition-all shadow-lg active:scale-95" style="background-color: var(--primary-color); color: white;" onclick="showCustomLoading('', false)">Aceptar</button>
     </div>
 
+    <!-- CONFIGURACIONES (Mantenidas exactamente igual) -->
     <div id="settings-modal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden opacity-0 transition-all duration-300">
         <div class="bg-slate-900/95 border border-white/10 p-6 rounded-3xl w-11/12 max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-6">
@@ -521,18 +551,6 @@
                         <option value="double">14. Espectro Doble (Arriba/Abajo)</option>
                         <option value="aurora">15. Aurora Boreal Fluida</option>
                     </select>
-                </div>
-
-                <div class="border-t border-white/10 pt-4 mt-4 bg-black/20 p-3 rounded-xl border border-white/5">
-                    <label class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">Control de Hardware (WebView)</label>
-                    <div class="flex items-center gap-3 mb-3">
-                        <i class="fas fa-sun text-xs text-amber-500 w-4 text-center"></i>
-                        <input type="range" class="flex-1" min="0" max="100" value="50" onchange="if(window.AndroidInterface && window.AndroidInterface.changePhoneBrightness) window.AndroidInterface.changePhoneBrightness(this.value)">
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-volume-up text-xs text-blue-500 w-4 text-center"></i>
-                        <input type="range" class="flex-1" min="0" max="100" value="80" onchange="if(window.AndroidInterface && window.AndroidInterface.changePhoneVolume) window.AndroidInterface.changePhoneVolume(this.value)">
-                    </div>
                 </div>
 
                 <div class="border-t border-white/10 pt-4">
@@ -617,11 +635,10 @@
         const analytics = getAnalytics(app);
         const db = getDatabase(app);
 
-        window.sendFirebaseCommand = function(type, value, engine = 'local') {
+        window.sendFirebaseCommand = function(type, value) {
             set(ref(db, 'reproductor_control/command'), {
                 type: type,
                 value: value,
-                engine: engine,
                 timestamp: Date.now()
             });
         };
@@ -653,38 +670,31 @@
             }
         };
 
-        // ESCUCHA DE COMANDOS
         let lastCommandTimestamp = 0;
         onValue(ref(db, 'reproductor_control/command'), (snapshot) => {
             const cmd = snapshot.val();
             if(cmd && cmd.timestamp > lastCommandTimestamp) {
                 lastCommandTimestamp = cmd.timestamp;
                 if(window.currentRole === 'controlled') {
-                    if (cmd.engine === 'youtube') {
-                        if (cmd.type === 'PLAY_YT') window.loadYTVideo(cmd.value.id, cmd.value.title, cmd.value.channel);
-                    } else if (cmd.engine === 'system') {
-                        if (cmd.type === 'SWITCH_VIEW') window.switchView(cmd.value, true);
-                    } else {
-                        // LOCAL
-                        if(cmd.type === 'PLAY') window.executeLocalPlay();
-                        else if(cmd.type === 'PAUSE') window.executeLocalPause();
-                        else if(cmd.type === 'NEXT') window.executeLocalNext();
-                        else if(cmd.type === 'PREV') window.executeLocalPrev();
-                        else if(cmd.type === 'SET_VOLUME') window.executeLocalSetVolume(cmd.value);
-                        else if(cmd.type === 'PLAY_TRACK') window.executeLocalPlayTrack(cmd.value);
-                        else if(cmd.type === 'START_TIMER') window.executeLocalStartTimer(cmd.value);
-                        else if(cmd.type === 'CANCEL_TIMER') window.executeLocalCancelTimer();
-                        else if(cmd.type === 'START_AUTOPLAY') window.executeLocalStartAutoPlay(cmd.value);
-                        else if(cmd.type === 'CANCEL_AUTOPLAY') window.executeLocalCancelAutoPlay();
-                        else if(cmd.type === 'SEEK') window.executeLocalSeek(cmd.value);
-                        else if(cmd.type === 'TOGGLE_SHUFFLE') window.executeLocalToggleShuffle();
-                        else if(cmd.type === 'TOGGLE_REPEAT') window.executeLocalToggleRepeat();
-                    }
+                    if(cmd.type === 'PLAY') window.executeLocalPlay();
+                    else if(cmd.type === 'PAUSE') window.executeLocalPause();
+                    else if(cmd.type === 'NEXT') window.executeLocalNext();
+                    else if(cmd.type === 'PREV') window.executeLocalPrev();
+                    else if(cmd.type === 'SET_VOLUME') window.executeLocalSetVolume(cmd.value);
+                    else if(cmd.type === 'PLAY_TRACK') window.executeLocalPlayTrack(cmd.value);
+                    else if(cmd.type === 'START_TIMER') window.executeLocalStartTimer(cmd.value);
+                    else if(cmd.type === 'CANCEL_TIMER') window.executeLocalCancelTimer();
+                    else if(cmd.type === 'START_AUTOPLAY') window.executeLocalStartAutoPlay(cmd.value);
+                    else if(cmd.type === 'CANCEL_AUTOPLAY') window.executeLocalCancelAutoPlay();
+                    else if(cmd.type === 'SEEK') window.executeLocalSeek(cmd.value);
+                    else if(cmd.type === 'TOGGLE_SHUFFLE') window.executeLocalToggleShuffle();
+                    else if(cmd.type === 'TOGGLE_REPEAT') window.executeLocalToggleRepeat();
+                    else if(cmd.type === 'YT_SEARCH') console.log('Buscar en YouTube: ', cmd.value);
+                    else if(cmd.type === 'YT_VOLUME') console.log('Ajustar volumen YT: ', cmd.value);
                 }
             }
         });
 
-        // ESCUCHA DE AJUSTES
         let lastSettingsTimestamp = 0;
         onValue(ref(db, 'reproductor_control/settings'), (snapshot) => {
             const settings = snapshot.val();
@@ -698,7 +708,6 @@
             }
         });
 
-        // ESCUCHA DE BIBLIOTECA
         onValue(ref(db, 'reproductor_control/library'), (snapshot) => {
             if (window.currentRole === 'controller') {
                 const data = snapshot.val();
@@ -712,7 +721,6 @@
             }
         });
 
-        // ESCUCHA DE ESTADO
         let remoteTimeout;
         onValue(ref(db, 'reproductor_control/status'), (snapshot) => {
             const status = snapshot.val();
@@ -734,20 +742,6 @@
                 }, 6000);
 
                 if(window.currentRole === 'controller') {
-                    // Sincronizar motor activo (YouTube o Local)
-                    if (status.activeEngine && status.activeEngine !== state.activeEngine) {
-                        window.switchView(status.activeEngine, true);
-                    }
-
-                    if (status.activeEngine === 'youtube') {
-                        if (document.getElementById('ytVideoTitle')) document.getElementById('ytVideoTitle').innerText = status.ytTitle || "";
-                        if (document.getElementById('ytVideoChannel')) document.getElementById('ytVideoChannel').innerText = status.ytChannel || "";
-                        if (status.ytVideoId && status.ytVideoId !== window.currentYtVideoId) {
-                            window.loadYTVideo(status.ytVideoId, status.ytTitle, status.ytChannel, true);
-                        }
-                    }
-
-                    // Sincronizar estado local
                     const cleanTitle = status.trackName ? status.trackName.replace(/\.[^/.]+$/, "") : "Ninguna pista seleccionada";
                     document.getElementById('mini-title').textContent = cleanTitle;
                     document.getElementById('full-title').textContent = cleanTitle;
@@ -761,35 +755,19 @@
 
                     if (Date.now() > window.ignoreStatusUntil) {
                         state.isPlaying = status.isPlaying;
-                        const playIcon = document.getElementById('full-play-icon');
-                        const miniPlayIcon = document.getElementById('mini-play-icon');
-                        const logoIcon = document.getElementById('logo-icon');
-                        
-                        if(status.isPlaying) {
-                            if(playIcon) playIcon.className = "fas fa-pause text-slate-950 text-2xl";
-                            if(miniPlayIcon) miniPlayIcon.className = "fas fa-pause";
-                            if(logoIcon) logoIcon.classList.add('fa-spin');
-                            document.getElementById('mini-player').classList.remove('hidden');
-                        } else {
-                            if(playIcon) playIcon.className = "fas fa-play text-slate-950 text-2xl ml-1";
-                            if(miniPlayIcon) miniPlayIcon.className = "fas fa-play";
-                            if(logoIcon) logoIcon.classList.remove('fa-spin');
-                        }
+                        updateUIIcons();
                     }
 
                     if (!window.isDraggingVolume) {
-                        document.getElementById('volume-slider').value = status.volume;
-                        document.getElementById('mini-volume-slider').value = status.volume;
-                        document.getElementById('full-volume-slider').value = status.volume;
+                        window.updateLocalVolumeUI(status.volume);
                     }
                     
-                    if (!window.isDraggingProgress && status.activeEngine === 'local') {
+                    if (!window.isDraggingProgress) {
                         document.getElementById('progress-bar').value = status.progress;
                         document.getElementById('time-current').textContent = status.timeCurrent;
                         document.getElementById('time-total').textContent = status.timeTotal;
                     }
 
-                    // Temporizadores
                     if(status.sleepTimerTotalSeconds > 0) {
                         const hrs = Math.floor(status.sleepTimerTotalSeconds / 3600);
                         const mins = Math.floor((status.sleepTimerTotalSeconds % 3600) / 60);
@@ -847,11 +825,11 @@
     </script>
 
     <script>
+        /* ================= ESTADO GLOBAL DEL REPRODUCTOR ================= */
         let estructuraCarpetas = {};
         let todasLasPistas = [];
         let indicePistaActual = -1;
         let mapaManejadoresLocales = {};
-        let isHandlingPopState = false;
         let isFallbackMode = false; 
         
         window.isRemoteConnected = false;
@@ -861,7 +839,6 @@
         window.isDraggingVolume = false;
         window.isDraggingProgress = false;
         window.ignoreStatusUntil = 0;
-        window.currentYtVideoId = null;
 
         window.currentRole = 'controlled'; 
 
@@ -869,14 +846,35 @@
             isPlaying: false,
             isShuffle: false,
             repeatMode: 0, 
-            lastVolume: 0.8,
-            activeEngine: 'library' // local(library/player) or youtube
+            lastVolume: 0.8
         };
 
-        const supportedExtensions = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.aac', '.mp4'];
+        // Soporte agregado para imágenes y videos
+        const supportedExtensions = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.aac', '.mp4', '.webm', '.mkv', '.avi', '.jpg', '.jpeg', '.png', '.gif'];
 
-        /* ================= NAVEGACIÓN Y CROSS-PAUSE ================= */
-        window.switchView = function(viewId, fromRemote = false) {
+        /* ================= GESTOS TÁCTILES (SWIPE) PARA CAMBIO DE PISTAS ================= */
+        let touchstartX = 0;
+        let touchendX = 0;
+        const mediaDisplayArea = document.getElementById('media-display-area');
+
+        mediaDisplayArea.addEventListener('touchstart', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+            touchstartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        mediaDisplayArea.addEventListener('touchend', e => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+            touchendX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            if (touchendX < touchstartX - 60) nextTrack(); // Deslizar izquierda = Siguiente
+            if (touchendX > touchstartX + 60) prevTrack(); // Deslizar derecha = Anterior
+        }
+
+        /* ================= NAVEGACIÓN ENTRE VISTAS ================= */
+        window.switchView = function(viewId) {
             document.querySelectorAll('.view-section').forEach(section => {
                 section.classList.remove('active');
             });
@@ -884,199 +882,41 @@
             if (target) {
                 target.classList.add('active');
             }
-            if (viewId === 'player') setTimeout(resizeCanvas, 50);
-
-            // Resaltar icono navegación
-            ['library', 'youtube', 'player'].forEach(id => {
-                const el = document.getElementById(`nav-${id}`);
-                if(el) {
-                    if (id === viewId) el.classList.add('text-[var(--primary-color)]');
-                    else el.classList.remove('text-[var(--primary-color)]');
-                }
-            });
-
-            // Cross Pause Inteligente:
-            if (viewId === 'youtube' && state.isPlaying) {
-                window.executeLocalPause();
+            if (viewId === 'player') {
+                setTimeout(resizeCanvas, 50);
             }
-            if ((viewId === 'library' || viewId === 'player') && state.activeEngine === 'youtube') {
-                const ytFrame = document.getElementById('mainVideoPlayer');
-                if(ytFrame && ytFrame.src.includes('autoplay=1')) ytFrame.src = ytFrame.src.replace('autoplay=1', 'autoplay=0'); 
-            }
-
-            state.activeEngine = viewId;
             updateCustomScrollbar();
-
-            // Emitir cambio de vista a Firebase si soy el control
-            if (!fromRemote && window.currentRole === 'controller') {
-                window.sendFirebaseCommand('SWITCH_VIEW', viewId, 'system');
-            }
-            reportStatusToFirebase();
         };
 
-        /* ================= ASISTENTE IA DE VOZ ================= */
-        window.activateVoiceAssistant = function() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert("API de reconocimiento de voz no soportada en este navegador.");
-                return;
-            }
-
-            const rec = new SpeechRecognition();
-            rec.lang = 'es-ES';
-            rec.interimResults = false;
-
-            const btn = document.getElementById('global-ai-btn');
-            const banner = document.getElementById('aiBanner');
-            const bannerText = document.getElementById('aiBannerText');
-
-            btn.classList.add('ai-pulse-active');
-            banner.classList.remove('hidden');
-            bannerText.textContent = "Analizando comando...";
-
-            rec.start();
-
-            rec.onresult = function(e) {
-                const phrase = e.results[0][0].transcript.toLowerCase().trim();
-                bannerText.textContent = "Procesando: " + phrase;
-                setTimeout(() => window.executeAiRouter(phrase), 500);
-            };
-
-            rec.onerror = rec.onend = function() {
-                btn.classList.remove('ai-pulse-active');
-                setTimeout(() => banner.classList.add('hidden'), 1500);
-            };
-        };
-
-        window.executeAiRouter = function(cmd) {
-            let handled = false;
-            const num = cmd.match(/\d+/);
-            const level = num ? parseInt(num[0]) : null;
-
-            // 1. HARDWARE
-            if(cmd.includes("volumen") || cmd.includes("sonido")) {
-                let target = level !== null ? level : (cmd.includes("sube") ? 80 : 20);
-                if(window.AndroidInterface && window.AndroidInterface.changePhoneVolume) {
-                    window.AndroidInterface.changePhoneVolume(target);
-                } else {
-                    setVolume(target/100);
-                }
-                handled = true;
-            }
-            if(cmd.includes("brillo") || cmd.includes("luz")) {
-                let target = level !== null ? level : (cmd.includes("sube") ? 90 : 20);
-                if(window.AndroidInterface && window.AndroidInterface.changePhoneBrightness) {
-                    window.AndroidInterface.changePhoneBrightness(target);
-                }
-                handled = true;
-            }
-
-            // 2. SISTEMA / ROLES
-            if(cmd.includes("modo control") || cmd.includes("control remoto")) {
-                switchRole('controller'); handled = true;
-            }
-
-            // 3. MEDIA CONTROLS
-            if(cmd.includes("pausa") || cmd.includes("deten")) {
-                if(state.activeEngine !== 'youtube') {
-                    window.currentRole === 'controller' ? window.sendFirebaseCommand('PAUSE', null) : window.executeLocalPause();
-                }
-                handled = true;
-            }
-            if(cmd.includes("siguiente") || cmd.includes("otra")) {
-                if(state.activeEngine !== 'youtube') {
-                    window.currentRole === 'controller' ? window.sendFirebaseCommand('NEXT', null) : window.executeLocalNext();
-                }
-                handled = true;
-            }
-
-            // 4. BÚSQUEDA Y REPRODUCCIÓN (YOUTUBE Y LOCAL)
-            if(!handled) {
-                let search = cmd.replace(/(busca|pon|reproduce|en youtube|video)/g, "").trim();
-                if(cmd.includes("youtube") || cmd.includes("video")) {
-                    switchView('youtube');
-                    document.getElementById('ytSearchInput').value = search;
-                    window.triggerYTSearch(search);
-                } else {
-                    // Try local first
-                    if(todasLasPistas && todasLasPistas.length > 0) {
-                        switchView('player');
-                        const found = todasLasPistas.findIndex(p => p.nombre.toLowerCase().includes(search));
-                        if(found !== -1) { 
-                            window.currentRole === 'controller' ? window.sendFirebaseCommand('PLAY_TRACK', found) : playTrack(found); 
-                        } else { 
-                            switchView('youtube'); 
-                            document.getElementById('ytSearchInput').value = search; 
-                            window.triggerYTSearch(search); 
-                        }
-                    } else {
-                        switchView('youtube');
-                        document.getElementById('ytSearchInput').value = search;
-                        window.triggerYTSearch(search);
-                    }
+        /* ================= OCULTAMIENTO DE PANELES DE VOLUMEN AL TOCAR LA PANTALLA ================= */
+        document.addEventListener('click', (e) => {
+            const fullVolPanel = document.getElementById('full-volume-panel');
+            const topVolBtn = document.getElementById('btn-top-volume');
+            if (fullVolPanel && !fullVolPanel.classList.contains('hidden')) {
+                if (!fullVolPanel.contains(e.target) && (!topVolBtn || !topVolBtn.contains(e.target))) {
+                    fullVolPanel.classList.add('hidden');
                 }
             }
-            document.getElementById('aiBannerText').textContent = "Ejecutado.";
-        };
 
-        /* ================= MOTOR YOUTUBE STREAMING ================= */
-        const YT_API_KEY = "AIzaSyDr0rhqgkS3A27swSH-m75fVbviECxTiUI"; // Considera ofuscarla en prod
-
-        window.triggerYTSearch = async function(query = null) {
-            const q = query || document.getElementById('ytSearchInput').value.trim();
-            if(!q) return;
-            
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(q)}&type=video&key=${YT_API_KEY}`;
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                if(data.items && data.items.length > 0) {
-                    renderYTResults(data.items);
-                    if(window.innerWidth < 1024) document.getElementById('ytResultsPane').classList.remove('hidden');
+            const ytVolPanel = document.getElementById('yt-volume-panel');
+            const ytVolBtn = document.getElementById('btn-yt-volume');
+            if (ytVolPanel && !ytVolPanel.classList.contains('hidden')) {
+                if (!ytVolPanel.contains(e.target) && (!ytVolBtn || !ytVolBtn.contains(e.target))) {
+                    ytVolPanel.classList.add('hidden');
                 }
-            } catch(e) { console.error("YT API Error", e); }
-        };
+            }
+        });
 
-        function renderYTResults(items) {
-            const cont = document.getElementById('ytResultsContainer');
-            cont.innerHTML = "";
-            items.forEach((item, i) => {
-                const el = document.createElement('div');
-                el.className = "flex bg-black/40 border border-white/5 rounded-lg p-2 gap-2 cursor-pointer hover:bg-white/10 transition-all group";
-                el.innerHTML = `
-                    <img src="${item.snippet.thumbnails.default.url}" class="w-20 aspect-video rounded object-cover bg-black">
-                    <div class="flex-1 overflow-hidden flex flex-col justify-center">
-                        <h4 class="text-[10px] font-bold text-white line-clamp-2 leading-tight group-hover:text-[var(--primary-color)] transition-colors">${item.snippet.title}</h4>
-                        <p class="text-[8px] text-gray-400 truncate mt-0.5">${item.snippet.channelTitle}</p>
-                    </div>`;
-                el.onclick = () => {
-                    if(window.currentRole === 'controller') {
-                        window.sendFirebaseCommand('PLAY_YT', {id: item.id.videoId, title: item.snippet.title, channel: item.snippet.channelTitle}, 'youtube');
-                    } else {
-                        window.loadYTVideo(item.id.videoId, item.snippet.title, item.snippet.channelTitle);
-                    }
-                    if(window.innerWidth < 1024) document.getElementById('ytResultsPane').classList.add('hidden');
-                };
-                cont.appendChild(el);
-            });
+        /* ================= METADATOS DEL CATÁLOGO ================= */
+        function saveCatalogMeta() {
+            localStorage.setItem('franklin_pro_has_catalog', 'true');
         }
 
-        window.loadYTVideo = function(id, title, channel, fromRemote = false) {
-            window.currentYtVideoId = id;
-            document.getElementById('ytPlaceholder').classList.add('hidden');
-            document.getElementById('mainVideoPlayer').src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&controls=1`;
-            document.getElementById('ytVideoTitle').innerText = title;
-            document.getElementById('ytVideoChannel').innerText = channel;
-            
-            if(!fromRemote) reportStatusToFirebase();
-        };
-
-        /* ================= MOTOR LOCAL (MODIFICACIONES PARA SYNC) ================= */
-        function saveCatalogMeta() { localStorage.setItem('franklin_pro_has_catalog', 'true'); }
-
+        /* ================= REINTENTAR CONEXIÓN MANUAL ================= */
         window.reintentarConexion = function() {
             window.isConnectingRemote = true;
             showCustomLoading('Reconectando con el reproductor...', true, '');
+            
             setTimeout(() => {
                 if (window.isConnectingRemote && !window.isRemoteConnected) {
                     showCustomLoading('No se pudo conectar. Asegúrese de que el reproductor esté activo.', true, '', true);
@@ -1089,16 +929,21 @@
             }, 3500); 
         };
 
+        /* ================= INTERRUPTOR DE ROL DINÁMICO ================= */
         function switchRole(role) {
             window.currentRole = role;
             const playerBtn = document.getElementById('role-player-btn');
             const controllerBtn = document.getElementById('role-controller-btn');
+            const btnNavRemote = document.getElementById('btn-nav-remote');
             
             if(role === 'controller') {
                 if(playerBtn) playerBtn.className = "px-2.5 sm:px-3 py-1 rounded-full transition-all text-gray-400";
                 if(controllerBtn) controllerBtn.className = "px-2.5 sm:px-3 py-1 rounded-full transition-all bg-pink-500 text-white";
+                if(btnNavRemote) btnNavRemote.classList.remove('hidden');
                 
-                if(!mainAudio.paused) mainAudio.pause();
+                if(!mainAudio.paused) {
+                    mainAudio.pause();
+                }
                 mainAudio.src = ""; 
                 state.isPlaying = false;
                 window.currentPlayId = (window.currentPlayId || 0) + 1; 
@@ -1107,6 +952,7 @@
                 if (!window.isRemoteConnected) {
                     window.isConnectingRemote = true;
                     showCustomLoading('Cargando, conectándose con el otro dispositivo...', true, '');
+
                     setTimeout(() => {
                         if (window.isConnectingRemote && !window.isRemoteConnected) {
                             showCustomLoading('Por favor, conecte el otro dispositivo.', true, '', true);
@@ -1117,21 +963,26 @@
                 } else {
                     renderizarEstructuraCarpetasUI();
                 }
+                switchView('remote');
             } else {
                 if(playerBtn) playerBtn.className = "px-2.5 sm:px-3 py-1 rounded-full transition-all bg-pink-500 text-white";
                 if(controllerBtn) controllerBtn.className = "px-2.5 sm:px-3 py-1 rounded-full transition-all text-gray-400";
+                if(btnNavRemote) btnNavRemote.classList.add('hidden');
                 
                 window.isConnectingRemote = false;
                 showCustomLoading('', false);
                 renderizarEstructuraCarpetasUI();
+                switchView('library');
             }
             localStorage.setItem('franklin_pro_role', role);
             updateFilePickerVisibility(); 
         }
 
+        /* ================= FUNCIÓN PARA ACTUALIZAR VISIBILIDAD DE CARGA ================= */
         function updateFilePickerVisibility() {
             const pickerBtn = document.getElementById('sd-folder-picker-btn');
             const placeholderBox = document.getElementById('sd-placeholder-box');
+            
             if (window.currentRole === 'controller') {
                 if (pickerBtn) pickerBtn.style.setProperty('display', 'none', 'important');
                 if (placeholderBox) placeholderBox.style.setProperty('display', 'none', 'important');
@@ -1143,73 +994,123 @@
             }
         }
 
-        let sleepTimerInterval = null, sleepTimerTotalSeconds = 0;
-        let autoPlayTimerInterval = null, autoPlayTimerTotalSeconds = 0;
+        /* ================= VARIABLES DEL TEMPORIZADOR ================= */
+        let sleepTimerInterval = null;
+        let sleepTimerTotalSeconds = 0;
+        let autoPlayTimerInterval = null;
+        let autoPlayTimerTotalSeconds = 0;
 
-        // Indexed DB Logic
-        const dbName = "FranklinProDB", storeName = "FolderStore";
+        /* ================= INDEXEDDB PERSISTENCIA DE CARPETA ================= */
+        const dbName = "FranklinProDB";
+        const storeName = "FolderStore";
+
         function openDatabase() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(dbName, 1);
-                request.onupgradeneeded = (e) => { e.target.result.createObjectStore(storeName); };
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    db.createObjectStore(storeName);
+                };
                 request.onsuccess = (e) => resolve(e.target.result);
                 request.onerror = (e) => reject(e.target.error);
             });
         }
+
         async function saveFolderHandle(handle) {
             try {
                 const db = await openDatabase();
                 const tx = db.transaction(storeName, "readwrite");
-                await tx.objectStore(storeName).put(handle, "rootDirectory");
-            } catch (err) {}
+                const store = tx.objectStore(storeName);
+                await store.put(handle, "rootDirectory");
+            } catch (err) {
+                console.warn("No se pudo guardar el manejador de la carpeta:", err);
+            }
         }
+
         async function getSavedFolderHandle() {
             try {
                 const db = await openDatabase();
                 const tx = db.transaction(storeName, "readonly");
+                const store = tx.objectStore(storeName);
                 return await new Promise((resolve, reject) => {
-                    const req = tx.objectStore(storeName).get("rootDirectory");
+                    const req = store.get("rootDirectory");
                     req.onsuccess = () => resolve(req.result);
                     req.onerror = () => reject(req.error);
                 });
-            } catch (err) { return null; }
-        }
-
-        window.solicitarAccAccessCarpeta = async function() {
-            if (window.currentRole === 'controller') return;
-            if (!window.showDirectoryPicker) { document.getElementById('fallback-folder-picker').click(); return; }
-            try {
-                const directorioManejador = await window.showDirectoryPicker({ mode: 'read' });
-                showLoading(true);
-                isFallbackMode = false; estructuraCarpetas = {}; todasLasPistas = []; mapaManejadoresLocales = {};
-                await saveFolderHandle(directorioManejador);
-                await procesarDirectoriosRecursivos(directorioManejador, "");
-                setupInitialFolderPointer();
-                showLoading(false);
             } catch (err) {
-                showLoading(false); document.getElementById('fallback-folder-picker').click();
+                return null;
             }
         }
 
-        window.procesarCarpetaFallback = function(files) {
-            if (window.currentRole === 'controller' || !files || files.length === 0) return;
+        /* ================= SELECCIÓN DE CARPETA DIRECTA ================= */
+        async function solicitarAccAccessCarpeta() {
+            if (window.currentRole === 'controller') return;
+
+            if (!window.showDirectoryPicker) {
+                document.getElementById('fallback-folder-picker').click();
+                return;
+            }
+
+            try {
+                const directorioManejador = await window.showDirectoryPicker({ mode: 'read' });
+                showLoading(true);
+
+                isFallbackMode = false;
+                estructuraCarpetas = {};
+                todasLasPistas = [];
+                mapaManejadoresLocales = {};
+
+                await saveFolderHandle(directorioManejador);
+                await procesarDirectoriosRecursivos(directorioManejador, "");
+
+                setupInitialFolderPointer();
+                showLoading(false);
+            } catch (err) {
+                showLoading(false);
+                document.getElementById('fallback-folder-picker').click();
+            }
+        }
+
+        function procesarCarpetaFallback(files) {
+            if (window.currentRole === 'controller') return;
+            if (!files || files.length === 0) return;
             showLoading(true);
-            isFallbackMode = true; estructuraCarpetas = {}; todasLasPistas = [];
+
+            isFallbackMode = true;
+            estructuraCarpetas = {};
+            todasLasPistas = [];
+
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
                 const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+                
                 if (supportedExtensions.includes(ext)) {
                     let rutaPadre = "";
                     if (file.webkitRelativePath) {
                         const partes = file.webkitRelativePath.split('/');
-                        partes.shift(); partes.pop(); rutaPadre = partes.join('/');
+                        partes.shift(); 
+                        partes.pop();   
+                        rutaPadre = partes.join('/');
                     }
+                    
                     const nombreCarpeta = rutaPadre || "Raíz";
-                    if (!estructuraCarpetas[nombreCarpeta]) estructuraCarpetas[nombreCarpeta] = [];
-                    estructuraCarpetas[nombreCarpeta].push({ nombre: file.name, path: rutaPadre });
-                    todasLasPistas.push({ nombre: file.name, carpeta: nombreCarpeta, fileObject: file });
+                    if (!estructuraCarpetas[nombreCarpeta]) {
+                        estructuraCarpetas[nombreCarpeta] = [];
+                    }
+
+                    estructuraCarpetas[nombreCarpeta].push({
+                        nombre: file.name,
+                        path: rutaPadre
+                    });
+
+                    todasLasPistas.push({
+                        nombre: file.name,
+                        carpeta: nombreCarpeta,
+                        fileObject: file 
+                    });
                 }
             }
+
             setupInitialFolderPointer();
             showLoading(false);
         }
@@ -1218,15 +1119,26 @@
             for await (const entrada of manejador.values()) {
                 try {
                     if (entrada.kind === 'directory') {
-                        await procesarDirectoriosRecursivos(entrada, rutaPadre ? `${rutaPadre}/${entrada.name}` : entrada.name);
+                        const nuevaRuta = rutaPadre ? `${rutaPadre}/${entrada.name}` : entrada.name;
+                        await procesarDirectoriosRecursivos(entrada, nuevaRuta);
                     } else if (entrada.kind === 'file') {
                         const ext = entrada.name.slice(entrada.name.lastIndexOf('.')).toLowerCase();
                         if (supportedExtensions.includes(ext)) {
                             const nombreCarpeta = rutaPadre || "Raíz";
-                            if (!estructuraCarpetas[nombreCarpeta]) estructuraCarpetas[nombreCarpeta] = [];
-                            estructuraCarpetas[nombreCarpeta].push({ nombre: entrada.name, path: rutaPadre });
+                            if (!estructuraCarpetas[nombreCarpeta]) {
+                                estructuraCarpetas[nombreCarpeta] = [];
+                            }
+                            estructuraCarpetas[nombreCarpeta].push({
+                                nombre: entrada.name,
+                                path: rutaPadre
+                            });
+
                             mapaManejadoresLocales[entrada.name] = entrada;
-                            todasLasPistas.push({ nombre: entrada.name, carpeta: nombreCarpeta, manejador: entrada });
+                            todasLasPistas.push({
+                                nombre: entrada.name,
+                                carpeta: nombreCarpeta,
+                                manejador: entrada
+                            });
                         }
                     }
                 } catch (e) { continue; }
@@ -1240,26 +1152,12 @@
             if(window.syncLibraryToFirebase) window.syncLibraryToFirebase();
         }
 
-        async function attemptAutoLoadFolder() {
-            if (!window.showDirectoryPicker) return; 
-            const savedHandle = await getSavedFolderHandle();
-            if (savedHandle) {
-                try {
-                    if (await savedHandle.queryPermission({ mode: 'read' }) === 'granted') {
-                        showLoading(true);
-                        isFallbackMode = false; estructuraCarpetas = {}; todasLasPistas = []; mapaManejadoresLocales = {};
-                        await procesarDirectoriosRecursivos(savedHandle, "");
-                        setupInitialFolderPointer();
-                        showLoading(false);
-                    }
-                } catch (err) {}
-            }
-        }
-
+        /* ================= INTERFACES Y RENDER DE BIBLIOTECA ================= */
         function renderizarEstructuraCarpetasUI() {
             const fileListEl = document.getElementById('file-list');
             if(!fileListEl) return;
             fileListEl.innerHTML = '';
+
             const keys = Object.keys(estructuraCarpetas);
 
             if (window.currentRole === 'controller') {
@@ -1270,14 +1168,26 @@
                                 <i class="fas fa-plug-circle-xmark text-3xl opacity-40" style="color: var(--primary-color);"></i>
                             </div>
                             <h3 class="text-white font-semibold mb-2">Dispositivo Desconectado</h3>
-                            <button onclick="window.reintentarConexion()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-6 py-3.5 rounded-xl font-bold transition-all shadow-lg">
-                                <i class="fas fa-sync-alt mr-1"></i> Reintentar
+                            <p class="text-xs max-w-sm mx-auto text-gray-400 mb-6">Por favor, conecte el otro dispositivo para ver su música.</p>
+                            <button onclick="window.reintentarConexion()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-6 py-3.5 rounded-xl font-bold transition-all shadow-lg shadow-black/50">
+                                <i class="fas fa-sync-alt mr-1"></i> Reintentar Conexión
                             </button>
-                        </div>`;
-                    updateCustomScrollbar(); return;
+                        </div>
+                    `;
+                    updateCustomScrollbar();
+                    return;
                 } else if (keys.length === 0) {
-                    fileListEl.innerHTML = `<div class="text-center text-gray-500 mt-16">Biblioteca Remota Vacía</div>`;
-                    updateCustomScrollbar(); return;
+                    fileListEl.innerHTML = `
+                        <div class="text-center text-gray-500 mt-16 px-4">
+                            <div class="w-16 h-16 bg-slate-800/40 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-folder-open text-3xl opacity-40" style="color: var(--primary-color);"></i>
+                            </div>
+                            <h3 class="text-white font-semibold mb-2">Biblioteca Remota Vacía</h3>
+                            <p class="text-xs max-w-sm mx-auto text-gray-400">El dispositivo remoto está conectado pero no ha cargado ninguna carpeta de música.</p>
+                        </div>
+                    `;
+                    updateCustomScrollbar();
+                    return;
                 }
             } else {
                 if (keys.length === 0) {
@@ -1287,21 +1197,25 @@
                                 <i class="fas fa-music text-3xl opacity-40" style="color: var(--primary-color);"></i>
                             </div>
                             <h3 class="text-white font-semibold mb-2">Selecciona tu Carpeta Raíz</h3>
+                            <p class="text-xs max-w-sm mx-auto text-gray-400 mb-6">Presiona el botón superior para buscar la carpeta de tu tarjeta SD o almacenamiento.</p>
                             <button onclick="solicitarAccAccessCarpeta()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs px-6 py-3.5 rounded-xl font-bold transition-all">
-                                <i class="fas fa-folder-open mr-1"></i> Abrir Selector
+                                <i class="fas fa-folder-open mr-1"></i> Abrir Selector de Carpeta
                             </button>
-                        </div>`;
-                    updateCustomScrollbar(); return;
+                        </div>
+                    `;
+                    updateCustomScrollbar();
+                    return;
                 }
             }
 
             keys.forEach(nombreCarpeta => {
                 const bloque = document.createElement('div');
                 bloque.className = "carpeta-bloque mb-3 bg-slate-900/60 border border-white/5 rounded-2xl overflow-hidden";
+                
                 bloque.innerHTML = `
-                    <div class="carpeta-header p-4 flex justify-between items-center cursor-pointer hover:bg-slate-800/40" onclick="toggleFolderCollapse('folder-box-${CSS.escape(nombreCarpeta)}')">
+                    <div class="carpeta-header p-4 flex justify-between items-center cursor-pointer hover:bg-slate-800/40 transition-all" onclick="toggleFolderCollapse('folder-box-${CSS.escape(nombreCarpeta)}')">
                         <div class="flex items-center gap-3 overflow-hidden">
-                            <i class="fas fa-folder text-amber-400 text-lg"></i>
+                            <i class="fas fa-folder text-amber-400 text-lg shrink-0"></i>
                             <span class="text-sm font-bold truncate text-gray-200">${nombreCarpeta.toUpperCase()}</span>
                         </div>
                         <div class="flex items-center gap-2">
@@ -1309,46 +1223,68 @@
                             <i class="fas fa-chevron-down text-gray-500 text-xs ml-1"></i>
                         </div>
                     </div>
-                    <div class="canciones-lista hidden divide-y divide-white/5 bg-slate-950/20" id="folder-box-${CSS.escape(nombreCarpeta)}"></div>`;
+                    <div class="canciones-lista hidden divide-y divide-white/5 bg-slate-950/20" id="folder-box-${CSS.escape(nombreCarpeta)}"></div>
+                `;
                 
                 const listaNode = bloque.querySelector('.canciones-lista');
+                
                 estructuraCarpetas[nombreCarpeta].forEach(pista => {
                     const itemIdx = todasLasPistas.findIndex(x => x.nombre === pista.nombre && x.carpeta === nombreCarpeta);
                     const item = document.createElement('div');
-                    item.className = `cancion-item-ui flex items-center p-3.5 cursor-pointer hover:bg-slate-800/60 transition-all justify-between group ${indicePistaActual === itemIdx ? 'border-l-4 border-pink-500 bg-slate-800/40' : ''}`;
+                    item.className = "cancion-item-ui flex items-center p-3.5 cursor-pointer hover:bg-slate-800/60 transition-all justify-between group";
                     item.id = `item-track-${itemIdx}`;
+                    
+                    const isThisCurrent = indicePistaActual === itemIdx;
+                    if(isThisCurrent) item.classList.add('border-l-4', 'border-pink-500', 'bg-slate-800/40');
+
+                    // Detectar si es video o imagen para icono
+                    const ext = pista.nombre.slice(pista.nombre.lastIndexOf('.')).toLowerCase();
+                    let iconClass = "fa-music text-gray-400";
+                    if(['.mp4', '.webm', '.mkv', '.avi'].includes(ext)) iconClass = "fa-video text-blue-400";
+                    if(['.jpg', '.jpeg', '.png', '.gif'].includes(ext)) iconClass = "fa-image text-green-400";
+
                     item.innerHTML = `
                         <div class="flex items-center gap-3 overflow-hidden">
                             <div class="w-8 h-8 bg-slate-950 rounded-lg flex items-center justify-center border border-white/5 shrink-0">
-                                <i class="fas fa-play text-[10px] text-gray-400 group-hover:text-pink-500"></i>
+                                <i class="fas ${iconClass} text-[10px] group-hover:text-pink-500 transition-colors"></i>
                             </div>
                             <div class="overflow-hidden">
                                 <span class="text-xs font-bold block truncate text-gray-100">${pista.nombre.replace(/\.[^/.]+$/, "")}</span>
                             </div>
-                        </div>`;
+                        </div>
+                    `;
                     item.onclick = (e) => {
                         e.stopPropagation();
-                        if(window.currentRole === 'controller') window.sendFirebaseCommand('PLAY_TRACK', itemIdx);
-                        else playTrack(itemIdx);
+                        if(window.currentRole === 'controller') {
+                            window.sendFirebaseCommand('PLAY_TRACK', itemIdx);
+                        } else {
+                            playTrack(itemIdx);
+                        }
                     };
                     listaNode.appendChild(item);
                 });
+
                 fileListEl.appendChild(bloque);
             });
+            
             setTimeout(updateCustomScrollbar, 100);
         }
 
-        window.toggleFolderCollapse = function(id) {
+        function toggleFolderCollapse(id) {
             const el = document.getElementById(id);
             if(el) {
                 el.classList.toggle('hidden');
-                const icon = el.previousElementSibling.querySelector('.fa-chevron-down, .fa-chevron-up');
-                if (icon) { icon.classList.toggle('fa-chevron-down'); icon.classList.toggle('fa-chevron-up'); }
+                const header = el.previousElementSibling;
+                const icon = header.querySelector('.fa-chevron-down, .fa-chevron-up');
+                if (icon) {
+                    icon.classList.toggle('fa-chevron-down');
+                    icon.classList.toggle('fa-chevron-up');
+                }
                 setTimeout(updateCustomScrollbar, 50);
             }
         }
 
-        /* Scroll Custom Logic */
+        /* ================= DESPLAZAMIENTO TÁCTIL LATERAL PRO ================= */
         const fileList = document.getElementById('file-list');
         const customScrollbar = document.getElementById('custom-touch-scrollbar');
         const customScrollbarThumb = document.getElementById('custom-scrollbar-thumb');
@@ -1356,40 +1292,88 @@
 
         function updateCustomScrollbar() {
             if (!fileList || !customScrollbar || !customScrollbarThumb) return;
-            const scrollHeight = fileList.scrollHeight, clientHeight = fileList.clientHeight, scrollTop = fileList.scrollTop;
-            if (scrollHeight <= clientHeight) { customScrollbar.classList.add('hidden'); return; }
+            
+            const scrollHeight = fileList.scrollHeight;
+            const clientHeight = fileList.clientHeight;
+            const scrollTop = fileList.scrollTop;
+
+            if (scrollHeight <= clientHeight) {
+                customScrollbar.classList.add('hidden');
+                return;
+            }
+            
             customScrollbar.classList.remove('hidden');
             const trackHeight = customScrollbar.clientHeight;
             const thumbHeight = Math.max(30, (clientHeight / scrollHeight) * trackHeight);
             customScrollbarThumb.style.height = `${thumbHeight}px`;
-            customScrollbarThumb.style.top = `${(scrollTop / (scrollHeight - clientHeight)) * (trackHeight - thumbHeight)}px`;
+
+            const maxScrollTop = scrollHeight - clientHeight;
+            const maxThumbTop = trackHeight - thumbHeight;
+            const thumbTop = (scrollTop / maxScrollTop) * maxThumbTop;
+            customScrollbarThumb.style.top = `${thumbTop}px`;
         }
+
         function scrollListWithCoordinates(clientY) {
-            const trackRect = customScrollbar.getBoundingClientRect(), thumbHeight = customScrollbarThumb.clientHeight;
-            let relativeY = Math.max(0, Math.min(clientY - trackRect.top - (thumbHeight / 2), customScrollbar.clientHeight - thumbHeight));
-            fileList.scrollTop = (relativeY / (customScrollbar.clientHeight - thumbHeight)) * (fileList.scrollHeight - fileList.clientHeight);
+            const trackRect = customScrollbar.getBoundingClientRect();
+            const trackHeight = customScrollbar.clientHeight;
+            const thumbHeight = customScrollbarThumb.clientHeight;
+
+            let relativeY = clientY - trackRect.top - (thumbHeight / 2);
+            const maxThumbTop = trackHeight - thumbHeight;
+
+            if (relativeY < 0) relativeY = 0;
+            if (relativeY > maxThumbTop) relativeY = maxThumbTop;
+
+            const scrollPercent = relativeY / maxThumbTop;
+            const maxScrollTop = fileList.scrollHeight - fileList.clientHeight;
+            fileList.scrollTop = scrollPercent * maxScrollTop;
         }
+
         if(customScrollbar) {
-            customScrollbar.addEventListener('touchstart', (e) => { isDraggingScrollbar = true; scrollListWithCoordinates(e.touches[0].clientY); }, { passive: true });
-            customScrollbar.addEventListener('touchmove', (e) => { if (isDraggingScrollbar) { if(e.cancelable) e.preventDefault(); scrollListWithCoordinates(e.touches[0].clientY); } }, { passive: false });
+            customScrollbar.addEventListener('touchstart', (e) => {
+                isDraggingScrollbar = true;
+                scrollListWithCoordinates(e.touches[0].clientY);
+            }, { passive: true });
+
+            customScrollbar.addEventListener('touchmove', (e) => {
+                if (isDraggingScrollbar) {
+                    if(e.cancelable) e.preventDefault();
+                    scrollListWithCoordinates(e.touches[0].clientY);
+                }
+            }, { passive: false });
+
             customScrollbar.addEventListener('touchend', () => { isDraggingScrollbar = false; });
-            customScrollbar.addEventListener('mousedown', (e) => { isDraggingScrollbar = true; scrollListWithCoordinates(e.clientY); });
+            customScrollbar.addEventListener('mousedown', (e) => {
+                isDraggingScrollbar = true;
+                scrollListWithCoordinates(e.clientY);
+            });
         }
-        window.addEventListener('mousemove', (e) => { if (isDraggingScrollbar) { e.preventDefault(); scrollListWithCoordinates(e.clientY); } });
+        
+        window.addEventListener('mousemove', (e) => {
+            if (isDraggingScrollbar) {
+                e.preventDefault();
+                scrollListWithCoordinates(e.clientY);
+            }
+        });
         window.addEventListener('mouseup', () => { isDraggingScrollbar = false; });
         if(fileList) fileList.addEventListener('scroll', updateCustomScrollbar);
 
+        /* ================= SISTEMA OPERATIVO MEDIA SESSION ================= */
         function updateMediaSession() {
             if ('mediaSession' in navigator && indicePistaActual !== -1 && todasLasPistas[indicePistaActual]) {
                 const pista = todasLasPistas[indicePistaActual];
+                const cleanName = pista.nombre.replace(/\.[^/.]+$/, "");
+                const appName = localStorage.getItem('franklin_pro_name') || "Music Franklin Pro";
+                
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: pista.nombre.replace(/\.[^/.]+$/, ""),
-                    artist: localStorage.getItem('franklin_pro_name') || "Music Franklin Pro",
+                    title: cleanName,
+                    artist: appName,
                     album: "Origen: " + pista.carpeta.toUpperCase()
                 });
                 navigator.mediaSession.playbackState = state.isPlaying ? "playing" : "paused";
             }
         }
+
         function initMediaSessionActions() {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setActionHandler('play', () => { togglePlay(); });
@@ -1399,14 +1383,11 @@
             }
         }
 
+        /* ================= EMISIÓN DE ESTADO DESDE EL REPRODUCTOR ACTIVO ================= */
         function reportStatusToFirebase() {
             if(window.currentRole !== 'controlled') return;
             if(window.updateFirebaseStatus) {
                 window.updateFirebaseStatus({
-                    activeEngine: state.activeEngine || 'library',
-                    ytVideoId: window.currentYtVideoId || null,
-                    ytTitle: document.getElementById('ytVideoTitle') ? document.getElementById('ytVideoTitle').innerText : "",
-                    ytChannel: document.getElementById('ytVideoChannel') ? document.getElementById('ytVideoChannel').innerText : "",
                     trackName: todasLasPistas[indicePistaActual] ? todasLasPistas[indicePistaActual].nombre : "Ninguna pista seleccionada",
                     indicePistaActual: indicePistaActual,
                     isPlaying: state.isPlaying,
@@ -1422,164 +1403,337 @@
             }
         }
 
-        /* Reproductor Núcleo Local */
-        const mainAudio = document.getElementById('main-audio');
+        /* ================= NÚCLEO AUDIO ENGINE EXECUTORS ================= */
+        const mainAudio = document.getElementById('main-audio'); // Etiqueta Video para Audio/Video
+        const mainImage = document.getElementById('main-image');
         let currentBlobUrl = null;
 
-        window.playTrack = async function(index) {
+        async function playTrack(index) {
             if (index < 0 || index >= todasLasPistas.length) return;
+
             window.currentPlayId = (window.currentPlayId || 0) + 1;
             const myPlayId = window.currentPlayId;
 
-            document.querySelectorAll('.cancion-item-ui').forEach(el => el.classList.remove('border-l-4', 'border-pink-500', 'bg-slate-800/40'));
+            document.querySelectorAll('.cancion-item-ui').forEach(el => {
+                el.classList.remove('border-l-4', 'border-pink-500', 'bg-slate-800/40');
+            });
+
             indicePistaActual = index;
             const pista = todasLasPistas[indicePistaActual];
+
             const currentEl = document.getElementById(`item-track-${indicePistaActual}`);
             if(currentEl) currentEl.classList.add('border-l-4', 'border-pink-500', 'bg-slate-800/40');
 
             try {
-                if(currentBlobUrl) { mainAudio.pause(); URL.revokeObjectURL(currentBlobUrl); }
+                if(currentBlobUrl) {
+                    mainAudio.pause();
+                    URL.revokeObjectURL(currentBlobUrl);
+                }
+                
                 let archivoFisico;
-                if (isFallbackMode) archivoFisico = pista.fileObject;
-                else {
+                if (isFallbackMode) {
+                    archivoFisico = pista.fileObject;
+                } else {
                     const opts = { mode: 'read' };
-                    if ((await pista.manejador.queryPermission(opts)) !== 'granted') await pista.manejador.requestPermission(opts);
+                    if ((await pista.manejador.queryPermission(opts)) !== 'granted') {
+                        if ((await pista.manejador.requestPermission(opts)) !== 'granted') {
+                            throw new Error("Permiso denegado por el usuario.");
+                        }
+                    }
                     archivoFisico = await pista.manejador.getFile();
                 }
 
                 if (myPlayId !== window.currentPlayId || window.currentRole === 'controller') return;
+
                 currentBlobUrl = URL.createObjectURL(archivoFisico);
-                mainAudio.src = currentBlobUrl;
+                
+                const ext = pista.nombre.slice(pista.nombre.lastIndexOf('.')).toLowerCase();
+                const isVideo = ['.mp4', '.webm', '.mkv', '.avi'].includes(ext);
+                const isImage = ['.jpg', '.jpeg', '.png', '.gif'].includes(ext);
+                const visCanvas = document.getElementById('visualizer-canvas');
+
                 const cleanName = pista.nombre.replace(/\.[^/.]+$/, "");
                 document.getElementById('mini-title').textContent = cleanName;
                 document.getElementById('full-title').textContent = cleanName;
                 document.getElementById('mini-player').classList.remove('hidden');
 
-                setupAudioEngine(); 
-                await mainAudio.play();
-                state.isPlaying = true;
-                updateUIIcons(); updateMediaSession(); reportStatusToFirebase();
-            } catch (err) { console.error("Error al cargar pista:", err); }
+                if (isImage) {
+                    mainAudio.pause();
+                    mainAudio.classList.add('hidden');
+                    visCanvas.style.opacity = '0';
+                    mainImage.src = currentBlobUrl;
+                    mainImage.classList.remove('hidden');
+                    state.isPlaying = true;
+                    updateUIIcons();
+                    reportStatusToFirebase();
+                } else if (isVideo) {
+                    mainImage.classList.add('hidden');
+                    visCanvas.style.opacity = '0';
+                    mainAudio.src = currentBlobUrl;
+                    mainAudio.classList.remove('hidden');
+                    setupAudioEngine(); 
+                    await mainAudio.play();
+                    state.isPlaying = true;
+                    updateUIIcons();
+                    updateMediaSession();
+                    reportStatusToFirebase();
+                } else {
+                    // Audio Puro
+                    mainImage.classList.add('hidden');
+                    mainAudio.classList.add('hidden');
+                    visCanvas.style.opacity = '0.85';
+                    mainAudio.src = currentBlobUrl;
+                    setupAudioEngine(); 
+                    await mainAudio.play();
+                    state.isPlaying = true;
+                    updateUIIcons();
+                    updateMediaSession();
+                    reportStatusToFirebase();
+                }
+            } catch (err) {
+                console.error("Error al cargar pista:", err);
+            }
         }
 
-        window.togglePlay = function(event) {
+        function togglePlay(event) {
             if(event) event.stopPropagation();
             if(window.currentRole === 'controller') {
                 window.ignoreStatusUntil = Date.now() + 1500; 
-                state.isPlaying = !state.isPlaying;
-                updateUIIcons();
-                window.sendFirebaseCommand(state.isPlaying ? 'PLAY' : 'PAUSE', null);
+                if (state.isPlaying) {
+                    state.isPlaying = false;
+                    updateUIIcons();
+                    window.sendFirebaseCommand('PAUSE', null);
+                } else {
+                    state.isPlaying = true;
+                    updateUIIcons();
+                    window.sendFirebaseCommand('PLAY', null);
+                }
                 return;
             }
-            state.isPlaying ? window.executeLocalPause() : window.executeLocalPlay();
+            if (state.isPlaying) {
+                window.executeLocalPause();
+            } else {
+                window.executeLocalPlay();
+            }
         }
 
         window.executeLocalPlay = function() {
             if(todasLasPistas.length === 0) return;
-            if(indicePistaActual === -1) { playTrack(0); return; }
-            setupAudioEngine(); mainAudio.play(); state.isPlaying = true;
-            updateUIIcons(); updateMediaSession(); reportStatusToFirebase();
+            if(indicePistaActual === -1) {
+                playTrack(0);
+                return;
+            }
+            // Si es imagen, actuar como si estuviera reproduciendo
+            const ext = todasLasPistas[indicePistaActual].nombre.slice(todasLasPistas[indicePistaActual].nombre.lastIndexOf('.')).toLowerCase();
+            const isImage = ['.jpg', '.jpeg', '.png', '.gif'].includes(ext);
+            if (!isImage) {
+                setupAudioEngine();
+                mainAudio.play();
+            }
+            state.isPlaying = true;
+            updateUIIcons();
+            updateMediaSession();
+            reportStatusToFirebase();
         };
 
         window.executeLocalPause = function() {
-            mainAudio.pause(); state.isPlaying = false;
-            updateUIIcons(); updateMediaSession(); reportStatusToFirebase();
+            mainAudio.pause();
+            state.isPlaying = false;
+            updateUIIcons();
+            updateMediaSession();
+            reportStatusToFirebase();
         };
 
-        window.nextTrack = function(event) {
+        function nextTrack(event) {
             if(event) event.stopPropagation();
-            window.currentRole === 'controller' ? window.sendFirebaseCommand('NEXT', null) : window.executeLocalNext();
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('NEXT', null);
+                return;
+            }
+            window.executeLocalNext();
         }
 
         window.executeLocalNext = function() {
             if(todasLasPistas.length === 0) return;
-            if(state.isShuffle) playTrack(Math.floor(Math.random() * todasLasPistas.length));
-            else {
+            if(state.isShuffle) {
+                const randomIndex = Math.floor(Math.random() * todasLasPistas.length);
+                playTrack(randomIndex);
+            } else {
                 let nextIndex = indicePistaActual + 1;
                 if(nextIndex >= todasLasPistas.length) {
-                    if(state.repeatMode === 1) nextIndex = 0; else return;
+                    if(state.repeatMode === 1) nextIndex = 0; 
+                    else return;
                 }
                 playTrack(nextIndex);
             }
         };
 
-        window.prevTrack = function(event) {
+        function prevTrack(event) {
             if(event) event.stopPropagation();
-            window.currentRole === 'controller' ? window.sendFirebaseCommand('PREV', null) : window.executeLocalPrev();
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('PREV', null);
+                return;
+            }
+            window.executeLocalPrev();
         }
 
         window.executeLocalPrev = function() {
             if(todasLasPistas.length === 0) return;
-            playTrack(indicePistaActual - 1 < 0 ? todasLasPistas.length - 1 : indicePistaActual - 1);
+            let prevIndex = indicePistaActual - 1;
+            if(prevIndex < 0) {
+                prevIndex = todasLasPistas.length - 1;
+            }
+            playTrack(prevIndex);
         };
 
-        window.executeLocalPlayTrack = function(idx) { playTrack(idx); };
+        window.executeLocalPlayTrack = function(idx) {
+            playTrack(idx);
+        };
 
         function updateUIIcons() {
             const playIcon = document.getElementById('full-play-icon');
+            const remotePlayIcon = document.getElementById('remote-play-icon');
             const miniPlayIcon = document.getElementById('mini-play-icon');
             const logoIcon = document.getElementById('logo-icon');
 
             if(state.isPlaying) {
                 if(playIcon) playIcon.className = "fas fa-pause text-slate-950 text-2xl";
+                if(remotePlayIcon) remotePlayIcon.className = "fas fa-pause text-3xl";
                 if(miniPlayIcon) miniPlayIcon.className = "fas fa-pause";
                 if(logoIcon) logoIcon.classList.add('fa-spin');
             } else {
                 if(playIcon) playIcon.className = "fas fa-play text-slate-950 text-2xl ml-1";
+                if(remotePlayIcon) remotePlayIcon.className = "fas fa-play text-3xl ml-1";
                 if(miniPlayIcon) miniPlayIcon.className = "fas fa-play";
                 if(logoIcon) logoIcon.classList.remove('fa-spin');
             }
         }
 
+        /* ================= BARRA DE TIEMPO Y ENLACE DE EVENTOS ================= */
         let lastFirebaseReportTime = 0;
+
         if(mainAudio) {
             mainAudio.addEventListener('timeupdate', () => {
                 if(mainAudio.duration) {
-                    const c = mainAudio.currentTime, t = mainAudio.duration;
-                    document.getElementById('progress-bar').value = (c / t) * 100;
-                    document.getElementById('time-current').textContent = formatTime(c);
-                    document.getElementById('time-total').textContent = formatTime(t);
+                    const current = mainAudio.currentTime;
+                    const total = mainAudio.duration;
+                    const percentage = (current / total) * 100;
+                    
+                    document.getElementById('progress-bar').value = percentage;
+                    document.getElementById('time-current').textContent = formatTime(current);
+                    document.getElementById('time-total').textContent = formatTime(total);
+                    
                     const now = Date.now();
-                    if(now - lastFirebaseReportTime > 2000) { lastFirebaseReportTime = now; reportStatusToFirebase(); }
+                    if(now - lastFirebaseReportTime > 2000) {
+                        lastFirebaseReportTime = now;
+                        reportStatusToFirebase();
+                    }
                 }
             });
+
             mainAudio.addEventListener('ended', () => {
-                state.repeatMode === 2 ? (mainAudio.currentTime = 0, mainAudio.play()) : nextTrack();
+                if(state.repeatMode === 2) {
+                    mainAudio.currentTime = 0;
+                    mainAudio.play();
+                } else {
+                    nextTrack();
+                }
             });
         }
 
-        window.seekTrack = function(val) {
-            window.currentRole === 'controller' ? window.sendFirebaseCommand('SEEK', val) : window.executeLocalSeek(val);
-        }
-        window.executeLocalSeek = function(val) { if(mainAudio.duration) { mainAudio.currentTime = (val / 100) * mainAudio.duration; reportStatusToFirebase(); } };
-
-        window.updateLocalVolumeUI = function(val) {
-            document.getElementById('volume-slider').value = val;
-            document.getElementById('mini-volume-slider').value = val;
-            document.getElementById('full-volume-slider').value = val;
-        };
-        window.setVolume = function(val) {
-            window.currentRole === 'controller' ? window.sendFirebaseCommand('SET_VOLUME', val) : window.executeLocalSetVolume(val);
-        }
-        window.executeLocalSetVolume = function(val) {
-            mainAudio.volume = val; if(val > 0) state.lastVolume = val;
-            window.updateLocalVolumeUI(val); reportStatusToFirebase();
-        };
-
-        window.muteVolume = function() {
+        function seekTrack(val) {
             if(window.currentRole === 'controller') {
-                const currentVol = parseFloat(document.getElementById('volume-slider').value);
-                if(currentVol > 0) { state.lastVolume = currentVol; window.updateLocalVolumeUI(0); setVolume(0); } 
-                else { window.updateLocalVolumeUI(state.lastVolume || 0.8); setVolume(state.lastVolume || 0.8); }
+                window.sendFirebaseCommand('SEEK', val);
                 return;
             }
-            setVolume(mainAudio.volume > 0 ? 0 : (state.lastVolume || 0.8));
+            window.executeLocalSeek(val);
         }
 
-        window.toggleMiniVolumePanel = function(event) { if(event) event.stopPropagation(); document.getElementById('mini-volume-panel').classList.toggle('hidden'); }
-        window.toggleFullVolumePanel = function() { document.getElementById('full-volume-panel').classList.toggle('hidden'); }
+        window.executeLocalSeek = function(val) {
+            if(mainAudio.duration) {
+                mainAudio.currentTime = (val / 100) * mainAudio.duration;
+                reportStatusToFirebase();
+            }
+        };
 
-        window.toggleShuffle = function() { window.currentRole === 'controller' ? window.sendFirebaseCommand('TOGGLE_SHUFFLE', null) : window.executeLocalToggleShuffle(); };
+        window.updateLocalVolumeUI = function(val) {
+            const minVol = document.getElementById('mini-volume-slider');
+            const fullVol = document.getElementById('full-volume-slider');
+            const remVol = document.getElementById('remote-volume');
+            if (minVol) minVol.value = val;
+            if (fullVol) fullVol.value = val;
+            if (remVol) remVol.value = val;
+        };
+
+        function setVolume(val) {
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('SET_VOLUME', val);
+                return;
+            }
+            window.executeLocalSetVolume(val);
+        }
+
+        window.executeLocalSetVolume = function(val) {
+            mainAudio.volume = val;
+            if(val > 0) state.lastVolume = val;
+            window.updateLocalVolumeUI(val);
+            reportStatusToFirebase();
+        };
+
+        function muteVolume() {
+            if(window.currentRole === 'controller') {
+                const slider = document.getElementById('remote-volume') || document.getElementById('full-volume-slider');
+                const currentVol = parseFloat(slider ? slider.value : state.lastVolume);
+                if(currentVol > 0) {
+                    state.lastVolume = currentVol;
+                    window.updateLocalVolumeUI(0);
+                    setVolume(0);
+                } else {
+                    window.updateLocalVolumeUI(state.lastVolume || 0.8);
+                    setVolume(state.lastVolume || 0.8);
+                }
+                return;
+            }
+
+            if(mainAudio.volume > 0) {
+                setVolume(0);
+            } else {
+                setVolume(state.lastVolume || 0.8);
+            }
+        }
+
+        function toggleMiniVolumePanel(event) {
+            if(event) event.stopPropagation();
+            document.getElementById('mini-volume-panel').classList.toggle('hidden');
+        }
+
+        function toggleFullVolumePanel() {
+            document.getElementById('full-volume-panel').classList.toggle('hidden');
+        }
+
+        window.searchYouTube = function() {
+            const query = document.getElementById('yt-search-input').value;
+            if(query.trim() !== '') {
+                window.sendFirebaseCommand('YT_SEARCH', query);
+                document.getElementById('yt-search-input').value = '';
+                alert("Búsqueda enviada al dispositivo remoto.");
+            }
+        };
+        
+        window.toggleYTVolumePanel = function(event) {
+            if(event) event.stopPropagation();
+            document.getElementById('yt-volume-panel').classList.toggle('hidden');
+        };
+
+        /* ================= BOTONES ALEATORIO Y REPETIR ================= */
+        window.toggleShuffle = function() {
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('TOGGLE_SHUFFLE', null);
+                return;
+            }
+            window.executeLocalToggleShuffle();
+        };
+
         window.executeLocalToggleShuffle = function() {
             state.isShuffle = !state.isShuffle;
             const btn = document.getElementById('btn-shuffle');
@@ -1589,220 +1743,481 @@
 
         window.toggleRepeat = function(event) {
             if(event) event.stopPropagation();
-            window.currentRole === 'controller' ? window.sendFirebaseCommand('TOGGLE_REPEAT', null) : window.executeLocalToggleRepeat();
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('TOGGLE_REPEAT', null);
+                return;
+            }
+            window.executeLocalToggleRepeat();
         };
+
         window.executeLocalToggleRepeat = function() {
             state.repeatMode = (state.repeatMode + 1) % 3;
-            window.updateRepeatUI(); reportStatusToFirebase();
+            window.updateRepeatUI();
+            reportStatusToFirebase();
         };
+
         window.updateRepeatUI = function() {
             const btn = document.getElementById('btn-repeat');
             if(!btn) return;
-            btn.style.color = state.repeatMode === 0 ? '#9ca3af' : 'var(--primary-color)';
-            btn.innerHTML = state.repeatMode === 2 ? '<i class="fas fa-redo"></i><span class="absolute text-[8px] font-extrabold top-1.5 right-1.5">1</span>' : '<i class="fas fa-redo"></i>';
+            if(state.repeatMode === 0) {
+                btn.style.color = '#9ca3af';
+                btn.innerHTML = '<i class="fas fa-redo"></i>';
+            } else if(state.repeatMode === 1) {
+                btn.style.color = 'var(--primary-color)';
+                btn.innerHTML = '<i class="fas fa-redo"></i>';
+            } else {
+                btn.style.color = 'var(--primary-color)';
+                btn.innerHTML = '<i class="fas fa-redo"></i><span class="absolute text-[8px] font-extrabold top-1.5 right-1.5">1</span>';
+            }
         };
 
-        function formatTime(sec) { const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${s < 10 ? '0' + s : s}`; }
-
-        window.toggleEQPanel = function() {
-            const eqPanel = document.getElementById('eq-panel');
-            if (eqPanel.classList.contains('hidden')) { eqPanel.classList.remove('hidden'); history.pushState({view: 'player', menu: 'eq'}, ''); } 
-            else { eqPanel.classList.add('hidden'); if (history.state && history.state.menu === 'eq') history.back(); }
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m}:${s < 10 ? '0' + s : s}`;
         }
 
-        function showLoading(show) { window.showCustomLoading('Cargando pistas de audio', show, 'Escaneando carpetas de almacenamiento recursivamente...'); }
+        function toggleEQPanel() {
+            const eqPanel = document.getElementById('eq-panel');
+            if (eqPanel.classList.contains('hidden')) {
+                eqPanel.classList.remove('hidden');
+                history.pushState({view: 'player', menu: 'eq'}, '');
+            } else {
+                eqPanel.classList.add('hidden');
+                if (history.state && history.state.menu === 'eq') {
+                    history.back();
+                }
+            }
+        }
+
+        function showLoading(show) {
+            window.showCustomLoading('Cargando pistas de audio', show, 'Escaneando carpetas de almacenamiento recursivamente...');
+        }
+
         window.showCustomLoading = function(msg, show, submsg = "", isWarning = false) {
             const overlay = document.getElementById('loading-overlay');
+            const spinner = document.getElementById('loading-spinner');
+            const msgEl = document.getElementById('loading-msg');
+            const subMsgEl = document.getElementById('loading-submsg');
+            const closeBtn = document.getElementById('loading-close-btn');
+
             if(!overlay) return;
+
             if(show) {
-                document.getElementById('loading-msg').textContent = msg;
-                document.getElementById('loading-submsg').textContent = submsg;
-                if(isWarning) { document.getElementById('loading-spinner').classList.add('hidden'); document.getElementById('loading-close-btn').classList.remove('hidden'); } 
-                else { document.getElementById('loading-spinner').classList.remove('hidden'); document.getElementById('loading-close-btn').classList.add('hidden'); }
+                if(msgEl) msgEl.textContent = msg;
+                if(subMsgEl) subMsgEl.textContent = submsg;
+                if(isWarning) {
+                    if(spinner) spinner.classList.add('hidden');
+                    if(closeBtn) closeBtn.classList.remove('hidden');
+                } else {
+                    if(spinner) spinner.classList.remove('hidden');
+                    if(closeBtn) closeBtn.classList.add('hidden');
+                }
                 overlay.classList.remove('hidden');
-            } else overlay.classList.add('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
         };
 
-        /* Temporizadores */
-        window.startSleepTimer = function() {
-            const totalSecs = (parseInt(document.getElementById('timer-hours').value) || 0) * 3600 + (parseInt(document.getElementById('timer-minutes').value) || 0) * 60 + (parseInt(document.getElementById('timer-seconds').value) || 0);
-            window.currentRole === 'controller' ? window.sendFirebaseCommand('START_TIMER', totalSecs) : window.executeLocalStartTimer(totalSecs);
+        /* ================= TEMPORIZADOR DE APAGADO ================= */
+        function startSleepTimer() {
+            const h = parseInt(document.getElementById('timer-hours').value) || 0;
+            const m = parseInt(document.getElementById('timer-minutes').value) || 0;
+            const s = parseInt(document.getElementById('timer-seconds').value) || 0;
+            const totalSecs = (h * 3600) + (m * 60) + s;
+
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('START_TIMER', totalSecs);
+                return;
+            }
+            window.executeLocalStartTimer(totalSecs);
         }
+
         window.executeLocalStartTimer = function(customSecs) {
             sleepTimerTotalSeconds = customSecs;
-            if (sleepTimerTotalSeconds <= 0) { if(window.currentRole !== 'controller') alert("Introduce más de 0 segundos."); return; }
+
+            if (sleepTimerTotalSeconds <= 0) {
+                if(window.currentRole !== 'controller') alert("Por favor, introduce un lapso de tiempo mayor a 0 segundos.");
+                return;
+            }
+
             if (sleepTimerInterval) clearInterval(sleepTimerInterval);
+
             document.getElementById('btn-timer-cancel').classList.remove('hidden');
             document.getElementById('timer-status').classList.remove('hidden');
             document.getElementById('btn-timer-start').textContent = "Actualizar";
+
             updateTimerUI();
+
             sleepTimerInterval = setInterval(() => {
                 sleepTimerTotalSeconds--;
-                if (sleepTimerTotalSeconds <= 0) { clearInterval(sleepTimerInterval); sleepTimerInterval = null; executeSleepTimeout(); } 
-                else updateTimerUI();
+                if (sleepTimerTotalSeconds <= 0) {
+                    clearInterval(sleepTimerInterval);
+                    sleepTimerInterval = null;
+                    executeSleepTimeout();
+                } else {
+                    updateTimerUI();
+                }
             }, 1000);
         };
-        window.cancelSleepTimer = function() { window.currentRole === 'controller' ? window.sendFirebaseCommand('CANCEL_TIMER', null) : window.executeLocalCancelTimer(); }
+
+        function cancelSleepTimer() {
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('CANCEL_TIMER', null);
+                return;
+            }
+            window.executeLocalCancelTimer();
+        }
+
         window.executeLocalCancelTimer = function() {
-            if (sleepTimerInterval) { clearInterval(sleepTimerInterval); sleepTimerInterval = null; }
+            if (sleepTimerInterval) {
+                clearInterval(sleepTimerInterval);
+                sleepTimerInterval = null;
+            }
             sleepTimerTotalSeconds = 0;
             document.getElementById('btn-timer-cancel').classList.add('hidden');
             document.getElementById('timer-status').classList.add('hidden');
             document.getElementById('btn-timer-start').textContent = "Iniciar Apagado";
-            ['timer-hours', 'timer-minutes', 'timer-seconds'].forEach(id => document.getElementById(id).value = "");
-            ['settings-timer-display', 'mini-timer-display', 'full-timer-display'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
+            document.getElementById('timer-hours').value = "";
+            document.getElementById('timer-minutes').value = "";
+            document.getElementById('timer-seconds').value = "";
+
+            const displayIds = ['settings-timer-display', 'mini-timer-display', 'full-timer-display'];
+            displayIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
             reportStatusToFirebase();
         };
+
         function updateTimerUI() {
-            const timeStr = `${Math.floor(sleepTimerTotalSeconds / 3600).toString().padStart(2,'0')}:${Math.floor((sleepTimerTotalSeconds % 3600) / 60).toString().padStart(2,'0')}:${(sleepTimerTotalSeconds % 60).toString().padStart(2,'0')}`;
+            const hrs = Math.floor(sleepTimerTotalSeconds / 3600);
+            const mins = Math.floor((sleepTimerTotalSeconds % 3600) / 60);
+            const secs = sleepTimerTotalSeconds % 60;
+            const timeStr = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+            
             document.getElementById('timer-status').textContent = timeStr;
-            ['settings-timer-display', 'mini-timer-display', 'full-timer-display'].forEach(id => {
+
+            const displayIds = ['settings-timer-display', 'mini-timer-display', 'full-timer-display'];
+            displayIds.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) { el.textContent = timeStr; el.style.setProperty('color', '#ef4444', 'important'); el.classList[sleepTimerTotalSeconds > 0 ? 'remove' : 'add']('hidden'); }
+                if (el) {
+                    el.textContent = timeStr;
+                    el.style.setProperty('color', '#ef4444', 'important');
+                    if (sleepTimerTotalSeconds > 0) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                }
             });
             reportStatusToFirebase();
         }
-        function executeSleepTimeout() { if (state.isPlaying) window.executeLocalPause(); window.executeLocalCancelTimer(); }
 
-        window.startAutoPlayTimer = function() {
-            const totalSecs = (parseInt(document.getElementById('start-timer-hours').value) || 0) * 3600 + (parseInt(document.getElementById('start-timer-minutes').value) || 0) * 60 + (parseInt(document.getElementById('start-timer-seconds').value) || 0);
-            window.currentRole === 'controller' ? window.sendFirebaseCommand('START_AUTOPLAY', totalSecs) : window.executeLocalStartAutoPlay(totalSecs);
+        function executeSleepTimeout() {
+            if (state.isPlaying) {
+                window.executeLocalPause();
+            }
+            window.executeLocalCancelTimer();
         }
+
+        /* ================= TEMPORIZADOR DE ENCENDIDO AUTOMÁTICO ================= */
+        function startAutoPlayTimer() {
+            const h = parseInt(document.getElementById('start-timer-hours').value) || 0;
+            const m = parseInt(document.getElementById('start-timer-minutes').value) || 0;
+            const s = parseInt(document.getElementById('start-timer-seconds').value) || 0;
+            const totalSecs = (h * 3600) + (m * 60) + s;
+
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('START_AUTOPLAY', totalSecs);
+                return;
+            }
+            window.executeLocalStartAutoPlay(totalSecs);
+        }
+
         window.executeLocalStartAutoPlay = function(customSecs) {
             autoPlayTimerTotalSeconds = customSecs;
-            if (autoPlayTimerTotalSeconds <= 0) return;
+
+            if (autoPlayTimerTotalSeconds <= 0) {
+                if(window.currentRole !== 'controller') alert("Por favor, introduce un lapso de tiempo mayor a 0 segundos.");
+                return;
+            }
+
             if (autoPlayTimerInterval) clearInterval(autoPlayTimerInterval);
+
             document.getElementById('btn-start-timer-cancel').classList.remove('hidden');
             document.getElementById('start-timer-status').classList.remove('hidden');
             document.getElementById('btn-start-timer-start').textContent = "Actualizar";
+
             updateAutoPlayTimerUI();
+
             autoPlayTimerInterval = setInterval(() => {
                 autoPlayTimerTotalSeconds--;
-                if (autoPlayTimerTotalSeconds <= 0) { clearInterval(autoPlayTimerInterval); autoPlayTimerInterval = null; executeAutoPlayTimeout(); } 
-                else updateAutoPlayTimerUI();
+                if (autoPlayTimerTotalSeconds <= 0) {
+                    clearInterval(autoPlayTimerInterval);
+                    autoPlayTimerInterval = null;
+                    executeAutoPlayTimeout();
+                } else {
+                    updateAutoPlayTimerUI();
+                }
             }, 1000);
         };
-        window.cancelAutoPlayTimer = function() { window.currentRole === 'controller' ? window.sendFirebaseCommand('CANCEL_AUTOPLAY', null) : window.executeLocalCancelAutoPlay(); }
+
+        function cancelAutoPlayTimer() {
+            if(window.currentRole === 'controller') {
+                window.sendFirebaseCommand('CANCEL_AUTOPLAY', null);
+                return;
+            }
+            window.executeLocalCancelAutoPlay();
+        }
+
         window.executeLocalCancelAutoPlay = function() {
-            if (autoPlayTimerInterval) { clearInterval(autoPlayTimerInterval); autoPlayTimerInterval = null; }
+            if (autoPlayTimerInterval) {
+                clearInterval(autoPlayTimerInterval);
+                autoPlayTimerInterval = null;
+            }
             autoPlayTimerTotalSeconds = 0;
             document.getElementById('btn-start-timer-cancel').classList.add('hidden');
             document.getElementById('start-timer-status').classList.add('hidden');
             document.getElementById('btn-start-timer-start').textContent = "Programar Encendido";
-            ['start-timer-hours', 'start-timer-minutes', 'start-timer-seconds'].forEach(id => document.getElementById(id).value = "");
-            ['mini-start-timer-display', 'full-start-timer-display'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden'); });
-            reportStatusToFirebase();
-        };
-        function updateAutoPlayTimerUI() {
-            const timeStr = `${Math.floor(autoPlayTimerTotalSeconds / 3600).toString().padStart(2,'0')}:${Math.floor((autoPlayTimerTotalSeconds % 3600) / 60).toString().padStart(2,'0')}:${(autoPlayTimerTotalSeconds % 60).toString().padStart(2,'0')}`;
-            const stStatus = document.getElementById('start-timer-status');
-            if (stStatus) { stStatus.textContent = timeStr; stStatus.classList[autoPlayTimerTotalSeconds > 0 ? 'remove' : 'add']('hidden'); }
+            document.getElementById('start-timer-hours').value = "";
+            document.getElementById('start-timer-minutes').value = "";
+            document.getElementById('start-timer-seconds').value = "";
+
             ['mini-start-timer-display', 'full-start-timer-display'].forEach(id => {
                 const el = document.getElementById(id);
-                if (el) { el.textContent = timeStr; el.classList[autoPlayTimerTotalSeconds > 0 ? 'remove' : 'add']('hidden'); }
+                if (el) el.classList.add('hidden');
+            });
+
+            reportStatusToFirebase();
+        };
+
+        function updateAutoPlayTimerUI() {
+            const hrs = Math.floor(autoPlayTimerTotalSeconds / 3600);
+            const mins = Math.floor((autoPlayTimerTotalSeconds % 3600) / 60);
+            const secs = autoPlayTimerTotalSeconds % 60;
+            const timeStr = `${hrs.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+            
+            const stStatus = document.getElementById('start-timer-status');
+            if (stStatus) {
+                stStatus.textContent = timeStr;
+                if (autoPlayTimerTotalSeconds > 0) stStatus.classList.remove('hidden');
+                else stStatus.classList.add('hidden');
+            }
+
+            ['mini-start-timer-display', 'full-start-timer-display'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = timeStr;
+                    if (autoPlayTimerTotalSeconds > 0) {
+                        el.classList.remove('hidden');
+                    } else {
+                        el.classList.add('hidden');
+                    }
+                }
             });
             reportStatusToFirebase();
         }
-        function executeAutoPlayTimeout() { window.executeLocalCancelAutoPlay(); if (!state.isPlaying) window.executeLocalPlay(); }
 
-        /* Audio Engine y Ecualizador (Mantenidos Intactos) */
-        let audioCtx = null, analyserNode = null, sourceNode = null, eqFilters = [], dataArray = null;
+        function executeAutoPlayTimeout() {
+            window.executeLocalCancelAutoPlay();
+            if (!state.isPlaying) {
+                window.executeLocalPlay();
+            }
+        }
+
+        /* ================= CONTEXTO AUDIO WEB (ECUALIZADOR Y VISUALIZADOR) ================= */
+        let audioCtx = null;
+        let analyserNode = null;
+        let sourceNode = null;
+        let eqFilters = [];
+        let dataArray = null;
 
         function setupAudioEngine() {
             if(audioCtx) return; 
+
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             audioCtx = new AudioContext();
+
             sourceNode = audioCtx.createMediaElementSource(mainAudio);
             analyserNode = audioCtx.createAnalyser();
             analyserNode.fftSize = 256; 
-            dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+            
+            const bufferLength = analyserNode.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
 
             const frequencies = [60, 230, 910, 4000, 14000];
             let lastOutput = sourceNode;
 
             frequencies.forEach((freq, idx) => {
                 const filter = audioCtx.createBiquadFilter();
-                if(idx === 0) filter.type = 'lowshelf';
-                else if(idx === frequencies.length - 1) filter.type = 'highshelf';
-                else { filter.type = 'peaking'; filter.Q.value = 1.0; }
-                filter.frequency.value = freq; filter.gain.value = 0; 
-                lastOutput.connect(filter); lastOutput = filter; eqFilters.push(filter);
+                if(idx === 0) {
+                    filter.type = 'lowshelf';
+                } else if(idx === frequencies.length - 1) {
+                    filter.type = 'highshelf';
+                } else {
+                    filter.type = 'peaking';
+                    filter.Q.value = 1.0;
+                }
+                filter.frequency.value = freq;
+                filter.gain.value = 0; 
+                
+                lastOutput.connect(filter);
+                lastOutput = filter;
+                eqFilters.push(filter);
             });
 
             lastOutput.connect(analyserNode);
             analyserNode.connect(audioCtx.destination);
+
             drawVisualizer();
         }
 
-        window.updateEQ = function(bandIdx, val) { if(eqFilters[bandIdx]) eqFilters[bandIdx].gain.value = parseFloat(val); }
-        window.resetEQ = function() {
-            eqFilters.forEach((filter) => filter.gain.value = 0);
-            document.querySelectorAll('.vertical-slider').forEach(slider => slider.value = 0);
+        function updateEQ(bandIdx, val) {
+            if(eqFilters[bandIdx]) {
+                eqFilters[bandIdx].gain.value = parseFloat(val);
+            }
         }
 
-        /* 15 Modos de Visualizador */
+        function resetEQ() {
+            eqFilters.forEach((filter) => {
+                filter.gain.value = 0;
+            });
+            const sliders = document.querySelectorAll('#eq-panel .vertical-slider');
+            sliders.forEach(slider => slider.value = 0);
+        }
+
+        /* ================= MOTOR DE VISUALIZADORES EN CANVAS (DUAL) ================= */
         const canvas = document.getElementById('visualizer-canvas');
         const canvasCtx = canvas ? canvas.getContext('2d') : null;
         let currentMode = 'bars';
 
         function resizeCanvas() {
             if (!canvas || !canvas.parentElement) return;
-            canvas.width = canvas.parentElement.clientWidth; canvas.height = canvas.parentElement.clientHeight;
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
             const miniCanvas = document.getElementById('mini-visualizer-canvas');
-            if (miniCanvas) { miniCanvas.width = miniCanvas.clientWidth || 56; miniCanvas.height = miniCanvas.clientHeight || 28; }
+            if (miniCanvas) {
+                miniCanvas.width = miniCanvas.clientWidth || 56;
+                miniCanvas.height = miniCanvas.clientHeight || 28;
+            }
             updateCustomScrollbar();
         }
         window.addEventListener('resize', resizeCanvas);
 
-        window.setVisualizerMode = function(mode, fromRemote = false) {
-            currentMode = mode; localStorage.setItem('franklin_pro_visualizer', mode);
-            if (!fromRemote) syncSettingsRemote({ visualizerMode: mode });
+        function setVisualizerMode(mode) {
+            currentMode = mode;
+            localStorage.setItem('franklin_pro_visualizer', mode);
         }
 
         function drawVisualizer() {
             requestAnimationFrame(drawVisualizer);
             if(!analyserNode) return;
+
             analyserNode.getByteFrequencyData(dataArray);
             const count = analyserNode.frequencyBinCount;
             const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim();
 
-            if(canvas && canvasCtx) renderCanvasScene(canvas, canvasCtx, currentMode, count, primaryColor, 'main');
+            if(canvas && canvasCtx) {
+                renderCanvasScene(canvas, canvasCtx, currentMode, count, primaryColor, 'main');
+            }
+
             const miniCanvas = document.getElementById('mini-visualizer-canvas');
-            if (miniCanvas) { const miniCtx = miniCanvas.getContext('2d'); renderCanvasScene(miniCanvas, miniCtx, currentMode, count, primaryColor, 'mini'); }
+            if (miniCanvas) {
+                const miniCtx = miniCanvas.getContext('2d');
+                renderCanvasScene(miniCanvas, miniCtx, currentMode, count, primaryColor, 'mini');
+            }
+        }
+
+        function hexToRgba(hex, alpha) {
+            let r=0, g=0, b=0;
+            if(hex.length === 4) {
+                r = parseInt(hex[1]+hex[1],16);
+                g = parseInt(hex[2]+hex[2],16);
+                b = parseInt(hex[3]+hex[3],16);
+            } else if(hex.length === 7) {
+                r = parseInt(hex.substring(1,3),16);
+                g = parseInt(hex.substring(3,5),16);
+                b = parseInt(hex.substring(5,7),16);
+            }
+            return `rgba(${r},${g},${b},${alpha})`;
         }
 
         function renderCanvasScene(c, ctx, mode, count, primaryColor, prefix) {
-            ctx.fillStyle = "rgba(11, 15, 25, 0.25)"; ctx.fillRect(0, 0, c.width, c.height);
-            ctx.strokeStyle = primaryColor; ctx.fillStyle = primaryColor;
+            ctx.fillStyle = "rgba(11, 15, 25, 0.25)";
+            ctx.fillRect(0, 0, c.width, c.height);
+
+            ctx.strokeStyle = primaryColor;
+            ctx.fillStyle = primaryColor;
 
             switch(mode) {
                 case 'bars': {
-                    const barWidth = (c.width / count) * 1.6; let x = 0;
-                    for(let i = 0; i < count; i++) { const magnitude = (dataArray[i] / 255) * c.height * 0.85; ctx.fillRect(x, c.height - magnitude, barWidth - 1, magnitude); x += barWidth; }
+                    const barWidth = (c.width / count) * 1.6;
+                    let x = 0;
+                    for(let i = 0; i < count; i++) {
+                        const magnitude = (dataArray[i] / 255) * c.height * 0.85;
+                        ctx.fillRect(x, c.height - magnitude, barWidth - 1, magnitude);
+                        x += barWidth;
+                    }
                     break;
                 }
                 case 'wave': {
-                    ctx.beginPath(); ctx.lineWidth = prefix === 'mini' ? 1.5 : 4; const sliceWidth = c.width / count; let x = 0;
-                    for(let i = 0; i < count; i++) { const v = dataArray[i] / 128.0; const y = (v * c.height) / 2.5 + (c.height / 6); if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); x += sliceWidth; }
-                    ctx.lineTo(c.width, c.height/2); ctx.stroke(); break;
+                    ctx.beginPath();
+                    ctx.lineWidth = prefix === 'mini' ? 1.5 : 4;
+                    const sliceWidth = c.width / count;
+                    let x = 0;
+                    for(let i = 0; i < count; i++) {
+                        const v = dataArray[i] / 128.0;
+                        const y = (v * c.height) / 2.5 + (c.height / 6);
+                        if(i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                        x += sliceWidth;
+                    }
+                    ctx.lineTo(c.width, c.height/2);
+                    ctx.stroke();
+                    break;
                 }
                 case 'circle': {
-                    const cX = c.width / 2, cY = c.height / 2, baseRadius = Math.min(cX, cY) * 0.35;
-                    ctx.beginPath(); ctx.arc(cX, cY, baseRadius, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+                    const cX = c.width / 2;
+                    const cY = c.height / 2;
+                    const baseRadius = Math.min(cX, cY) * 0.35;
+                    
+                    ctx.beginPath();
+                    ctx.arc(cX, cY, baseRadius, 0, Math.PI * 2);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
                     ctx.strokeStyle = primaryColor;
                     for(let i = 0; i < count; i++) {
-                        const angle = (i / count) * Math.PI * 2, factor = (dataArray[i] / 255) * baseRadius * 0.9;
-                        ctx.beginPath(); ctx.moveTo(cX + Math.cos(angle) * baseRadius, cY + Math.sin(angle) * baseRadius); ctx.lineTo(cX + Math.cos(angle) * (baseRadius + factor), cY + Math.sin(angle) * (baseRadius + factor)); ctx.lineWidth = prefix === 'mini' ? 1 : 3; ctx.stroke();
+                        const angle = (i / count) * Math.PI * 2;
+                        const factor = (dataArray[i] / 255) * baseRadius * 0.9;
+                        const xStart = cX + Math.cos(angle) * baseRadius;
+                        const yStart = cY + Math.sin(angle) * baseRadius;
+                        const xEnd = cX + Math.cos(angle) * (baseRadius + factor);
+                        const yEnd = cY + Math.sin(angle) * (baseRadius + factor);
+
+                        ctx.beginPath();
+                        ctx.moveTo(xStart, yStart);
+                        ctx.lineTo(xEnd, yEnd);
+                        ctx.lineWidth = prefix === 'mini' ? 1 : 3;
+                        ctx.stroke();
                     }
                     break;
                 }
                 case 'matrix': {
-                    const cols = prefix === 'mini' ? 12 : 24, colWidth = c.width / cols;
+                    const cols = prefix === 'mini' ? 12 : 24;
+                    const colWidth = c.width / cols;
                     for(let i = 0; i < cols; i++) {
-                        const intensity = Math.floor((dataArray[Math.floor((i / cols) * count)] / 255) * 12);
+                        const idx = Math.floor((i / cols) * count);
+                        const intensity = Math.floor((dataArray[idx] / 255) * 12);
                         for(let j = 0; j < intensity; j++) {
                             ctx.fillStyle = hexToRgba(primaryColor, (j + 1) / 12);
-                            ctx.fillRect(i * colWidth + 1, c.height - (j * (prefix === 'mini' ? 3 : 28)) - (prefix === 'mini' ? 4 : 24), colWidth - 2, prefix === 'mini' ? 2 : 20);
+                            const blockH = prefix === 'mini' ? 2 : 20;
+                            const blockGap = prefix === 'mini' ? 3 : 28;
+                            const bottomOffset = prefix === 'mini' ? 4 : 24;
+                            ctx.fillRect(i * colWidth + 1, c.height - (j * blockGap) - bottomOffset, colWidth - 2, blockH);
                         }
                     }
                     break;
@@ -1810,152 +2225,135 @@
                 case 'dots': {
                     const step = prefix === 'mini' ? 4 : 2;
                     for(let i = 0; i < count; i += step) {
-                        const fVal = dataArray[i];
-                        ctx.beginPath(); ctx.arc((i / count) * c.width, c.height - (fVal / 255) * c.height * 0.9, (fVal / 255) * (prefix === 'mini' ? 3 : 12) + 1, 0, Math.PI * 2); ctx.fillStyle = hexToRgba(primaryColor, fVal / 255); ctx.fill();
+                        const freqValue = dataArray[i];
+                        const x = (i / count) * c.width;
+                        const y = c.height - (freqValue / 255) * c.height * 0.9;
+                        const size = (freqValue / 255) * (prefix === 'mini' ? 3 : 12) + 1;
+                        
+                        ctx.beginPath();
+                        ctx.arc(x, y, size, 0, Math.PI * 2);
+                        ctx.fillStyle = hexToRgba(primaryColor, freqValue / 255);
+                        ctx.fill();
                     }
                     break;
                 }
                 case 'lines': {
-                    ctx.lineWidth = prefix === 'mini' ? 0.5 : 1.5; const step = prefix === 'mini' ? 12 : 6;
-                    for(let i = 0; i < count; i += step) { const amp = (dataArray[i] / 255) * c.height; ctx.strokeStyle = hexToRgba(primaryColor, 0.4); ctx.beginPath(); ctx.moveTo(0, c.height - amp); ctx.lineTo(c.width, amp); ctx.stroke(); }
+                    ctx.lineWidth = prefix === 'mini' ? 0.5 : 1.5;
+                    const step = prefix === 'mini' ? 12 : 6;
+                    for(let i = 0; i < count; i += step) {
+                        const amp = (dataArray[i] / 255) * c.height;
+                        ctx.strokeStyle = hexToRgba(primaryColor, 0.4);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(0, c.height - amp);
+                        ctx.lineTo(c.width, amp);
+                        ctx.stroke();
+                    }
                     break;
                 }
                 case 'mirrored': {
-                    const midX = c.width / 2, barW = (midX / count) * 1.8;
+                    const midX = c.width / 2;
+                    const barWidth = (midX / count) * 1.8;
                     for(let i = 0; i < count; i++) {
-                        const mag = (dataArray[i] / 255) * c.height * 0.7; ctx.fillStyle = primaryColor;
-                        ctx.fillRect(midX + (i * barW), c.height - mag, barW - 1, mag); ctx.fillRect(midX - (i * barW) - barW, c.height - mag, barW - 1, mag);
+                        const mag = (dataArray[i] / 255) * c.height * 0.7;
+                        ctx.fillStyle = primaryColor;
+                        ctx.fillRect(midX + (i * barWidth), c.height - mag, barWidth - 1, mag);
+                        ctx.fillRect(midX - (i * barWidth) - barWidth, c.height - mag, barWidth - 1, mag);
                     }
                     break;
                 }
                 case 'tunnel': {
-                    const midX = c.width / 2, midY = c.height / 2, maxR = Math.min(midX, midY);
+                    const midX = c.width / 2;
+                    const midY = c.height / 2;
+                    const maxR = Math.min(midX, midY);
+                    
                     for(let i = 0; i < 6; i++) {
                         const nodeVal = dataArray[i * 12] || 0;
-                        ctx.beginPath(); ctx.arc(midX, midY, (i / 6) * maxR + (nodeVal / 255) * (prefix === 'mini' ? 8 : 35), 0, Math.PI * 2); ctx.strokeStyle = hexToRgba(primaryColor, (6 - i) / 6); ctx.lineWidth = prefix === 'mini' ? 1 : 3 + (nodeVal/60); ctx.stroke();
+                        const r = (i / 6) * maxR + (nodeVal / 255) * (prefix === 'mini' ? 8 : 35);
+                        
+                        ctx.beginPath();
+                        ctx.arc(midX, midY, r, 0, Math.PI * 2);
+                        ctx.strokeStyle = hexToRgba(primaryColor, (6 - i) / 6);
+                        ctx.lineWidth = prefix === 'mini' ? 1 : 3 + (nodeVal/60);
+                        ctx.stroke();
                     }
                     break;
                 }
                 case 'liquid': {
-                    const slice = c.width / count; ctx.beginPath(); ctx.moveTo(0, c.height);
+                    const slice = c.width / count;
+                    ctx.beginPath();
+                    ctx.moveTo(0, c.height);
+                    
                     for(let i = 0; i < count; i++) {
-                        const x = i * slice, y = c.height - ((dataArray[i] / 255) * c.height * 0.75);
+                        const h = (dataArray[i] / 255) * c.height * 0.75;
+                        const x = i * slice;
+                        const y = c.height - h;
+                        
                         if(i === 0) ctx.moveTo(x, y);
-                        else ctx.quadraticCurveTo((i - 1) * slice, c.height - ((dataArray[i-1]/255) * c.height * 0.75), ((i - 1) * slice + x) / 2, (c.height - ((dataArray[i-1]/255) * c.height * 0.75) + y) / 2);
+                        else {
+                            const prevX = (i - 1) * slice;
+                            const prevY = c.height - ((dataArray[i-1]/255) * c.height * 0.75);
+                            const xc = (prevX + x) / 2;
+                            const yc = (prevY + y) / 2;
+                            ctx.quadraticCurveTo(prevX, prevY, xc, yc);
+                        }
                     }
-                    ctx.lineTo(c.width, c.height); ctx.fillStyle = hexToRgba(primaryColor, 0.4); ctx.fill(); break;
+                    ctx.lineTo(c.width, c.height);
+                    ctx.fillStyle = hexToRgba(primaryColor, 0.4);
+                    ctx.fill();
+                    break;
                 }
                 case 'rain': {
                     const step = prefix === 'mini' ? 8 : 4;
                     for(let i = 0; i < count; i += step) {
                         const val = dataArray[i];
-                        if(val > 150) { ctx.fillStyle = primaryColor; ctx.fillRect((i / count) * c.width + (Math.random()*(prefix === 'mini' ? 4 : 20) - (prefix === 'mini' ? 2 : 10)), (1 - (val / 255)) * c.height, prefix === 'mini' ? 1 : 3, (val / 255) * (prefix === 'mini' ? 10 : 45)); }
+                        if(val > 150) {
+                            const rX = (i / count) * c.width + (Math.random()*(prefix === 'mini' ? 4 : 20) - (prefix === 'mini' ? 2 : 10));
+                            const rY = (1 - (val / 255)) * c.height;
+                            ctx.fillStyle = primaryColor;
+                            ctx.fillRect(rX, rY, prefix === 'mini' ? 1 : 3, (val / 255) * (prefix === 'mini' ? 10 : 45));
+                        }
                     }
                     break;
                 }
                 case 'pulsar': {
-                    const cX = c.width / 2, cY = c.height / 2; let sum = 0;
+                    const cX = c.width / 2;
+                    const cY = c.height / 2;
+                    let sum = 0;
                     for(let i = 0; i < 20; i++) sum += dataArray[i];
-                    const pulse = (prefix === 'mini' ? 8 : 40) + ((sum / 20) / 255) * (prefix === 'mini' ? 15 : 110);
+                    const avg = sum / 20;
+                    const baseP = prefix === 'mini' ? 8 : 40;
+                    const multP = prefix === 'mini' ? 15 : 110;
+                    const pulse = baseP + (avg / 255) * multP;
+
                     ctx.beginPath();
                     for(let i = 0; i < 12; i++) {
-                        const angle = (i / 12) * Math.PI * 2, r = pulse + (prefix === 'mini' ? (i % 2 === 0 ? 5 : -3) : (i % 2 === 0 ? 30 : -15));
-                        if(i === 0) ctx.moveTo(cX + Math.cos(angle) * r, cY + Math.sin(angle) * r); else ctx.lineTo(cX + Math.cos(angle) * r, cY + Math.sin(angle) * r);
+                        const angle = (i / 12) * Math.PI * 2;
+                        const offsetP = prefix === 'mini' ? (i % 2 === 0 ? 5 : -3) : (i % 2 === 0 ? 30 : -15);
+                        const r = pulse + offsetP;
+                        const x = cX + Math.cos(angle) * r;
+                        const y = cY + Math.sin(angle) * r;
+                        if(i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
                     }
-                    ctx.closePath(); ctx.lineWidth = prefix === 'mini' ? 1.5 : 5; ctx.strokeStyle = primaryColor; ctx.stroke(); break;
+                    ctx.closePath();
+                    ctx.lineWidth = prefix === 'mini' ? 1.5 : 5;
+                    ctx.strokeStyle = primaryColor;
+                    ctx.stroke();
+                    break;
                 }
-                case 'blocks': {
-                    const widthBlock = c.width / 16, propKey = prefix + '_peakDecay';
-                    if(!window[propKey]) window[propKey] = Array(16).fill(0);
-                    for(let i = 0; i < 16; i++) {
-                        const currentVal = (dataArray[i * 6] / 255) * c.height * 0.8;
-                        window[propKey][i] = currentVal > window[propKey][i] ? currentVal : Math.max(0, window[propKey][i] - (prefix === 'mini' ? 1 : 3.5));
-                        ctx.fillStyle = hexToRgba(primaryColor, 0.75); ctx.fillRect(i * widthBlock + 1, c.height - currentVal, widthBlock - 2, currentVal);
-                        ctx.fillStyle = "#ffffff"; ctx.fillRect(i * widthBlock + 1, c.height - window[propKey][i] - (prefix === 'mini' ? 2 : 6), widthBlock - 2, prefix === 'mini' ? 1 : 4);
+                default:
+                    const barWidth = (c.width / count) * 1.6;
+                    let x = 0;
+                    for(let i = 0; i < count; i++) {
+                        const magnitude = (dataArray[i] / 255) * c.height * 0.85;
+                        ctx.fillRect(x, c.height - magnitude, barWidth - 1, magnitude);
+                        x += barWidth;
                     }
                     break;
-                }
-                case 'concentric': {
-                    const cX = c.width / 2, cY = c.height / 2, propKey = prefix + '_ripples';
-                    if(!window[propKey]) window[propKey] = [];
-                    if((dataArray[2] || 0) > 190 && Math.random() < 0.25) window[propKey].push({ r: prefix === 'mini' ? 2 : 10, alpha: 1.0 });
-                    window[propKey].forEach((ripple, idx) => {
-                        ripple.r += prefix === 'mini' ? 1 : 4; ripple.alpha -= 0.015;
-                        if(ripple.alpha <= 0) { window[propKey].splice(idx, 1); return; }
-                        ctx.beginPath(); ctx.arc(cX, cY, ripple.r, 0, Math.PI * 2); ctx.strokeStyle = hexToRgba(primaryColor, ripple.alpha); ctx.lineWidth = prefix === 'mini' ? 0.5 : 2; ctx.stroke();
-                    });
-                    break;
-                }
-                case 'double': {
-                    const w = c.width / count;
-                    for(let i = 0; i < count; i++) { const mag = (dataArray[i] / 255) * (c.height / 2) * 0.85; ctx.fillStyle = primaryColor; ctx.fillRect(i * w, c.height - mag, w - 1, mag); ctx.fillRect(i * w, 0, w - 1, mag); }
-                    break;
-                }
-                case 'aurora': {
-                    ctx.beginPath(); ctx.lineWidth = prefix === 'mini' ? 3 : 15; const slice = c.width / count;
-                    for(let i = 0; i < count; i++) { const dY = (c.height / 2) + Math.sin((i / 8) + Date.now()/1200) * (dataArray[i]/ (prefix === 'mini' ? 12 : 4.5)); if(i === 0) ctx.moveTo(0, dY); else ctx.lineTo(i * slice, dY); }
-                    ctx.strokeStyle = hexToRgba(primaryColor, 0.45); ctx.stroke(); break;
-                }
             }
         }
-        function hexToRgba(hex, alpha) {
-            let c; if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){ c= hex.substring(1).split(''); if(c.length== 3) c= [c[0], c[0], c[1], c[1], c[2], c[2]]; c= '0x' + c.join(''); return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')'; } return hex;
-        }
-
-        /* Ajustes UI */
-        const settingsModal = document.getElementById('settings-modal');
-        window.openSettings = function() {
-            if(settingsModal) { settingsModal.classList.remove('hidden'); setTimeout(() => settingsModal.classList.add('opacity-100'), 10); }
-            history.pushState({view: state.activeEngine, menu: 'settings'}, '');
-        }
-        window.closeSettings = function() {
-            if(settingsModal) { settingsModal.classList.remove('opacity-100'); setTimeout(() => settingsModal.classList.add('hidden'), 300); }
-            if (history.state && history.state.menu === 'settings') history.back();
-        }
-
-        window.syncSettingsRemote = function(settingsObj) { if (window.sendFirebaseSettings) window.sendFirebaseSettings(settingsObj); };
-        window.applySyncedSettings = function(settings) {
-            if (!settings) return;
-            if (settings.themeColor) updateThemeColor(settings.themeColor, true);
-            if (settings.font) updateFont(settings.font, true);
-            if (settings.visualizerMode) setVisualizerMode(settings.visualizerMode, true);
-            if (settings.appName) updateAppName(settings.appName, true);
-        };
-
-        window.updateAppName = function(name, fromRemote = false) {
-            const titleEl = document.getElementById('app-title'); const settingNameEl = document.getElementById('setting-name');
-            if(titleEl) titleEl.textContent = name; if(settingNameEl) settingNameEl.value = name;
-            localStorage.setItem('franklin_pro_name', name); updateMediaSession();
-            if (!fromRemote) syncSettingsRemote({ appName: name });
-        }
-        window.updateThemeColor = function(color, fromRemote = false) {
-            document.documentElement.style.setProperty('--primary-color', color);
-            const settingColorEl = document.getElementById('setting-color'); if (settingColorEl) settingColorEl.value = color;
-            localStorage.setItem('franklin_pro_color', color);
-            if (!fromRemote) syncSettingsRemote({ themeColor: color });
-        }
-        window.updateFont = function(font, fromRemote = false) {
-            const dynamicFont = document.getElementById('dynamic-font');
-            if (dynamicFont) dynamicFont.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=${font.replace(/ /g, '+')}:wght@300;400;700;900&display=swap'); body { font-family: '${font}', sans-serif; }`;
-            const settingFontEl = document.getElementById('setting-font'); if (settingFontEl) settingFontEl.value = font;
-            localStorage.setItem('franklin_pro_font', font);
-            if (!fromRemote) syncSettingsRemote({ font: font });
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedRole = localStorage.getItem('franklin_pro_role') || 'controlled'; switchRole(savedRole);
-            updateAppName(localStorage.getItem('franklin_pro_name') || "Music Franklin Pro", true);
-            updateThemeColor(localStorage.getItem('franklin_pro_color') || "#ec4899", true);
-            updateFont(localStorage.getItem('franklin_pro_font') || "Montserrat", true);
-            const savedVisualizer = localStorage.getItem('franklin_pro_visualizer') || "bars";
-            setVisualizerMode(savedVisualizer);
-            const selectVis = document.getElementById('setting-visualizer'); if(selectVis) selectVis.value = savedVisualizer;
-
-            attemptAutoLoadFolder();
-            initMediaSessionActions();
-            resizeCanvas();
-            switchView('library');
-        });
     </script>
+
 </body>
 </html>
